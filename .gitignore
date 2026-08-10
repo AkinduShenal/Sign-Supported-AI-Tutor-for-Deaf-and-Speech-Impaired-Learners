@@ -25,5 +25,3 @@ Thumbs.db
 
 # Logs
 *.log
-config.bat
-node_modules
