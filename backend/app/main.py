@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.db.session import engine
+from app.modules.tutor.router import router as tutor_router
 
 
 app = FastAPI(
@@ -21,6 +22,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(tutor_router)
 
 
 @app.get("/api/v1/health", tags=["System"])
