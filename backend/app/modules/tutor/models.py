@@ -53,7 +53,14 @@ class TutorStrategyPrediction(Base):
         ForeignKey("game_results.id", ondelete="RESTRICT"),
         index=True,
     )
-    recommended_strategy: Mapped[str] = mapped_column(String(50))
+    primary_strategy: Mapped[str] = mapped_column(
+        "recommended_strategy",
+        String(50),
+    )
+    supporting_strategies: Mapped[list[str]] = mapped_column(
+        JSON().with_variant(JSONB, "postgresql"),
+        default=list,
+    )
     confidence: Mapped[float] = mapped_column(Float)
     model_version: Mapped[str] = mapped_column(String(100))
     preferred_mode: Mapped[str] = mapped_column(String(20))

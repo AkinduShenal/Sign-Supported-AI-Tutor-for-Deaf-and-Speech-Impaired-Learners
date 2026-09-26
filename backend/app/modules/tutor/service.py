@@ -76,7 +76,11 @@ class TutorStrategyService:
                 concept_id=request.concept_id,
                 quiz_result_id=quiz_result.id,
                 game_result_id=game_result.id,
-                recommended_strategy=strategy_prediction.strategy.value,
+                primary_strategy=strategy_prediction.primary_strategy.value,
+                supporting_strategies=[
+                    strategy.value
+                    for strategy in strategy_prediction.supporting_strategies
+                ],
                 confidence=strategy_prediction.confidence,
                 model_version=self.model.version,
                 preferred_mode=request.learner.preferred_mode.value,
@@ -184,7 +188,8 @@ class TutorStrategyService:
             game_result_id=prediction.game_result_id,
             student_id=prediction.student_id,
             concept_id=prediction.concept_id,
-            recommended_strategy=prediction.recommended_strategy,
+            primary_strategy=prediction.primary_strategy,
+            supporting_strategies=prediction.supporting_strategies,
             confidence=prediction.confidence,
             preferred_mode=prediction.preferred_mode,
             sign_support_required=prediction.sign_support_required,

@@ -101,7 +101,8 @@ class TutorStrategyResponse(BaseModel):
     game_result_id: uuid.UUID
     student_id: str
     concept_id: str
-    recommended_strategy: TutoringStrategy
+    primary_strategy: TutoringStrategy
+    supporting_strategies: list[TutoringStrategy] = Field(max_length=2)
     confidence: float = Field(ge=0, le=1)
     preferred_mode: PreferredMode
     sign_support_required: bool

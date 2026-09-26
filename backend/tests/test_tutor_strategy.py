@@ -98,11 +98,15 @@ def test_recommends_step_by_step_for_low_performance() -> None:
     assert response_body == {
         "student_id": "STU001",
         "concept_id": "linear_equations",
-        "recommended_strategy": "step_by_step",
+        "primary_strategy": "step_by_step",
+        "supporting_strategies": [
+            "worked_example_based",
+            "progressive_hints",
+        ],
         "confidence": 1.0,
         "preferred_mode": "visual",
         "sign_support_required": True,
-        "model_version": "rule-based-v0",
+        "model_version": "rule-based-v1",
     }
 
 
@@ -133,7 +137,8 @@ def test_recommends_advanced_challenge_for_high_performance() -> None:
     response = client.post("/api/v1/tutor/strategy", json=payload)
 
     assert response.status_code == 200
-    assert response.json()["recommended_strategy"] == "advanced_challenge"
+    assert response.json()["primary_strategy"] == "advanced_challenge"
+    assert response.json()["supporting_strategies"] == []
 
 
 def test_rejects_inconsistent_quiz_counts() -> None:
@@ -158,6 +163,13 @@ def test_persists_quiz_game_and_prediction_records() -> None:
             )
             == 1
         )
+        prediction = database.scalar(select(TutorStrategyPrediction))
+        assert prediction is not None
+        assert prediction.primary_strategy == "step_by_step"
+        assert prediction.supporting_strategies == [
+            "worked_example_based",
+            "progressive_hints",
+        ]
 
 
 def test_duplicate_session_payload_is_idempotent() -> None:

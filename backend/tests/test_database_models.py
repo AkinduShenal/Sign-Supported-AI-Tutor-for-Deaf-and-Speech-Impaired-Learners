@@ -20,6 +20,7 @@ def test_tutor_prediction_links_to_quiz_and_game_results() -> None:
         "quiz_results.id",
         "game_results.id",
     }
+    assert "supporting_strategies" in table.c
 
 
 def test_session_ids_are_unique() -> None:
