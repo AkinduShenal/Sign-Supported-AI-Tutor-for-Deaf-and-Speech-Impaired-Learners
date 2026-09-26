@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from enum import StrEnum
 
@@ -95,6 +96,9 @@ class TutorStrategyRequest(BaseModel):
 
 
 class TutorStrategyResponse(BaseModel):
+    prediction_id: uuid.UUID
+    quiz_result_id: uuid.UUID
+    game_result_id: uuid.UUID
     student_id: str
     concept_id: str
     recommended_strategy: TutoringStrategy

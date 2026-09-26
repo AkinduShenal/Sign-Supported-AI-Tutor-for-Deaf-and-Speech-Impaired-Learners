@@ -1,9 +1,51 @@
+import uuid
+
+import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, func, select
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
+from app.db.base import Base
+from app.db.session import get_db
 from app.main import app
+from app.modules.game.models import GameResult
+from app.modules.quiz.models import QuizResult
+from app.modules.tutor.schemas import TutorStrategyRequest
+from app.modules.tutor.service import TutorStrategyService
+from app.modules.tutor.models import TutorStrategyPrediction
 
 
+test_engine = create_engine(
+    "sqlite+pysqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+TestingSessionLocal = sessionmaker(
+    bind=test_engine,
+    autoflush=False,
+    expire_on_commit=False,
+)
+
+
+def override_get_db():
+    database = TestingSessionLocal()
+    try:
+        yield database
+    finally:
+        database.close()
+
+
+app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def reset_database():
+    Base.metadata.drop_all(bind=test_engine)
+    Base.metadata.create_all(bind=test_engine)
+    yield
+    Base.metadata.drop_all(bind=test_engine)
 
 
 def make_request_payload() -> dict:
@@ -49,7 +91,11 @@ def test_recommends_step_by_step_for_low_performance() -> None:
     response = client.post("/api/v1/tutor/strategy", json=make_request_payload())
 
     assert response.status_code == 200
-    assert response.json() == {
+    response_body = response.json()
+    uuid.UUID(response_body.pop("prediction_id"))
+    uuid.UUID(response_body.pop("quiz_result_id"))
+    uuid.UUID(response_body.pop("game_result_id"))
+    assert response_body == {
         "student_id": "STU001",
         "concept_id": "linear_equations",
         "recommended_strategy": "step_by_step",
@@ -97,3 +143,97 @@ def test_rejects_inconsistent_quiz_counts() -> None:
     response = client.post("/api/v1/tutor/strategy", json=payload)
 
     assert response.status_code == 422
+
+
+def test_persists_quiz_game_and_prediction_records() -> None:
+    response = client.post("/api/v1/tutor/strategy", json=make_request_payload())
+
+    assert response.status_code == 200
+    with Session(test_engine) as database:
+        assert database.scalar(select(func.count()).select_from(QuizResult)) == 1
+        assert database.scalar(select(func.count()).select_from(GameResult)) == 1
+        assert (
+            database.scalar(
+                select(func.count()).select_from(TutorStrategyPrediction)
+            )
+            == 1
+        )
+
+
+def test_duplicate_session_payload_is_idempotent() -> None:
+    first_response = client.post(
+        "/api/v1/tutor/strategy",
+        json=make_request_payload(),
+    )
+    second_response = client.post(
+        "/api/v1/tutor/strategy",
+        json=make_request_payload(),
+    )
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert second_response.json()["prediction_id"] == first_response.json()[
+        "prediction_id"
+    ]
+    with Session(test_engine) as database:
+        assert database.scalar(select(func.count()).select_from(QuizResult)) == 1
+        assert database.scalar(select(func.count()).select_from(GameResult)) == 1
+        assert (
+            database.scalar(
+                select(func.count()).select_from(TutorStrategyPrediction)
+            )
+            == 1
+        )
+
+
+def test_changed_duplicate_session_payload_returns_conflict() -> None:
+    first_response = client.post(
+        "/api/v1/tutor/strategy",
+        json=make_request_payload(),
+    )
+    changed_payload = make_request_payload()
+    changed_payload["quiz"]["quiz_hint_rate"] = 0.2
+
+    second_response = client.post(
+        "/api/v1/tutor/strategy",
+        json=changed_payload,
+    )
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 409
+
+
+def test_rolls_back_all_records_when_prediction_fails() -> None:
+    class FailingStrategyModel:
+        def predict(self, request: TutorStrategyRequest) -> None:
+            raise RuntimeError("Prediction failed")
+
+    request = TutorStrategyRequest.model_validate(make_request_payload())
+    database = TestingSessionLocal()
+    failing_service = TutorStrategyService(model=FailingStrategyModel())
+
+    try:
+        with pytest.raises(RuntimeError, match="Prediction failed"):
+            failing_service.recommend(request, database)
+    finally:
+        database.close()
+
+    with Session(test_engine) as verification_database:
+        assert (
+            verification_database.scalar(
+                select(func.count()).select_from(QuizResult)
+            )
+            == 0
+        )
+        assert (
+            verification_database.scalar(
+                select(func.count()).select_from(GameResult)
+            )
+            == 0
+        )
+        assert (
+            verification_database.scalar(
+                select(func.count()).select_from(TutorStrategyPrediction)
+            )
+            == 0
+        )
