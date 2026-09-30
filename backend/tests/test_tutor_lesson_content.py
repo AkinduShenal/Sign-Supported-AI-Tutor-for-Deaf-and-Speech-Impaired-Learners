@@ -13,6 +13,7 @@ def test_returns_linear_equation_balancing_lesson() -> None:
     body = response.json()
     assert body["concept_id"] == "linear_equation_balancing"
     assert body["simple_explanation"]["sign_actions"] == [
+        "ALGEBRA",
         "EQUATION",
         "BALANCE",
     ]
@@ -36,7 +37,27 @@ def test_lesson_contains_expected_pdf_sign_references() -> None:
         "ALGEBRA": (16, 94),
         "EQUATION": (17, 97),
         "SUBSTITUTION": (17, 101),
+        "NUMBER_3": (2, 11),
+        "NUMBER_4": (2, 11),
+        "NUMBER_7": (2, 11),
     }
+
+
+def test_equation_steps_have_distinct_ordered_sign_sequences() -> None:
+    response = client.get("/api/v1/tutor/lessons/linear_equation_balancing")
+    steps = response.json()["worked_examples"][0]["steps"]
+
+    assert steps[2]["expression"] == "x = 4"
+    assert steps[2]["sign_actions"] == ["ALGEBRA", "EQUATION", "NUMBER_4"]
+    assert steps[3]["expression"] == "4 + 3 = 7"
+    assert steps[3]["sign_actions"] == [
+        "SUBSTITUTION",
+        "NUMBER_4",
+        "ADDITION",
+        "NUMBER_3",
+        "EQUATION",
+        "NUMBER_7",
+    ]
 
 
 def test_all_lesson_sign_actions_have_glossary_entries() -> None:

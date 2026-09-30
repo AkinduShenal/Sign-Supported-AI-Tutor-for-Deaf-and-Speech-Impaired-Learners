@@ -1,19 +1,82 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ModelViewerElement } from '@google/model-viewer'
 
 interface TutorAvatarProps {
   signActions: string[]
 }
 
+interface QueuedSign {
+  name: string
+  sourceIndex: number
+}
+
 export function TutorAvatar({ signActions }: TutorAvatarProps) {
   const modelViewerRef = useRef<ModelViewerElement>(null)
+  const playbackQueueRef = useRef<QueuedSign[]>([])
+  const playbackIndexRef = useRef(0)
+  const advanceSequenceRef = useRef<() => void>(() => undefined)
   const [modelState, setModelState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   )
   const [availableAnimations, setAvailableAnimations] = useState<string[]>([])
+  const [activeSignIndex, setActiveSignIndex] = useState<number | null>(null)
 
-  const playableSign =
-    signActions.find((sign) => availableAnimations.includes(sign)) ?? null
+  const playableSigns = useMemo(
+    () =>
+      signActions
+        .map((name, sourceIndex) => ({ name, sourceIndex }))
+        .filter(({ name }) => availableAnimations.includes(name)),
+    [availableAnimations, signActions],
+  )
+  const activeSign =
+    activeSignIndex === null ? null : signActions[activeSignIndex]
+
+  const playClip = useCallback((animationName: string) => {
+    const modelViewer = modelViewerRef.current
+    if (!modelViewer) return
+
+    modelViewer.pause()
+    modelViewer.animationName = animationName
+    modelViewer.currentTime = 0
+    modelViewer.play({ repetitions: 1, pingpong: false })
+  }, [])
+
+  const returnToIdle = useCallback(() => {
+    playbackQueueRef.current = []
+    playbackIndexRef.current = 0
+    setActiveSignIndex(null)
+
+    if (availableAnimations.includes('IDLE')) playClip('IDLE')
+  }, [availableAnimations, playClip])
+
+  const advanceSequence = useCallback(() => {
+    if (playbackQueueRef.current.length === 0) return
+
+    const nextIndex = playbackIndexRef.current + 1
+    if (nextIndex >= playbackQueueRef.current.length) {
+      returnToIdle()
+      return
+    }
+
+    playbackIndexRef.current = nextIndex
+    const nextSign = playbackQueueRef.current[nextIndex]
+    setActiveSignIndex(nextSign.sourceIndex)
+    playClip(nextSign.name)
+  }, [playClip, returnToIdle])
+
+  advanceSequenceRef.current = advanceSequence
+
+  const playSequence = useCallback(() => {
+    if (playableSigns.length === 0) {
+      returnToIdle()
+      return
+    }
+
+    playbackQueueRef.current = [...playableSigns]
+    playbackIndexRef.current = 0
+    setActiveSignIndex(playableSigns[0].sourceIndex)
+    playClip(playableSigns[0].name)
+  }, [playClip, playableSigns, returnToIdle])
 
   useEffect(() => {
     const modelViewer = modelViewerRef.current
@@ -25,9 +88,11 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
       setAvailableAnimations([...modelViewer.availableAnimations])
     }
     const showError = () => setModelState('error')
+    const playNextClip = () => advanceSequenceRef.current()
 
     modelViewer.addEventListener('load', showModel)
     modelViewer.addEventListener('error', showError)
+    modelViewer.addEventListener('finished', playNextClip)
 
     window.ModelViewerElement ??= {}
     window.ModelViewerElement.dracoDecoderLocation = '/draco/'
@@ -44,26 +109,13 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
       isActive = false
       modelViewer.removeEventListener('load', showModel)
       modelViewer.removeEventListener('error', showError)
+      modelViewer.removeEventListener('finished', playNextClip)
     }
   }, [])
 
   useEffect(() => {
-    const modelViewer = modelViewerRef.current
-    if (!modelViewer || modelState !== 'ready' || !playableSign) return
-
-    modelViewer.animationName = playableSign
-    modelViewer.currentTime = 0
-    modelViewer.play({ repetitions: 1, pingpong: false })
-  }, [modelState, playableSign])
-
-  const replaySign = () => {
-    const modelViewer = modelViewerRef.current
-    if (!modelViewer || !playableSign) return
-
-    modelViewer.animationName = playableSign
-    modelViewer.currentTime = 0
-    modelViewer.play({ repetitions: 1, pingpong: false })
-  }
+    if (modelState === 'ready') playSequence()
+  }, [modelState, playSequence])
 
   return (
     <aside className="avatar-panel" aria-labelledby="avatar-title">
@@ -126,8 +178,8 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
         <div className="sign-list">
           {signActions.map((sign, index) => (
             <span
-              className={`sign-chip ${availableAnimations.includes(sign) ? 'is-animated' : ''}`}
-              key={sign}
+              className={`sign-chip ${availableAnimations.includes(sign) ? 'is-animated' : ''} ${activeSignIndex === index ? 'is-active' : ''}`}
+              key={`${sign}-${index}`}
             >
               <span>{index + 1}</span>
               {sign.replaceAll('_', ' ')}
@@ -135,21 +187,23 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
           ))}
         </div>
 
-        {playableSign && (
+        {playableSigns.length > 0 && (
           <button
             className="secondary-button replay-sign-button"
-            onClick={replaySign}
+            onClick={playSequence}
             type="button"
           >
-            Replay {playableSign.replaceAll('_', ' ')} sign
+            Replay this step ({playableSigns.length} signs)
           </button>
         )}
       </div>
 
       <p className="avatar-note">
-        {playableSign
-          ? `${playableSign.replaceAll('_', ' ')} is an approximate animation generated from the mathematics sign reference.`
-          : 'Louise is ready. Animations for the remaining mathematics signs will be added next.'}
+        {activeSign
+          ? `Signing ${activeSign.replaceAll('_', ' ')}. Each clip is an approximate animation generated from the mathematics sign reference.`
+          : playableSigns.length > 0
+            ? 'This step is complete. Use replay to watch the full sign sequence again.'
+            : 'Louise is ready. Animations for the remaining mathematics signs will be added next.'}
       </p>
     </aside>
   )
