@@ -29,3 +29,20 @@ def test_session_ids_are_unique() -> None:
 
     assert quiz_table.c.quiz_session_id.unique is True
     assert game_table.c.game_session_id.unique is True
+
+
+def test_diagnostic_model_outputs_are_stored() -> None:
+    quiz_table = Base.metadata.tables["quiz_results"]
+    game_table = Base.metadata.tables["game_results"]
+
+    assert {
+        "weak_concept",
+        "quiz_mastery_score",
+        "recommended_support_level",
+    }.issubset(quiz_table.c.keys())
+    assert {
+        "engagement_level",
+        "behavioral_difficulty",
+        "hint_dependency",
+        "game_mastery_score",
+    }.issubset(game_table.c.keys())

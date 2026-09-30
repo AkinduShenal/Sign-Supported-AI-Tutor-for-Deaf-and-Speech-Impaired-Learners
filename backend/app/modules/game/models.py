@@ -28,6 +28,22 @@ class GameResult(Base):
             name="game_success_rate_range",
         ),
         CheckConstraint(
+            "game_mastery_score >= 0 AND game_mastery_score <= 1",
+            name="game_mastery_score_range",
+        ),
+        CheckConstraint(
+            "hint_dependency >= 0 AND hint_dependency <= 1",
+            name="hint_dependency_range",
+        ),
+        CheckConstraint(
+            "engagement_level IN ('low', 'medium', 'high')",
+            name="engagement_level_valid",
+        ),
+        CheckConstraint(
+            "behavioral_difficulty IN ('low', 'medium', 'high')",
+            name="behavioral_difficulty_valid",
+        ),
+        CheckConstraint(
             "game_completion_rate >= 0 AND game_completion_rate <= 1",
             name="game_completion_rate_range",
         ),
@@ -54,6 +70,10 @@ class GameResult(Base):
     game_session_id: Mapped[str] = mapped_column(String(100), unique=True)
     student_id: Mapped[str] = mapped_column(String(100), index=True)
     concept_id: Mapped[str] = mapped_column(String(100), index=True)
+    engagement_level: Mapped[str] = mapped_column(String(20))
+    behavioral_difficulty: Mapped[str] = mapped_column(String(20))
+    hint_dependency: Mapped[float] = mapped_column(Float)
+    game_mastery_score: Mapped[float] = mapped_column(Float)
     tasks_total: Mapped[int] = mapped_column(Integer)
     tasks_attempted: Mapped[int] = mapped_column(Integer)
     tasks_completed: Mapped[int] = mapped_column(Integer)

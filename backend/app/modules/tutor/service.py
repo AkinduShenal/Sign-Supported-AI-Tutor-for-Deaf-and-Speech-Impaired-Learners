@@ -103,6 +103,9 @@ class TutorStrategyService:
             quiz_session_id=quiz.quiz_session_id,
             student_id=request.student_id,
             concept_id=request.concept_id,
+            weak_concept=quiz.weak_concept,
+            quiz_mastery_score=quiz.quiz_mastery_score,
+            recommended_support_level=quiz.recommended_support_level.value,
             questions_total=quiz.questions_total,
             questions_attempted=quiz.questions_attempted,
             correct_answers=quiz.correct_answers,
@@ -122,6 +125,10 @@ class TutorStrategyService:
             game_session_id=game.game_session_id,
             student_id=request.student_id,
             concept_id=request.concept_id,
+            engagement_level=game.engagement_level.value,
+            behavioral_difficulty=game.behavioral_difficulty.value,
+            hint_dependency=game.hint_dependency,
+            game_mastery_score=game.game_mastery_score,
             tasks_total=game.tasks_total,
             tasks_attempted=game.tasks_attempted,
             tasks_completed=game.tasks_completed,
@@ -144,6 +151,10 @@ class TutorStrategyService:
         return (
             result.student_id == request.student_id
             and result.concept_id == request.concept_id
+            and result.weak_concept == quiz.weak_concept
+            and result.quiz_mastery_score == quiz.quiz_mastery_score
+            and result.recommended_support_level
+            == quiz.recommended_support_level.value
             and result.questions_total == quiz.questions_total
             and result.questions_attempted == quiz.questions_attempted
             and result.correct_answers == quiz.correct_answers
@@ -165,6 +176,11 @@ class TutorStrategyService:
         return (
             result.student_id == request.student_id
             and result.concept_id == request.concept_id
+            and result.engagement_level == game.engagement_level.value
+            and result.behavioral_difficulty
+            == game.behavioral_difficulty.value
+            and result.hint_dependency == game.hint_dependency
+            and result.game_mastery_score == game.game_mastery_score
             and result.tasks_total == game.tasks_total
             and result.tasks_attempted == game.tasks_attempted
             and result.tasks_completed == game.tasks_completed

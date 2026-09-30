@@ -26,6 +26,24 @@ class PreferredMode(StrEnum):
     MIXED = "mixed"
 
 
+class SupportLevel(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class EngagementLevel(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class BehavioralDifficulty(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 class TutoringStrategy(StrEnum):
     STEP_BY_STEP = "step_by_step"
     WORKED_EXAMPLE_BASED = "worked_example_based"
@@ -36,6 +54,9 @@ class TutoringStrategy(StrEnum):
 
 class QuizResult(BaseModel):
     quiz_session_id: str = Field(min_length=1)
+    weak_concept: str = Field(min_length=1)
+    quiz_mastery_score: float = Field(ge=0, le=1)
+    recommended_support_level: SupportLevel
     questions_total: int = Field(gt=0)
     questions_attempted: int = Field(gt=0)
     correct_answers: int = Field(ge=0)
@@ -58,6 +79,10 @@ class QuizResult(BaseModel):
 
 class GameResult(BaseModel):
     game_session_id: str = Field(min_length=1)
+    engagement_level: EngagementLevel
+    behavioral_difficulty: BehavioralDifficulty
+    hint_dependency: float = Field(ge=0, le=1)
+    game_mastery_score: float = Field(ge=0, le=1)
     tasks_total: int = Field(gt=0)
     tasks_attempted: int = Field(gt=0)
     tasks_completed: int = Field(ge=0)

@@ -54,6 +54,9 @@ def make_request_payload() -> dict:
         "concept_id": "linear_equations",
         "quiz": {
             "quiz_session_id": "QUIZ-001",
+            "weak_concept": "linear_equation_balancing",
+            "quiz_mastery_score": 0.35,
+            "recommended_support_level": "high",
             "questions_total": 10,
             "questions_attempted": 10,
             "correct_answers": 4,
@@ -67,6 +70,10 @@ def make_request_payload() -> dict:
         },
         "game": {
             "game_session_id": "GAME-001",
+            "engagement_level": "medium",
+            "behavioral_difficulty": "high",
+            "hint_dependency": 0.7,
+            "game_mastery_score": 0.4,
             "tasks_total": 10,
             "tasks_attempted": 8,
             "tasks_completed": 7,
@@ -106,7 +113,7 @@ def test_recommends_step_by_step_for_low_performance() -> None:
         "confidence": 1.0,
         "preferred_mode": "visual",
         "sign_support_required": True,
-        "model_version": "rule-based-v1",
+        "model_version": "rule-based-v2",
     }
 
 
@@ -114,6 +121,8 @@ def test_recommends_advanced_challenge_for_high_performance() -> None:
     payload = make_request_payload()
     payload["quiz"].update(
         {
+            "quiz_mastery_score": 0.9,
+            "recommended_support_level": "low",
             "correct_answers": 9,
             "quiz_accuracy": 0.9,
             "quiz_avg_response_time_sec": 15,
@@ -124,6 +133,10 @@ def test_recommends_advanced_challenge_for_high_performance() -> None:
     )
     payload["game"].update(
         {
+            "engagement_level": "high",
+            "behavioral_difficulty": "low",
+            "hint_dependency": 0.1,
+            "game_mastery_score": 0.9,
             "successful_tasks": 7,
             "game_success_rate": 0.9,
             "game_completion_rate": 0.9,
@@ -150,6 +163,15 @@ def test_rejects_inconsistent_quiz_counts() -> None:
     assert response.status_code == 422
 
 
+def test_rejects_invalid_diagnostic_model_score() -> None:
+    payload = make_request_payload()
+    payload["game"]["game_mastery_score"] = 1.2
+
+    response = client.post("/api/v1/tutor/strategy", json=payload)
+
+    assert response.status_code == 422
+
+
 def test_persists_quiz_game_and_prediction_records() -> None:
     response = client.post("/api/v1/tutor/strategy", json=make_request_payload())
 
@@ -170,6 +192,17 @@ def test_persists_quiz_game_and_prediction_records() -> None:
             "worked_example_based",
             "progressive_hints",
         ]
+        quiz_result = database.scalar(select(QuizResult))
+        assert quiz_result is not None
+        assert quiz_result.weak_concept == "linear_equation_balancing"
+        assert quiz_result.quiz_mastery_score == 0.35
+        assert quiz_result.recommended_support_level == "high"
+        game_result = database.scalar(select(GameResult))
+        assert game_result is not None
+        assert game_result.engagement_level == "medium"
+        assert game_result.behavioral_difficulty == "high"
+        assert game_result.hint_dependency == 0.7
+        assert game_result.game_mastery_score == 0.4
 
 
 def test_duplicate_session_payload_is_idempotent() -> None:

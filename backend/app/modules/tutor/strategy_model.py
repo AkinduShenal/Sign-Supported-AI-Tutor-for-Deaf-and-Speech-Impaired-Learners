@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 
 from app.modules.tutor.schemas import (
+    BehavioralDifficulty,
+    EngagementLevel,
     MisconceptionCode,
+    SupportLevel,
     TutorStrategyRequest,
     TutoringStrategy,
 )
@@ -17,7 +20,7 @@ class StrategyPrediction:
 class RuleBasedStrategyModel:
     """Temporary baseline that will later be replaced by a trained model."""
 
-    version = "rule-based-v1"
+    version = "rule-based-v2"
 
     def predict(self, request: TutorStrategyRequest) -> StrategyPrediction:
         quiz = request.quiz
@@ -26,21 +29,26 @@ class RuleBasedStrategyModel:
 
         performance_score = (
             learner.prior_mastery_score
-            + quiz.quiz_accuracy
-            + game.game_success_rate
-            + game.game_completion_rate
-        ) / 4
-        hint_dependency = (quiz.quiz_hint_rate + game.game_hint_rate) / 2
+            + quiz.quiz_mastery_score
+            + game.game_mastery_score
+        ) / 3
+        hint_dependency = (quiz.quiz_hint_rate + game.hint_dependency) / 2
 
         if (
             performance_score >= 0.8
             and hint_dependency <= 0.25
+            and quiz.recommended_support_level == SupportLevel.LOW
+            and game.behavioral_difficulty == BehavioralDifficulty.LOW
             and game.game_avg_attempts_per_task <= 1.5
         ):
             primary_strategy = TutoringStrategy.ADVANCED_CHALLENGE
         elif quiz.misconception_code == MisconceptionCode.CONCEPT_CONFUSION:
             primary_strategy = TutoringStrategy.CONCEPTUAL_EXPLANATION
-        elif performance_score < 0.5:
+        elif (
+            performance_score < 0.5
+            or quiz.recommended_support_level == SupportLevel.HIGH
+            or game.behavioral_difficulty == BehavioralDifficulty.HIGH
+        ):
             primary_strategy = TutoringStrategy.STEP_BY_STEP
         elif quiz.misconception_code in {
             MisconceptionCode.INVERSE_OPERATION,
@@ -61,10 +69,16 @@ class RuleBasedStrategyModel:
             MisconceptionCode.ARITHMETIC_ERROR,
         }:
             supporting_candidates.append(TutoringStrategy.WORKED_EXAMPLE_BASED)
-        if performance_score < 0.65:
+        if (
+            performance_score < 0.65
+            or quiz.recommended_support_level == SupportLevel.HIGH
+            or game.behavioral_difficulty == BehavioralDifficulty.HIGH
+        ):
             supporting_candidates.append(TutoringStrategy.STEP_BY_STEP)
         if hint_dependency >= 0.5 or game.game_avg_attempts_per_task >= 2.0:
             supporting_candidates.append(TutoringStrategy.PROGRESSIVE_HINTS)
+        if game.engagement_level == EngagementLevel.LOW:
+            supporting_candidates.append(TutoringStrategy.WORKED_EXAMPLE_BASED)
 
         supporting_strategies = tuple(
             strategy

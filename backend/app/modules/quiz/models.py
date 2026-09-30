@@ -27,6 +27,14 @@ class QuizResult(Base):
             name="quiz_accuracy_range",
         ),
         CheckConstraint(
+            "quiz_mastery_score >= 0 AND quiz_mastery_score <= 1",
+            name="quiz_mastery_score_range",
+        ),
+        CheckConstraint(
+            "recommended_support_level IN ('low', 'medium', 'high')",
+            name="recommended_support_level_valid",
+        ),
+        CheckConstraint(
             "quiz_avg_response_time_sec >= 0",
             name="quiz_response_time_non_negative",
         ),
@@ -54,6 +62,9 @@ class QuizResult(Base):
     quiz_session_id: Mapped[str] = mapped_column(String(100), unique=True)
     student_id: Mapped[str] = mapped_column(String(100), index=True)
     concept_id: Mapped[str] = mapped_column(String(100), index=True)
+    weak_concept: Mapped[str] = mapped_column(String(100))
+    quiz_mastery_score: Mapped[float] = mapped_column(Float)
+    recommended_support_level: Mapped[str] = mapped_column(String(20))
     questions_total: Mapped[int] = mapped_column(Integer)
     questions_attempted: Mapped[int] = mapped_column(Integer)
     correct_answers: Mapped[int] = mapped_column(Integer)
