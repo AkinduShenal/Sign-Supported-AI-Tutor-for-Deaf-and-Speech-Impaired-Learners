@@ -295,6 +295,7 @@ button:disabled {
 
 .avatar-glow {
   position: absolute;
+  z-index: 0;
   bottom: 16px;
   width: 230px;
   height: 70px;
@@ -303,75 +304,76 @@ button:disabled {
   filter: blur(15px);
 }
 
-.avatar-figure {
+.tutor-model {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color: transparent;
+  --poster-color: transparent;
+  transition: opacity 220ms ease;
+}
+
+.tutor-model.is-ready {
+  opacity: 1;
+}
+
+.tutor-model::part(default-progress-bar) {
+  display: none;
+}
+
+.avatar-model-status {
   position: relative;
-  width: 210px;
-  height: 290px;
-}
-
-.avatar-head {
-  position: absolute;
-  top: 22px;
-  left: 73px;
-  width: 66px;
-  height: 78px;
-  border: 6px solid #fff;
-  border-radius: 46% 46% 50% 50%;
-  background: linear-gradient(150deg, #7c69ee, #4a3ac8);
-  box-shadow: 0 10px 20px rgba(52, 36, 168, 0.22);
-}
-
-.avatar-body {
-  position: absolute;
-  top: 101px;
-  left: 43px;
-  width: 126px;
-  height: 152px;
-  border-radius: 55px 55px 28px 28px;
-  background: linear-gradient(155deg, #5b4ae8, #3e31ad);
-}
-
-.avatar-arm {
-  position: absolute;
-  top: 117px;
-  width: 30px;
-  height: 114px;
-  border-radius: 20px;
-  background: #6958e8;
-  transform-origin: top center;
-}
-
-.avatar-arm-left {
-  left: 48px;
-  transform: rotate(48deg);
-}
-
-.avatar-arm-right {
-  right: 48px;
-  transform: rotate(-48deg);
-}
-
-.avatar-hand {
-  position: absolute;
-  top: 185px;
+  z-index: 2;
   display: grid;
-  width: 38px;
-  height: 46px;
-  place-items: center;
-  border: 4px solid #fff;
-  border-radius: 18px 18px 21px 21px;
-  color: #4a3ac8;
-  background: #d8d2ff;
+  justify-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.avatar-loader {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(91, 74, 232, 0.16);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+.avatar-model-error {
+  max-width: 210px;
+  text-align: center;
+}
+
+.avatar-model-error strong {
+  color: #a22f25;
+}
+
+.avatar-model-error span {
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.avatar-control-hint {
+  position: absolute;
+  z-index: 2;
+  bottom: 12px;
+  left: 50%;
+  border: 1px solid rgba(91, 74, 232, 0.13);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #4b4480;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 6px 18px rgba(31, 36, 64, 0.08);
   font-size: 10px;
-  font-weight: 850;
-}
-
-.avatar-hand-left {
-  left: 6px;
-}
-
-.avatar-hand-right {
-  right: 6px;
+  font-weight: 750;
+  pointer-events: none;
+  transform: translateX(-50%);
+  backdrop-filter: blur(8px);
 }
 
 .sign-status > span {

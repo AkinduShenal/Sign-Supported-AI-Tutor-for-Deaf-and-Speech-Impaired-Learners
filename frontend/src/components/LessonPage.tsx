@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { getTutorLesson } from '../api/tutor'
 import type { LessonStep, TutorLesson } from '../types/tutor'
-import { AvatarPlaceholder } from './AvatarPlaceholder'
+import { TutorAvatar } from './TutorAvatar'
 
 interface LessonPageProps {
   conceptId: string
@@ -269,7 +269,7 @@ export function LessonPage({ conceptId }: LessonPageProps) {
           )}
         </div>
 
-        <AvatarPlaceholder signActions={currentStage.signActions} />
+        <TutorAvatar signActions={currentStage.signActions} />
       </section>
     </main>
   )
