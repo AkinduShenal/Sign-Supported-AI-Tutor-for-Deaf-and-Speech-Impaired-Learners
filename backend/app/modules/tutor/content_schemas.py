@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class SignValidationStatus(StrEnum):
@@ -57,3 +57,22 @@ class TutorLessonResponse(BaseModel):
     sign_glossary: list[SignReference] = Field(min_length=1)
     worked_examples: list[WorkedExample] = Field(min_length=1)
     practice_questions: list[PracticeQuestion] = Field(min_length=1)
+
+
+class MathSignPlanRequest(BaseModel):
+    instruction: str = ""
+    expression: str | None = None
+    context_actions: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def require_content(self) -> "MathSignPlanRequest":
+        if not self.instruction.strip() and not (self.expression or "").strip():
+            raise ValueError("instruction or expression is required")
+        return self
+
+
+class MathSignPlanResponse(BaseModel):
+    sign_actions: list[str]
+    unsupported_actions: list[str]
+    unsupported_tokens: list[str]
+    is_fully_supported: bool

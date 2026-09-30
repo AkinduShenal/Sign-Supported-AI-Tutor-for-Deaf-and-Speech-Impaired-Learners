@@ -98,6 +98,10 @@ export function LessonPage({ conceptId }: LessonPageProps) {
 
   const currentStage = stages[stageIndex]
   const practiceQuestion = lesson?.practice_questions[0]
+  const avatarSignActions =
+    isHintVisible && practiceQuestion
+      ? practiceQuestion.hint.sign_actions
+      : currentStage?.signActions ?? []
 
   function goToStage(nextIndex: number) {
     setStageIndex(nextIndex)
@@ -269,7 +273,7 @@ export function LessonPage({ conceptId }: LessonPageProps) {
           )}
         </div>
 
-        <TutorAvatar signActions={currentStage.signActions} />
+        <TutorAvatar signActions={avatarSignActions} />
       </section>
     </main>
   )

@@ -39,6 +39,7 @@ def test_lesson_contains_expected_pdf_sign_references() -> None:
         "SUBSTITUTION": (17, 101),
         "NUMBER_3": (2, 11),
         "NUMBER_4": (2, 11),
+        "NUMBER_5": (2, 11),
         "NUMBER_7": (2, 11),
     }
 
@@ -48,10 +49,16 @@ def test_equation_steps_have_distinct_ordered_sign_sequences() -> None:
     steps = response.json()["worked_examples"][0]["steps"]
 
     assert steps[2]["expression"] == "x = 4"
-    assert steps[2]["sign_actions"] == ["ALGEBRA", "EQUATION", "NUMBER_4"]
+    assert steps[2]["sign_actions"] == [
+        "BALANCE",
+        "ALGEBRA",
+        "EQUATION",
+        "NUMBER_4",
+    ]
     assert steps[3]["expression"] == "4 + 3 = 7"
     assert steps[3]["sign_actions"] == [
         "SUBSTITUTION",
+        "ALGEBRA",
         "NUMBER_4",
         "ADDITION",
         "NUMBER_3",

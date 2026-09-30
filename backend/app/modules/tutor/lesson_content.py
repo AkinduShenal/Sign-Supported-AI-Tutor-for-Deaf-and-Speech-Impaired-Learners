@@ -8,9 +8,35 @@ from app.modules.tutor.content_schemas import (
     TutorLessonResponse,
     WorkedExample,
 )
+from app.modules.tutor.sign_planner import MathSignPlanner
 
 
 SIGN_SOURCE_TITLE = "Maths Sign Language"
+SIGN_PLANNER = MathSignPlanner()
+
+SIMPLE_EXPLANATION = (
+    "An equation is like a balance. To keep both sides equal, perform "
+    "the same operation on both sides."
+)
+STEP_1_INSTRUCTION = "Identify the operation next to x. Three is added to x."
+STEP_2_INSTRUCTION = "Subtract 3 from both sides to keep the balance."
+STEP_3_INSTRUCTION = "Simplify both sides."
+STEP_4_INSTRUCTION = "Substitute 4 for x to check the answer."
+PRACTICE_HINT = "Keep x by itself. Subtract 5 from both sides of the equation."
+
+
+def _planned_actions(
+    instruction: str,
+    expression: str | None = None,
+    context_actions: tuple[str, ...] = (),
+) -> list[str]:
+    return list(
+        SIGN_PLANNER.plan(
+            instruction=instruction,
+            expression=expression,
+            context_actions=context_actions,
+        ).sign_actions
+    )
 
 
 def _sign(
@@ -37,11 +63,11 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
         "Solve a one-step linear equation by applying the same operation to both sides."
     ),
     simple_explanation=SignSupportedText(
-        text=(
-            "An equation is like a balance. To keep both sides equal, perform "
-            "the same operation on both sides."
+        text=SIMPLE_EXPLANATION,
+        sign_actions=_planned_actions(
+            SIMPLE_EXPLANATION,
+            context_actions=("ALGEBRA",),
         ),
-        sign_actions=["ALGEBRA", "EQUATION", "BALANCE"],
     ),
     sign_glossary=[
         _sign("ADDITION", "Addition", source_page=1, source_entry=1),
@@ -54,6 +80,7 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
         _sign("SUBSTITUTION", "Substitution", source_page=17, source_entry=101),
         _sign("NUMBER_3", "Number 3", source_page=2, source_entry=11),
         _sign("NUMBER_4", "Number 4", source_page=2, source_entry=11),
+        _sign("NUMBER_5", "Number 5", source_page=2, source_entry=11),
         _sign("NUMBER_7", "Number 7", source_page=2, source_entry=11),
     ],
     worked_examples=[
@@ -62,52 +89,39 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
             steps=[
                 LessonStep(
                     order=1,
-                    instruction=(
-                        "Identify the operation next to x. Three is added to x."
-                    ),
+                    instruction=STEP_1_INSTRUCTION,
                     expression="x + 3 = 7",
-                    sign_actions=[
-                        "ALGEBRA",
-                        "ADDITION",
-                        "NUMBER_3",
-                        "EQUATION",
-                        "NUMBER_7",
-                    ],
+                    sign_actions=_planned_actions(
+                        STEP_1_INSTRUCTION,
+                        "x + 3 = 7",
+                    ),
                 ),
                 LessonStep(
                     order=2,
-                    instruction="Subtract 3 from both sides to keep the balance.",
+                    instruction=STEP_2_INSTRUCTION,
                     expression="x + 3 - 3 = 7 - 3",
-                    sign_actions=[
-                        "ALGEBRA",
-                        "ADDITION",
-                        "NUMBER_3",
-                        "SUBTRACTION",
-                        "NUMBER_3",
-                        "EQUATION",
-                        "NUMBER_7",
-                        "SUBTRACTION",
-                        "NUMBER_3",
-                    ],
+                    sign_actions=_planned_actions(
+                        STEP_2_INSTRUCTION,
+                        "x + 3 - 3 = 7 - 3",
+                    ),
                 ),
                 LessonStep(
                     order=3,
-                    instruction="Simplify both sides.",
+                    instruction=STEP_3_INSTRUCTION,
                     expression="x = 4",
-                    sign_actions=["ALGEBRA", "EQUATION", "NUMBER_4"],
+                    sign_actions=_planned_actions(
+                        STEP_3_INSTRUCTION,
+                        "x = 4",
+                    ),
                 ),
                 LessonStep(
                     order=4,
-                    instruction="Substitute 4 for x to check the answer.",
+                    instruction=STEP_4_INSTRUCTION,
                     expression="4 + 3 = 7",
-                    sign_actions=[
-                        "SUBSTITUTION",
-                        "NUMBER_4",
-                        "ADDITION",
-                        "NUMBER_3",
-                        "EQUATION",
-                        "NUMBER_7",
-                    ],
+                    sign_actions=_planned_actions(
+                        STEP_4_INSTRUCTION,
+                        "4 + 3 = 7",
+                    ),
                 ),
             ],
             answer="x = 4",
@@ -118,8 +132,8 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
             question_id="linear-equation-balancing-01",
             prompt="Solve x + 5 = 12.",
             hint=SignSupportedText(
-                text=("Keep x by itself. Subtract 5 from both sides of the equation."),
-                sign_actions=["EQUATION", "BALANCE", "SUBTRACTION"],
+                text=PRACTICE_HINT,
+                sign_actions=_planned_actions(PRACTICE_HINT),
             ),
             expected_answer="x = 7",
             feedback=PracticeFeedback(

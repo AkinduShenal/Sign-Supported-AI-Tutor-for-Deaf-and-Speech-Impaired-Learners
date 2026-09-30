@@ -459,6 +459,11 @@ def generate_actions(armature: bpy.types.Object) -> None:
     )
     create_action(
         armature,
+        "NUMBER_5",
+        [(24, number_pose(set(), set(FINGERS))), (48, number_pose(set(), set(FINGERS)))],
+    )
+    create_action(
+        armature,
         "NUMBER_7",
         [
             (24, number_pose(set(FINGERS), {"Index", "Middle"})),

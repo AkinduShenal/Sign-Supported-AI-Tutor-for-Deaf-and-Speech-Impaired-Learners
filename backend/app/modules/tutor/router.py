@@ -4,17 +4,23 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.modules.tutor.content_schemas import TutorLessonResponse
+from app.modules.tutor.content_schemas import (
+    MathSignPlanRequest,
+    MathSignPlanResponse,
+    TutorLessonResponse,
+)
 from app.modules.tutor.lesson_content import get_lesson
 from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse
 from app.modules.tutor.service import (
     DuplicateSessionConflictError,
     TutorStrategyService,
 )
+from app.modules.tutor.sign_planner import MathSignPlanner
 
 
 router = APIRouter(prefix="/api/v1/tutor", tags=["Tutor"])
 service = TutorStrategyService()
+sign_planner = MathSignPlanner()
 
 
 @router.get("/lessons/{concept_id}", response_model=TutorLessonResponse)
@@ -26,6 +32,21 @@ def read_lesson(concept_id: str) -> TutorLessonResponse:
             detail=f"Lesson '{concept_id}' was not found",
         )
     return lesson
+
+
+@router.post("/sign-plan", response_model=MathSignPlanResponse)
+def create_sign_plan(request: MathSignPlanRequest) -> MathSignPlanResponse:
+    plan = sign_planner.plan(
+        instruction=request.instruction,
+        expression=request.expression,
+        context_actions=tuple(request.context_actions),
+    )
+    return MathSignPlanResponse(
+        sign_actions=list(plan.sign_actions),
+        unsupported_actions=list(plan.unsupported_actions),
+        unsupported_tokens=list(plan.unsupported_tokens),
+        is_fully_supported=plan.is_fully_supported,
+    )
 
 
 @router.post("/strategy", response_model=TutorStrategyResponse)
