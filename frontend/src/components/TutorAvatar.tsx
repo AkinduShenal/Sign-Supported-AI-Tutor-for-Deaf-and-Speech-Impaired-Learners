@@ -10,13 +10,20 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
   const [modelState, setModelState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   )
+  const [availableAnimations, setAvailableAnimations] = useState<string[]>([])
+
+  const playableSign =
+    signActions.find((sign) => availableAnimations.includes(sign)) ?? null
 
   useEffect(() => {
     const modelViewer = modelViewerRef.current
     if (!modelViewer) return
     let isActive = true
 
-    const showModel = () => setModelState('ready')
+    const showModel = () => {
+      setModelState('ready')
+      setAvailableAnimations([...modelViewer.availableAnimations])
+    }
     const showError = () => setModelState('error')
 
     modelViewer.addEventListener('load', showModel)
@@ -39,6 +46,24 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
       modelViewer.removeEventListener('error', showError)
     }
   }, [])
+
+  useEffect(() => {
+    const modelViewer = modelViewerRef.current
+    if (!modelViewer || modelState !== 'ready' || !playableSign) return
+
+    modelViewer.animationName = playableSign
+    modelViewer.currentTime = 0
+    modelViewer.play({ repetitions: 1, pingpong: false })
+  }, [modelState, playableSign])
+
+  const replaySign = () => {
+    const modelViewer = modelViewerRef.current
+    if (!modelViewer || !playableSign) return
+
+    modelViewer.animationName = playableSign
+    modelViewer.currentTime = 0
+    modelViewer.play({ repetitions: 1, pingpong: false })
+  }
 
   return (
     <aside className="avatar-panel" aria-labelledby="avatar-title">
@@ -100,17 +125,31 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
         <span>Signs for this step</span>
         <div className="sign-list">
           {signActions.map((sign, index) => (
-            <span className="sign-chip" key={sign}>
+            <span
+              className={`sign-chip ${availableAnimations.includes(sign) ? 'is-animated' : ''}`}
+              key={sign}
+            >
               <span>{index + 1}</span>
               {sign.replaceAll('_', ' ')}
             </span>
           ))}
         </div>
+
+        {playableSign && (
+          <button
+            className="secondary-button replay-sign-button"
+            onClick={replaySign}
+            type="button"
+          >
+            Replay {playableSign.replaceAll('_', ' ')} sign
+          </button>
+        )}
       </div>
 
       <p className="avatar-note">
-        Louise is ready. The validated mathematics sign animations will be
-        connected to each lesson step next.
+        {playableSign
+          ? `${playableSign.replaceAll('_', ' ')} is an approximate animation generated from the mathematics sign reference.`
+          : 'Louise is ready. Animations for the remaining mathematics signs will be added next.'}
       </p>
     </aside>
   )
