@@ -18,6 +18,10 @@ frontend/.vite/
 # Local Blender source files and automatic backups
 avatar/*.blend
 avatar/*.blend[0-9]
+avatar/previews/
+
+# Temporary diagnostics
+tmp/
 
 # IDE
 .vscode/

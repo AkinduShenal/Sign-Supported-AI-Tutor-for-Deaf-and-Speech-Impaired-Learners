@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ModelViewerElement } from '@google/model-viewer'
 
+const TUTOR_MODEL_URL = '/models/louise_tutor.glb?v=20261001-arm-fix'
+
 interface TutorAvatarProps {
   signActions: string[]
 }
@@ -147,7 +149,7 @@ export function TutorAvatar({ signActions }: TutorAvatarProps) {
         <model-viewer
           ref={modelViewerRef}
           className={`tutor-model ${modelState === 'ready' ? 'is-ready' : ''}`}
-          src="/models/louise_tutor.glb"
+          src={TUTOR_MODEL_URL}
           alt="Louise, the three-dimensional sign-supported mathematics tutor"
           loading="eager"
           reveal="auto"

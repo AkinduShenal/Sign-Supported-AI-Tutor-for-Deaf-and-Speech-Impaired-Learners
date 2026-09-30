@@ -375,17 +375,20 @@ def algebra_pose(stage: int) -> PoseState:
 
 
 def substitution_pose(distance: float) -> PoseState:
+    # Keep the elbows low and close to the torso, matching reference entry 101.
+    # Wide, shoulder-height pole targets make the arms flare unnaturally and can
+    # also force the hands to intersect as they move towards the centre.
     return {
         "Left": hand_state(
-            (distance, -0.18, 1.16),
-            (0.52, -0.02, 1.12),
+            (distance, -0.18, 1.13),
+            (0.30, -0.30, 1.30),
             (-1.0, 0.0, 0.0),
             (0.0, -1.0, 0.0),
             {"Index", "Middle", "Ring", "Pinky"},
         ),
         "Right": hand_state(
-            (-distance, -0.18, 1.16),
-            (-0.52, -0.02, 1.12),
+            (-distance, -0.18, 1.13),
+            (-0.30, 0.00, 0.90),
             (1.0, 0.0, 0.0),
             (0.0, -1.0, 0.0),
             {"Index", "Middle", "Ring", "Pinky"},
@@ -445,7 +448,11 @@ def generate_actions(armature: bpy.types.Object) -> None:
     create_action(
         armature,
         "SUBSTITUTION",
-        [(22, substitution_pose(0.30)), (38, substitution_pose(0.13)), (48, substitution_pose(0.13))],
+        [
+            (22, substitution_pose(0.30)),
+            (38, substitution_pose(0.18)),
+            (48, substitution_pose(0.18)),
+        ],
     )
     create_action(
         armature,
