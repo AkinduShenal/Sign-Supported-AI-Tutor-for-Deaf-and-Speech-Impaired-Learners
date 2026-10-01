@@ -9,9 +9,15 @@ from typing import Any
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
-SIGN_PACKAGE_ROOT = REPOSITORY_ROOT / "avatar-sign-package"
-MANIFEST_PATH = SIGN_PACKAGE_ROOT / "manifest" / "signs.json"
-PHRASE_MAP_PATH = SIGN_PACKAGE_ROOT / "manifest" / "phrase_map.json"
+CANONICAL_MANIFEST_ROOT = REPOSITORY_ROOT / "avatar-sign-package" / "manifest"
+BUNDLED_MANIFEST_ROOT = Path(__file__).resolve().parent / "sign_package"
+MANIFEST_ROOT = (
+    CANONICAL_MANIFEST_ROOT
+    if CANONICAL_MANIFEST_ROOT.is_dir()
+    else BUNDLED_MANIFEST_ROOT
+)
+MANIFEST_PATH = MANIFEST_ROOT / "signs.json"
+PHRASE_MAP_PATH = MANIFEST_ROOT / "phrase_map.json"
 EXPRESSION_TOKEN_PATTERN = re.compile(r"\d+|[A-Za-z]+|[+\-−×*/÷=()]|[^\s]")
 NUMBER_PATTERN = re.compile(r"\b\d+\b")
 

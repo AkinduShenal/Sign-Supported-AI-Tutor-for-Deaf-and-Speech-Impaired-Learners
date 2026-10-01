@@ -2,7 +2,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.modules.tutor.sign_planner import MANIFEST_PATH, MathSignPlanner
+from app.modules.tutor.sign_planner import (
+    BUNDLED_MANIFEST_ROOT,
+    CANONICAL_MANIFEST_ROOT,
+    MANIFEST_PATH,
+    MathSignPlanner,
+)
 
 
 client = TestClient(app)
@@ -86,6 +91,13 @@ def test_manifest_is_loaded_from_avatar_sign_package() -> None:
         "signs.json",
     )
     assert MANIFEST_PATH.is_file()
+
+
+def test_bundled_deployment_manifests_match_canonical_package() -> None:
+    for filename in ("signs.json", "phrase_map.json"):
+        canonical = (CANONICAL_MANIFEST_ROOT / filename).read_bytes()
+        bundled = (BUNDLED_MANIFEST_ROOT / filename).read_bytes()
+        assert bundled == canonical
 
 
 def test_rejects_empty_sign_plan_request() -> None:
