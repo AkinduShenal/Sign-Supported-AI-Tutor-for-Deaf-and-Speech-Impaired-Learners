@@ -7,18 +7,18 @@ This package replaces the fragile procedural-IK approach with a clip-library arc
 This package **does not claim to contain linguistically validated Sri Lankan Sign Language motion clips**.
 The research scope is sign-supported mathematics key terms / avatar actions, not full automatic sign-language translation.
 
-The package gives you:
+This canonical package contains:
 - one authoritative sign inventory;
 - stable clip names;
-- backend phrase/action mapping;
-- a frontend player for a master GLB containing named animation clips;
+- backend phrase/action mapping data;
 - a validation script;
 - an animator/interpreter brief;
-- a Codex integration prompt.
+- the prototype animation catalog and pose report;
+- the reproducible direct-FK prototype build tool.
 
 ## Current prototype asset
 
-`frontend/public/models/louise_signs_master.glb` contains 22 named educational
+The runtime file `frontend/public/models/louise_signs_master.glb` contains 22 named educational
 gesture actions supplied by `linear-equation-avatar-package/`. The manifest
 marks them with `prototype_ready: true`, while their lexical
 `validation_status` remains `needs_validation`. The application may play these
@@ -54,8 +54,12 @@ Then add tutor/remedial support signs.
 
 - `manifest/signs.json` — canonical sign catalog
 - `manifest/phrase_map.json` — text/expression to sign IDs
-- `backend/sign_planner.py` — manifest-driven planner
-- `frontend/AvatarSignPlayer.tsx` — master-GLB animation player
 - `clips/` — validated per-sign source clips
-- `docs/` — validation and animator guidance
-- `codex/CODEX_INTEGRATION_PROMPT.md` — integration prompt
+- `docs/` — validation, animation catalog, and pose-review evidence
+- `tools/validate_sign_package.py` — manifest/master-GLB validator
+- `tools/build_linear_equation_glb_reference.py` — prototype master-GLB build reference
+
+Runtime integration lives in:
+
+- `backend/app/modules/tutor/sign_planner.py`
+- `frontend/src/components/AvatarSignPlayer.tsx`

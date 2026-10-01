@@ -6,4 +6,5 @@
 - Main-pose outward elbow failures: 0.
 - SHA-256: `31fd3bbd41cf1cac8c808becd9fd285ba605e3981c721c5a4f1c822b4861b24e`
 
-The `pose_report.json` file contains representative shoulder, elbow and wrist positions for each animation.
+`prototype_pose_report.json` contains representative shoulder, elbow and wrist
+positions for every animation.

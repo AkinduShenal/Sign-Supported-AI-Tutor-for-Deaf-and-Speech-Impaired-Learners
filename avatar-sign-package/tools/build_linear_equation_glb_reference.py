@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import struct
@@ -9,8 +10,43 @@ import numpy as np
 from scipy.optimize import least_squares
 from scipy.spatial.transform import Rotation as R
 
-SOURCE = Path('/mnt/data/avatar_sources/louise_tutor.glb')
-OUT = Path('/mnt/data/linear-equation-avatar-package/frontend/public/models/louise_signs_master.glb')
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+
+parser = argparse.ArgumentParser(
+    description=(
+        "Build the technically checked linear-equation prototype gesture set. "
+        "The output is not validated Sri Lankan Sign Language."
+    )
+)
+parser.add_argument("source", type=Path, help="Source Louise GLB")
+parser.add_argument(
+    "--output",
+    type=Path,
+    default=(
+        REPOSITORY_ROOT
+        / "frontend"
+        / "public"
+        / "models"
+        / "louise_signs_master.glb"
+    ),
+    help="Master GLB output path",
+)
+parser.add_argument(
+    "--report",
+    type=Path,
+    default=(
+        REPOSITORY_ROOT
+        / "avatar-sign-package"
+        / "docs"
+        / "prototype_pose_report.json"
+    ),
+    help="Pose report output path",
+)
+args = parser.parse_args()
+
+SOURCE = args.source.resolve()
+OUT = args.output.resolve()
+REPORT = args.report.resolve()
 
 COMP = {5120: np.int8, 5121: np.uint8, 5122: np.int16, 5123: np.uint16, 5125: np.uint32, 5126: np.float32}
 NCOMP = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
@@ -553,6 +589,6 @@ for name, keys in clips.items():
             'wrist': [round(float(x), 4) for x in wrist],
             'elbow_outward_from_shoulder': bool(abs(elbow[0]) > abs(shoulder[0]) + 0.05),
         }
-report_path = OUT.parents[3] / 'pose_report.json'
-report_path.write_text(json.dumps(report, indent=2))
-print('Pose report:', report_path)
+REPORT.parent.mkdir(parents=True, exist_ok=True)
+REPORT.write_text(json.dumps(report, indent=2))
+print('Pose report:', REPORT)
