@@ -24,10 +24,11 @@ NUMBER_PATTERN = re.compile(r"\b\d+\b")
 
 @dataclass(frozen=True)
 class SignPlan:
-    """A semantic sign request plus its production playback availability."""
+    """A semantic request plus validated/prototype playback availability."""
 
     sign_actions: tuple[str, ...]
     playable_actions: tuple[str, ...]
+    prototype_actions: tuple[str, ...]
     unavailable_actions: tuple[str, ...]
     unsupported_actions: tuple[str, ...]
     unsupported_tokens: tuple[str, ...]
@@ -60,9 +61,10 @@ class MathSignPlanner:
     """Plan short manifest-backed sign sequences for mathematics teaching.
 
     The teaching instruction is preferred over raw expression tokens. The
-    planner never creates motion and never treats an unreviewed lexical clip as
-    production-playable. sign_actions stays as the semantic API contract;
-    playable_actions contains only actions approved by the manifest.
+    planner never creates motion. sign_actions stays as the semantic API
+    contract; playable_actions contains manifest-approved validated clips plus
+    clearly labelled prototype educational gestures. prototype_actions keeps
+    those unvalidated gestures distinguishable from validated language clips.
     """
 
     def __init__(self) -> None:
@@ -98,6 +100,7 @@ class MathSignPlanner:
         manifest = _manifest_by_id()
         sign_actions: list[str] = []
         playable_actions: list[str] = []
+        prototype_actions: list[str] = []
         unavailable_actions: list[str] = []
         unsupported_actions: list[str] = []
 
@@ -110,12 +113,15 @@ class MathSignPlanner:
             sign_actions.append(action)
             if self._is_playable(entry):
                 playable_actions.append(action)
+                if self._is_prototype(entry):
+                    prototype_actions.append(action)
             else:
                 unavailable_actions.append(action)
 
         return SignPlan(
             sign_actions=tuple(sign_actions),
             playable_actions=tuple(playable_actions),
+            prototype_actions=tuple(prototype_actions),
             unavailable_actions=tuple(unavailable_actions),
             unsupported_actions=tuple(self._unique(unsupported_actions)),
             unsupported_tokens=tuple(self._unique(unsupported_tokens)),
@@ -177,8 +183,14 @@ class MathSignPlanner:
     @staticmethod
     def _is_playable(entry: dict[str, Any]) -> bool:
         status = entry.get("validation_status")
-        return status == "validated" or (
+        return bool(entry.get("prototype_ready")) or status == "validated" or (
             entry.get("category") == "system" and status == "technical_only"
+        )
+
+    @staticmethod
+    def _is_prototype(entry: dict[str, Any]) -> bool:
+        return bool(entry.get("prototype_ready")) and (
+            entry.get("validation_status") != "validated"
         )
 
     @staticmethod

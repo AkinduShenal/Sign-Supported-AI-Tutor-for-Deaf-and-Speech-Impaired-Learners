@@ -15,6 +15,8 @@ class SignReference(BaseModel):
     source_page: int = Field(gt=0)
     source_entry: int = Field(gt=0)
     animation_asset: str | None = None
+    animation_action: str | None = None
+    prototype_ready: bool = False
     validation_status: SignValidationStatus
 
 
@@ -74,6 +76,7 @@ class MathSignPlanRequest(BaseModel):
 class MathSignPlanResponse(BaseModel):
     sign_actions: list[str]
     playable_actions: list[str]
+    prototype_actions: list[str]
     unavailable_actions: list[str]
     unsupported_actions: list[str]
     unsupported_tokens: list[str]

@@ -41,9 +41,10 @@ def test_plans_required_teaching_phrases(
     plan = MathSignPlanner().plan(instruction=instruction)
 
     assert plan.sign_actions == expected_actions
-    assert plan.playable_actions == ()
-    assert plan.unavailable_actions == expected_actions
-    assert plan.is_fully_supported is False
+    assert plan.playable_actions == expected_actions
+    assert plan.prototype_actions == expected_actions
+    assert plan.unavailable_actions == ()
+    assert plan.is_fully_supported is True
 
 
 def test_instruction_is_preferred_over_raw_expression() -> None:
@@ -56,7 +57,7 @@ def test_instruction_is_preferred_over_raw_expression() -> None:
     assert len(plan.sign_actions) <= 4
 
 
-def test_api_reports_unvalidated_actions_without_marking_them_playable() -> None:
+def test_api_labels_playable_prototype_actions_separately() -> None:
     response = client.post(
         "/api/v1/tutor/sign-plan",
         json={"instruction": "Add 4 to both sides"},
@@ -65,12 +66,23 @@ def test_api_reports_unvalidated_actions_without_marking_them_playable() -> None
     assert response.status_code == 200
     assert response.json() == {
         "sign_actions": ["ADDITION", "NUMBER_4", "BOTH_SIDES"],
-        "playable_actions": [],
-        "unavailable_actions": ["ADDITION", "NUMBER_4", "BOTH_SIDES"],
+        "playable_actions": ["ADDITION", "NUMBER_4", "BOTH_SIDES"],
+        "prototype_actions": ["ADDITION", "NUMBER_4", "BOTH_SIDES"],
+        "unavailable_actions": [],
         "unsupported_actions": [],
         "unsupported_tokens": [],
-        "is_fully_supported": False,
+        "is_fully_supported": True,
     }
+
+
+def test_missing_prototype_clip_remains_unavailable() -> None:
+    plan = MathSignPlanner().plan(instruction="Show a hint")
+
+    assert plan.sign_actions == ("HINT",)
+    assert plan.playable_actions == ()
+    assert plan.prototype_actions == ()
+    assert plan.unavailable_actions == ("HINT",)
+    assert plan.is_fully_supported is False
 
 
 def test_reports_unknown_expression_tokens_without_inventing_signs() -> None:

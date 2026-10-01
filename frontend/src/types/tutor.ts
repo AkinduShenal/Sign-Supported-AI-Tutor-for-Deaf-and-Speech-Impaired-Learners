@@ -7,6 +7,8 @@ export interface SignReference {
   source_page: number
   source_entry: number
   animation_asset: string | null
+  animation_action: string | null
+  prototype_ready: boolean
   validation_status: SignValidationStatus
 }
 

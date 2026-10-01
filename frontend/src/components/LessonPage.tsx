@@ -105,6 +105,13 @@ export function LessonPage({ conceptId }: LessonPageProps) {
         .map((sign) => sign.sign_id) ?? [],
     [lesson],
   )
+  const prototypeSignIds = useMemo(
+    () =>
+      lesson?.sign_glossary
+        .filter((sign) => sign.prototype_ready)
+        .map((sign) => sign.sign_id) ?? [],
+    [lesson],
+  )
   const avatarSignActions =
     isHintVisible && practiceQuestion
       ? practiceQuestion.hint.sign_actions
@@ -283,6 +290,7 @@ export function LessonPage({ conceptId }: LessonPageProps) {
         <AvatarSignPlayer
           signActions={avatarSignActions}
           validatedSignIds={validatedSignIds}
+          prototypeSignIds={prototypeSignIds}
         />
       </section>
     </main>

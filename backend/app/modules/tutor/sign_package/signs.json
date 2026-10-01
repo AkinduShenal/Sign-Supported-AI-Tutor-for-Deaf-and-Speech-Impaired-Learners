@@ -1,11 +1,13 @@
 {
   "package_name": "Sign-Supported AI Tutor Avatar Sign Package",
   "version": "1.0.0",
-  "architecture": "validated_clip_library",
+  "architecture": "manifest_backed_clip_library",
   "master_avatar": "models/louise_signs_master.glb",
+  "master_avatar_sha256": "31fd3bbd41cf1cac8c808becd9fd285ba605e3981c721c5a4f1c822b4861b24e",
   "notes": [
     "This package intentionally avoids procedural IK sign generation.",
-    "Each lexical sign must be authored/recorded/retargeted as a validated clip using the same Louise skeleton.",
+    "Each lexical sign must be authored/recorded/retargeted on the same Louise skeleton and validated before it is described as Sri Lankan Sign Language.",
+    "Prototype-ready educational gestures may be played in the research prototype but are not validated Sri Lankan Sign Language signs.",
     "The research scope is sign-supported key terms and avatar actions, not full automatic sign-language translation.",
     "Do not mark a lexical clip as validated until reviewed by a qualified Sri Lankan Sign Language reviewer/interpreter."
   ],
@@ -18,6 +20,10 @@
       "required_for_research": true,
       "aliases": [],
       "clip": "clips/IDLE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "IDLE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "technical_only",
       "notes": "Relaxed neutral pose. Not a lexical sign."
     },
@@ -31,6 +37,10 @@
         "0"
       ],
       "clip": "clips/NUMBER_0.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_0",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -44,6 +54,10 @@
         "1"
       ],
       "clip": "clips/NUMBER_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_1",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -57,6 +71,10 @@
         "2"
       ],
       "clip": "clips/NUMBER_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_2",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -70,6 +88,10 @@
         "3"
       ],
       "clip": "clips/NUMBER_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_3",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -83,6 +105,10 @@
         "4"
       ],
       "clip": "clips/NUMBER_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_4",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -96,6 +122,10 @@
         "5"
       ],
       "clip": "clips/NUMBER_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_5",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -109,6 +139,10 @@
         "6"
       ],
       "clip": "clips/NUMBER_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_6",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -122,6 +156,10 @@
         "7"
       ],
       "clip": "clips/NUMBER_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_7",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -135,6 +173,10 @@
         "8"
       ],
       "clip": "clips/NUMBER_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_8",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -148,6 +190,10 @@
         "9"
       ],
       "clip": "clips/NUMBER_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_9",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -164,6 +210,10 @@
         "+"
       ],
       "clip": "clips/ADDITION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "ADDITION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -180,6 +230,10 @@
         "-"
       ],
       "clip": "clips/SUBTRACTION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SUBTRACTION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -197,6 +251,10 @@
         "*"
       ],
       "clip": "clips/MULTIPLICATION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "MULTIPLICATION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -214,6 +272,10 @@
         "/"
       ],
       "clip": "clips/DIVISION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "DIVISION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -230,6 +292,10 @@
         "="
       ],
       "clip": "clips/EQUATION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "EQUATION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -258,6 +324,10 @@
         "x"
       ],
       "clip": "clips/VARIABLE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "VARIABLE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -312,6 +382,10 @@
         "substitution"
       ],
       "clip": "clips/SUBSTITUTION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SUBSTITUTION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -327,6 +401,10 @@
         "keep equal"
       ],
       "clip": "clips/BALANCE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "BALANCE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -341,6 +419,10 @@
         "same operation"
       ],
       "clip": "clips/BOTH_SIDES.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "BOTH_SIDES",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -355,6 +437,10 @@
         "solution"
       ],
       "clip": "clips/SOLVE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SOLVE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },
@@ -369,6 +455,10 @@
         "result"
       ],
       "clip": "clips/ANSWER.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "ANSWER",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
       "notes": ""
     },

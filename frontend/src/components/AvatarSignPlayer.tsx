@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ModelViewerElement } from '@google/model-viewer'
 
 const MASTER_AVATAR_URL =
-  '/models/louise_signs_master.glb?v=avatar-sign-package-v1'
+  '/models/louise_signs_master.glb?v=linear-equation-avatar-v1'
 const BETWEEN_CLIP_DELAY_MS = 120
 
 export interface AvatarSignPlayerProps {
   signActions: string[]
   validatedSignIds?: string[]
+  prototypeSignIds?: string[]
 }
 
 interface QueuedSign {
@@ -18,6 +19,7 @@ interface QueuedSign {
 export function AvatarSignPlayer({
   signActions,
   validatedSignIds = [],
+  prototypeSignIds = [],
 }: AvatarSignPlayerProps) {
   const modelViewerRef = useRef<ModelViewerElement>(null)
   const playbackQueueRef = useRef<QueuedSign[]>([])
@@ -33,6 +35,14 @@ export function AvatarSignPlayer({
   const validatedSet = useMemo(
     () => new Set(validatedSignIds),
     [validatedSignIds],
+  )
+  const prototypeSet = useMemo(
+    () => new Set(prototypeSignIds),
+    [prototypeSignIds],
+  )
+  const approvedForPlaybackSet = useMemo(
+    () => new Set([...validatedSignIds, ...prototypeSignIds]),
+    [prototypeSignIds, validatedSignIds],
   )
 
   const requestedSigns = useMemo(() => {
@@ -50,9 +60,9 @@ export function AvatarSignPlayer({
     () =>
       requestedSigns.filter(
         ({ name }) =>
-          validatedSet.has(name) && availableAnimations.includes(name),
+          approvedForPlaybackSet.has(name) && availableAnimations.includes(name),
       ),
-    [availableAnimations, requestedSigns, validatedSet],
+    [approvedForPlaybackSet, availableAnimations, requestedSigns],
   )
 
   const unavailableSigns = useMemo(
@@ -60,11 +70,11 @@ export function AvatarSignPlayer({
       requestedSigns
         .filter(
           ({ name }) =>
-            !validatedSet.has(name) ||
+            !approvedForPlaybackSet.has(name) ||
             (modelState !== 'loading' && !availableAnimations.includes(name)),
         )
         .map(({ name }) => name),
-    [availableAnimations, modelState, requestedSigns, validatedSet],
+    [approvedForPlaybackSet, availableAnimations, modelState, requestedSigns],
   )
 
   const activeSign =
@@ -191,30 +201,31 @@ export function AvatarSignPlayer({
   useEffect(() => {
     if (!import.meta.env.DEV || requestedSigns.length === 0) return
 
-    const unvalidated = requestedSigns
+    const unavailable = requestedSigns
       .map(({ name }) => name)
-      .filter((name) => !validatedSet.has(name))
+      .filter((name) => !approvedForPlaybackSet.has(name))
     const missing =
       modelState === 'ready'
         ? requestedSigns
             .map(({ name }) => name)
             .filter(
               (name) =>
-                validatedSet.has(name) && !availableAnimations.includes(name),
+                approvedForPlaybackSet.has(name) &&
+                !availableAnimations.includes(name),
             )
         : []
 
-    if (unvalidated.length > 0) {
+    if (unavailable.length > 0) {
       console.warn(
-        `[AvatarSignPlayer] Unvalidated actions skipped: ${unvalidated.join(', ')}`,
+        `[AvatarSignPlayer] Actions without an approved clip were skipped: ${unavailable.join(', ')}`,
       )
     }
     if (missing.length > 0) {
       console.warn(
-        `[AvatarSignPlayer] Validated actions missing from master GLB: ${missing.join(', ')}`,
+        `[AvatarSignPlayer] Approved actions missing from master GLB: ${missing.join(', ')}`,
       )
     }
-  }, [availableAnimations, modelState, requestedSigns, validatedSet])
+  }, [approvedForPlaybackSet, availableAnimations, modelState, requestedSigns])
 
   return (
     <aside className="avatar-panel" aria-labelledby="avatar-title">
@@ -223,7 +234,7 @@ export function AvatarSignPlayer({
           <span className="eyebrow">Sign support</span>
           <h2 id="avatar-title">Tutor Avatar</h2>
         </div>
-        <span className="prototype-badge">Validated clips</span>
+        <span className="prototype-badge">Prototype gestures</span>
       </div>
 
       <div className="avatar-stage">
@@ -238,7 +249,7 @@ export function AvatarSignPlayer({
 
         {modelState === 'error' && (
           <div className="avatar-model-status avatar-model-error" role="alert">
-            <strong>Validated avatar clips are not available yet</strong>
+            <strong>Avatar gesture clips are not available</strong>
             <span>Continue with the lesson text and equation visuals.</span>
           </div>
         )}
@@ -277,14 +288,21 @@ export function AvatarSignPlayer({
         <div className="sign-list">
           {signActions.map((sign, index) => {
             const isPlayable =
-              validatedSet.has(sign) && availableAnimations.includes(sign)
+              approvedForPlaybackSet.has(sign) &&
+              availableAnimations.includes(sign)
+            const isValidated = validatedSet.has(sign)
+            const isPrototype = prototypeSet.has(sign)
             return (
               <span
                 className={`sign-chip ${isPlayable ? 'is-animated' : 'is-unavailable'} ${activeSignIndex === index ? 'is-active' : ''}`}
                 key={`${sign}-${index}`}
                 title={
                   isPlayable
-                    ? 'Validated animation available'
+                    ? isValidated
+                      ? 'Validated animation available'
+                      : isPrototype
+                        ? 'Prototype educational gesture available'
+                        : 'Animation available'
                     : 'Using text/visual fallback'
                 }
               >
@@ -299,8 +317,8 @@ export function AvatarSignPlayer({
           <div className="sign-fallback" role="status">
             <strong>Text/visual support active</strong>
             <span>
-              Unvalidated or missing clips are not played. Follow the written
-              instruction and equation.
+              Missing or unavailable clips are not fabricated. Follow the
+              written instruction and equation.
             </span>
           </div>
         )}
@@ -311,17 +329,20 @@ export function AvatarSignPlayer({
             onClick={playSequence}
             type="button"
           >
-            Replay validated signs ({playableSigns.length})
+            Replay gestures ({playableSigns.length})
           </button>
         )}
       </div>
 
       <p className="avatar-note">
         {activeSign
-          ? `Signing validated action ${activeSign.replaceAll('_', ' ')}.`
+          ? `Playing ${activeSign.replaceAll('_', ' ')} educational gesture.`
           : playableSigns.length > 0
-            ? 'The validated sequence is complete. Use replay to watch it again.'
-            : 'No validated animation is available for this step. The lesson remains available as text and visual mathematics support.'}
+            ? 'The gesture sequence is complete. Use replay to watch it again.'
+            : 'No animation is available for this step. The lesson remains available as text and visual mathematics support.'}
+      </p>
+      <p className="avatar-language-notice">
+        Prototype educational gestures — not validated Sri Lankan Sign Language.
       </p>
     </aside>
   )

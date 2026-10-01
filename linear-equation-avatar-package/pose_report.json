@@ -1,0 +1,838 @@
+{
+  "IDLE": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.2389,
+        1.1828,
+        0.0012
+      ],
+      "wrist": [
+        -0.2993,
+        0.9412,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "EQUATION": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3648,
+        1.2711,
+        0.0203
+      ],
+      "wrist": [
+        0.3357,
+        1.164,
+        0.2433
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3647,
+        1.2712,
+        0.0203
+      ],
+      "wrist": [
+        -0.3357,
+        1.164,
+        0.2433
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "BALANCE": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3709,
+        1.2816,
+        0.0258
+      ],
+      "wrist": [
+        0.3808,
+        1.1495,
+        0.2368
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3707,
+        1.2816,
+        0.0258
+      ],
+      "wrist": [
+        -0.3808,
+        1.1495,
+        0.2367
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "BOTH_SIDES": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3709,
+        1.2816,
+        0.0258
+      ],
+      "wrist": [
+        0.3808,
+        1.1495,
+        0.2368
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3707,
+        1.2816,
+        0.0258
+      ],
+      "wrist": [
+        -0.3808,
+        1.1495,
+        0.2367
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "VARIABLE": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3545,
+        1.2662,
+        0.048
+      ],
+      "wrist": [
+        -0.1936,
+        1.2806,
+        0.2376
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "ADDITION": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3525,
+        1.2637,
+        0.049
+      ],
+      "wrist": [
+        0.2149,
+        1.156,
+        0.2266
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3281,
+        1.2613,
+        0.0933
+      ],
+      "wrist": [
+        -0.1158,
+        1.2259,
+        0.2189
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "SUBTRACTION": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3475,
+        1.2603,
+        0.0552
+      ],
+      "wrist": [
+        0.1988,
+        1.1491,
+        0.2214
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3723,
+        1.2888,
+        0.0394
+      ],
+      "wrist": [
+        -0.3589,
+        1.1702,
+        0.2581
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "MULTIPLICATION": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3202,
+        1.2529,
+        0.0929
+      ],
+      "wrist": [
+        0.1089,
+        1.2082,
+        0.2172
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3201,
+        1.253,
+        0.0928
+      ],
+      "wrist": [
+        -0.1089,
+        1.2082,
+        0.2171
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "DIVISION": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3511,
+        1.2626,
+        0.0504
+      ],
+      "wrist": [
+        0.1954,
+        1.1774,
+        0.2252
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3357,
+        1.2579,
+        0.0756
+      ],
+      "wrist": [
+        -0.1952,
+        1.1154,
+        0.224
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "SUBSTITUTION": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3479,
+        1.2593,
+        0.0516
+      ],
+      "wrist": [
+        0.1833,
+        1.1717,
+        0.2167
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3306,
+        1.2564,
+        0.0821
+      ],
+      "wrist": [
+        -0.1291,
+        1.2071,
+        0.2201
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "SOLVE": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3577,
+        1.2652,
+        0.0348
+      ],
+      "wrist": [
+        0.339,
+        1.1119,
+        0.2303
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3575,
+        1.2653,
+        0.0348
+      ],
+      "wrist": [
+        -0.339,
+        1.112,
+        0.2302
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "ANSWER": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3369,
+        1.2601,
+        0.0772
+      ],
+      "wrist": [
+        -0.2098,
+        1.2043,
+        0.284
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_0": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_1": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_2": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_3": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_4": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_5": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.2374,
+        1.1823,
+        0.0005
+      ],
+      "wrist": [
+        0.2991,
+        0.9411,
+        0.0093
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_6": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3669,
+        1.2737,
+        0.0181
+      ],
+      "wrist": [
+        0.2566,
+        1.1898,
+        0.2252
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_7": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3669,
+        1.2737,
+        0.0181
+      ],
+      "wrist": [
+        0.2566,
+        1.1898,
+        0.2252
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_8": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3669,
+        1.2737,
+        0.0181
+      ],
+      "wrist": [
+        0.2566,
+        1.1898,
+        0.2252
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  },
+  "NUMBER_9": {
+    "Left": {
+      "shoulder": [
+        0.1832,
+        1.3995,
+        -0.0066
+      ],
+      "elbow": [
+        0.3669,
+        1.2737,
+        0.0181
+      ],
+      "wrist": [
+        0.2566,
+        1.1898,
+        0.2252
+      ],
+      "elbow_outward_from_shoulder": true
+    },
+    "Right": {
+      "shoulder": [
+        -0.1832,
+        1.3995,
+        -0.007
+      ],
+      "elbow": [
+        -0.3668,
+        1.2737,
+        0.018
+      ],
+      "wrist": [
+        -0.2567,
+        1.1898,
+        0.2251
+      ],
+      "elbow_outward_from_shoulder": true
+    }
+  }
+}

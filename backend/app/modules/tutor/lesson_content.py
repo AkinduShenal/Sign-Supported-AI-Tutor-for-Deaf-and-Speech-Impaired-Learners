@@ -18,10 +18,11 @@ SIMPLE_EXPLANATION = (
     "An equation is like a balance. To keep both sides equal, perform "
     "the same operation on both sides."
 )
-STEP_1_INSTRUCTION = "Identify the operation next to x. Three is added to x."
+STEP_1_INSTRUCTION = "Identify x, the unknown variable."
 STEP_2_INSTRUCTION = "Subtract 3 from both sides to keep the balance."
-STEP_3_INSTRUCTION = "Simplify both sides."
-STEP_4_INSTRUCTION = "Substitute 4 for x to check the answer."
+STEP_3_INSTRUCTION = "Solve."
+STEP_4_INSTRUCTION = "Substitute 4 for x."
+STEP_5_INSTRUCTION = "Final answer."
 PRACTICE_HINT = "Keep x by itself. Subtract 5 from both sides of the equation."
 
 
@@ -50,13 +51,22 @@ def _sign(
         manifest_entry is not None
         and manifest_entry.get("validation_status") == "validated"
     )
+    animation_asset = (
+        manifest_entry.get("animation_asset") if manifest_entry else None
+    )
     return SignReference(
         sign_id=sign_id,
         label=label,
         source_title=SIGN_SOURCE_TITLE,
         source_page=source_page,
         source_entry=source_entry,
-        animation_asset=None,
+        animation_asset=animation_asset,
+        animation_action=(
+            manifest_entry.get("animation_action") if manifest_entry else None
+        ),
+        prototype_ready=bool(
+            manifest_entry and manifest_entry.get("prototype_ready")
+        ),
         validation_status=(
             SignValidationStatus.VALIDATED
             if is_validated
@@ -89,6 +99,8 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
         _sign("VARIABLE", "Variable", source_page=16, source_entry=94),
         _sign("EQUATION", "Equation", source_page=17, source_entry=97),
         _sign("SUBSTITUTION", "Substitution", source_page=17, source_entry=101),
+        _sign("SOLVE", "Solve", source_page=17, source_entry=97),
+        _sign("ANSWER", "Answer", source_page=17, source_entry=97),
         _sign("NUMBER_3", "Number 3", source_page=2, source_entry=11),
         _sign("NUMBER_4", "Number 4", source_page=2, source_entry=11),
         _sign("NUMBER_5", "Number 5", source_page=2, source_entry=11),
@@ -132,6 +144,15 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
                     sign_actions=_planned_actions(
                         STEP_4_INSTRUCTION,
                         "4 + 3 = 7",
+                    ),
+                ),
+                LessonStep(
+                    order=5,
+                    instruction=STEP_5_INSTRUCTION,
+                    expression="x = 4",
+                    sign_actions=_planned_actions(
+                        STEP_5_INSTRUCTION,
+                        "x = 4",
                     ),
                 ),
             ],

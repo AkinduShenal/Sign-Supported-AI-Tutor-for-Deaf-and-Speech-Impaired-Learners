@@ -16,7 +16,16 @@ The package gives you:
 - an animator/interpreter brief;
 - a Codex integration prompt.
 
-## Recommended production workflow
+## Current prototype asset
+
+`frontend/public/models/louise_signs_master.glb` contains 22 named educational
+gesture actions supplied by `linear-equation-avatar-package/`. The manifest
+marks them with `prototype_ready: true`, while their lexical
+`validation_status` remains `needs_validation`. The application may play these
+actions for research-prototype demonstrations, but must not describe them as
+validated Sri Lankan Sign Language.
+
+## Recommended validation workflow
 
 1. Keep the existing Louise avatar mesh/skeleton as the base.
 2. Create or record each sign clip against a validated Sri Lankan Sign Language reference.

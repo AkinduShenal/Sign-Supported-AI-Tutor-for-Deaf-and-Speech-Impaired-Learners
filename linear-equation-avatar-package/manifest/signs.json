@@ -1,0 +1,103 @@
+{
+  "package": "linear-equation-avatar-package",
+  "version": "1.0.0",
+  "model": "/models/louise_signs_master.glb",
+  "sha256": "31fd3bbd41cf1cac8c808becd9fd285ba605e3981c721c5a4f1c822b4861b24e",
+  "animation_type": "educational_avatar_gesture",
+  "language_validation": "not_slsl_validated",
+  "animations": [
+    {
+      "id": "IDLE",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "EQUATION",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "BALANCE",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "BOTH_SIDES",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "VARIABLE",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "ADDITION",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "SUBTRACTION",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "MULTIPLICATION",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "DIVISION",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "SUBSTITUTION",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "SOLVE",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "ANSWER",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_0",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_1",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_2",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_3",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_4",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_5",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_6",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_7",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_8",
+      "ready_for_prototype": true
+    },
+    {
+      "id": "NUMBER_9",
+      "ready_for_prototype": true
+    }
+  ],
+  "notes": [
+    "Generated directly on the Louise skeleton using FK rotation channels.",
+    "Main active poses enforce elbows outside the shoulder line.",
+    "These are prototype educational gestures and must not be represented as validated Sri Lankan Sign Language signs."
+  ]
+}

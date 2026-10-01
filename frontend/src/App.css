@@ -468,6 +468,17 @@ button:disabled {
   line-height: 1.5;
 }
 
+.avatar-language-notice {
+  margin: 8px 0 0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: #66591d;
+  background: #fff9dc;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .page-state {
   display: grid;
   min-height: 100svh;

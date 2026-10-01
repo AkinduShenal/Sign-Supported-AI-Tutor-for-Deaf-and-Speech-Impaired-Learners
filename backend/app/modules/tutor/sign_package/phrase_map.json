@@ -85,6 +85,12 @@
       ]
     },
     {
+      "pattern": "\\b(?:answer|result)\\b",
+      "actions": [
+        "ANSWER"
+      ]
+    },
+    {
       "pattern": "\\bhint\\b",
       "actions": [
         "HINT"
@@ -124,6 +130,7 @@
     "max_actions_per_step": 4,
     "prefer_instruction_over_raw_expression": true,
     "deduplicate": true,
+    "allow_prototype_educational_gestures": true,
     "skip_missing_or_unvalidated_clips": true,
     "fallback_to_text_only": true
   }
