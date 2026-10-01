@@ -13,9 +13,8 @@ def test_returns_linear_equation_balancing_lesson() -> None:
     body = response.json()
     assert body["concept_id"] == "linear_equation_balancing"
     assert body["simple_explanation"]["sign_actions"] == [
-        "ALGEBRA",
         "EQUATION",
-        "BALANCE",
+        "BOTH_SIDES",
     ]
     assert body["worked_examples"][0]["answer"] == "x = 4"
     assert body["practice_questions"][0]["expected_answer"] == "x = 7"
@@ -34,7 +33,9 @@ def test_lesson_contains_expected_pdf_sign_references() -> None:
         "MULTIPLICATION": (1, 3),
         "DIVISION": (1, 4),
         "BALANCE": (7, 38),
+        "BOTH_SIDES": (7, 38),
         "ALGEBRA": (16, 94),
+        "VARIABLE": (16, 94),
         "EQUATION": (17, 97),
         "SUBSTITUTION": (17, 101),
         "NUMBER_3": (2, 11),
@@ -49,21 +50,12 @@ def test_equation_steps_have_distinct_ordered_sign_sequences() -> None:
     steps = response.json()["worked_examples"][0]["steps"]
 
     assert steps[2]["expression"] == "x = 4"
-    assert steps[2]["sign_actions"] == [
-        "BALANCE",
-        "ALGEBRA",
-        "EQUATION",
-        "NUMBER_4",
-    ]
+    assert steps[2]["sign_actions"] == ["BOTH_SIDES"]
     assert steps[3]["expression"] == "4 + 3 = 7"
     assert steps[3]["sign_actions"] == [
         "SUBSTITUTION",
-        "ALGEBRA",
         "NUMBER_4",
-        "ADDITION",
-        "NUMBER_3",
-        "EQUATION",
-        "NUMBER_7",
+        "VARIABLE",
     ]
 
 

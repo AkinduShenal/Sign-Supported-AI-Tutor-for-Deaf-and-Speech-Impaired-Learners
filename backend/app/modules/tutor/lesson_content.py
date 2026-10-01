@@ -45,6 +45,11 @@ def _sign(
     source_page: int,
     source_entry: int,
 ) -> SignReference:
+    manifest_entry = SIGN_PLANNER.manifest_entry(sign_id)
+    is_validated = (
+        manifest_entry is not None
+        and manifest_entry.get("validation_status") == "validated"
+    )
     return SignReference(
         sign_id=sign_id,
         label=label,
@@ -52,7 +57,11 @@ def _sign(
         source_page=source_page,
         source_entry=source_entry,
         animation_asset=None,
-        validation_status=SignValidationStatus.PENDING,
+        validation_status=(
+            SignValidationStatus.VALIDATED
+            if is_validated
+            else SignValidationStatus.PENDING
+        ),
     )
 
 
@@ -75,7 +84,9 @@ LINEAR_EQUATION_BALANCING = TutorLessonResponse(
         _sign("MULTIPLICATION", "Multiplication", source_page=1, source_entry=3),
         _sign("DIVISION", "Division", source_page=1, source_entry=4),
         _sign("BALANCE", "Balance", source_page=7, source_entry=38),
+        _sign("BOTH_SIDES", "Both sides", source_page=7, source_entry=38),
         _sign("ALGEBRA", "Algebra", source_page=16, source_entry=94),
+        _sign("VARIABLE", "Variable", source_page=16, source_entry=94),
         _sign("EQUATION", "Equation", source_page=17, source_entry=97),
         _sign("SUBSTITUTION", "Substitution", source_page=17, source_entry=101),
         _sign("NUMBER_3", "Number 3", source_page=2, source_entry=11),

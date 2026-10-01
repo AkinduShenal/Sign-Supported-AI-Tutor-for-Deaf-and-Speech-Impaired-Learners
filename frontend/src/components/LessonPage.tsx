@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { getTutorLesson } from '../api/tutor'
 import type { LessonStep, TutorLesson } from '../types/tutor'
-import { TutorAvatar } from './TutorAvatar'
+import { AvatarSignPlayer } from './AvatarSignPlayer'
 
 interface LessonPageProps {
   conceptId: string
@@ -98,6 +98,13 @@ export function LessonPage({ conceptId }: LessonPageProps) {
 
   const currentStage = stages[stageIndex]
   const practiceQuestion = lesson?.practice_questions[0]
+  const validatedSignIds = useMemo(
+    () =>
+      lesson?.sign_glossary
+        .filter((sign) => sign.validation_status === 'validated')
+        .map((sign) => sign.sign_id) ?? [],
+    [lesson],
+  )
   const avatarSignActions =
     isHintVisible && practiceQuestion
       ? practiceQuestion.hint.sign_actions
@@ -273,7 +280,10 @@ export function LessonPage({ conceptId }: LessonPageProps) {
           )}
         </div>
 
-        <TutorAvatar signActions={avatarSignActions} />
+        <AvatarSignPlayer
+          signActions={avatarSignActions}
+          validatedSignIds={validatedSignIds}
+        />
       </section>
     </main>
   )

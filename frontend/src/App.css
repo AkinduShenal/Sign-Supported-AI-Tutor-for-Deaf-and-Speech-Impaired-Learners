@@ -416,6 +416,15 @@ button:disabled {
   box-shadow: inset 0 0 0 1px rgba(91, 74, 232, 0.28);
 }
 
+.sign-chip.is-unavailable {
+  color: #68657a;
+  background: #f1f0f6;
+}
+
+.sign-chip.is-unavailable span {
+  background: #858197;
+}
+
 .sign-chip.is-active {
   color: #fff;
   background: var(--primary);
@@ -433,6 +442,23 @@ button:disabled {
   margin-top: 12px;
   padding: 8px 12px;
   font-size: 12px;
+}
+
+.sign-fallback {
+  display: grid;
+  gap: 3px;
+  margin-top: 12px;
+  border-left: 3px solid #d49b18;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #6d5514;
+  background: #fff8df;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.sign-fallback strong {
+  color: #5d470e;
 }
 
 .avatar-note {

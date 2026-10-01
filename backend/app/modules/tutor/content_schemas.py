@@ -73,6 +73,8 @@ class MathSignPlanRequest(BaseModel):
 
 class MathSignPlanResponse(BaseModel):
     sign_actions: list[str]
+    playable_actions: list[str]
+    unavailable_actions: list[str]
     unsupported_actions: list[str]
     unsupported_tokens: list[str]
     is_fully_supported: bool

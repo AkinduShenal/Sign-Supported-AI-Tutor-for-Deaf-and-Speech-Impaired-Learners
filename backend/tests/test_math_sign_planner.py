@@ -1,58 +1,68 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.modules.tutor.sign_planner import MathSignPlanner
+from app.modules.tutor.sign_planner import MANIFEST_PATH, MathSignPlanner
 
 
 client = TestClient(app)
 
 
-def test_builds_ordered_signs_from_math_expression() -> None:
-    plan = MathSignPlanner().plan(expression="4 + 3 = 7")
+@pytest.mark.parametrize(
+    ("instruction", "expected_actions"),
+    [
+        (
+            "Subtract 3 from both sides",
+            ("SUBTRACTION", "NUMBER_3", "BOTH_SIDES"),
+        ),
+        (
+            "Add 4 to both sides",
+            ("ADDITION", "NUMBER_4", "BOTH_SIDES"),
+        ),
+        (
+            "Substitute 5 for x",
+            ("SUBSTITUTION", "NUMBER_5", "VARIABLE"),
+        ),
+        (
+            "Solve the equation",
+            ("SOLVE", "EQUATION"),
+        ),
+    ],
+)
+def test_plans_required_teaching_phrases(
+    instruction: str,
+    expected_actions: tuple[str, ...],
+) -> None:
+    plan = MathSignPlanner().plan(instruction=instruction)
 
-    assert plan.sign_actions == (
-        "NUMBER_4",
-        "ADDITION",
-        "NUMBER_3",
-        "EQUATION",
-        "NUMBER_7",
-    )
-    assert plan.is_fully_supported is True
+    assert plan.sign_actions == expected_actions
+    assert plan.playable_actions == ()
+    assert plan.unavailable_actions == expected_actions
+    assert plan.is_fully_supported is False
 
 
-def test_adds_instruction_context_before_expression() -> None:
+def test_instruction_is_preferred_over_raw_expression() -> None:
     plan = MathSignPlanner().plan(
-        instruction="Substitute 4 for x to check the answer.",
-        expression="4 + 3 = 7",
+        instruction="Subtract 3 from both sides",
+        expression="x + 3 - 3 = 7 - 3",
     )
 
-    assert plan.sign_actions[:2] == ("SUBSTITUTION", "ALGEBRA")
-    assert plan.sign_actions[2:] == (
-        "NUMBER_4",
-        "ADDITION",
-        "NUMBER_3",
-        "EQUATION",
-        "NUMBER_7",
-    )
+    assert plan.sign_actions == ("SUBTRACTION", "NUMBER_3", "BOTH_SIDES")
+    assert len(plan.sign_actions) <= 4
 
 
-def test_reports_actions_without_approved_animations() -> None:
+def test_api_reports_unvalidated_actions_without_marking_them_playable() -> None:
     response = client.post(
         "/api/v1/tutor/sign-plan",
-        json={"expression": "x / 5 = 12"},
+        json={"instruction": "Add 4 to both sides"},
     )
 
     assert response.status_code == 200
     assert response.json() == {
-        "sign_actions": [
-            "ALGEBRA",
-            "DIVISION",
-            "NUMBER_5",
-            "EQUATION",
-            "NUMBER_1",
-            "NUMBER_2",
-        ],
-        "unsupported_actions": ["DIVISION", "NUMBER_1", "NUMBER_2"],
+        "sign_actions": ["ADDITION", "NUMBER_4", "BOTH_SIDES"],
+        "playable_actions": [],
+        "unavailable_actions": ["ADDITION", "NUMBER_4", "BOTH_SIDES"],
+        "unsupported_actions": [],
         "unsupported_tokens": [],
         "is_fully_supported": False,
     }
@@ -66,7 +76,16 @@ def test_reports_unknown_expression_tokens_without_inventing_signs() -> None:
 
     assert response.status_code == 200
     assert response.json()["unsupported_tokens"] == ["y"]
-    assert "ALGEBRA" not in response.json()["sign_actions"]
+    assert response.json()["sign_actions"] == ["ADDITION", "EQUATION"]
+
+
+def test_manifest_is_loaded_from_avatar_sign_package() -> None:
+    assert MANIFEST_PATH.parts[-3:] == (
+        "avatar-sign-package",
+        "manifest",
+        "signs.json",
+    )
+    assert MANIFEST_PATH.is_file()
 
 
 def test_rejects_empty_sign_plan_request() -> None:

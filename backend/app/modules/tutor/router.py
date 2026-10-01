@@ -43,6 +43,8 @@ def create_sign_plan(request: MathSignPlanRequest) -> MathSignPlanResponse:
     )
     return MathSignPlanResponse(
         sign_actions=list(plan.sign_actions),
+        playable_actions=list(plan.playable_actions),
+        unavailable_actions=list(plan.unavailable_actions),
         unsupported_actions=list(plan.unsupported_actions),
         unsupported_tokens=list(plan.unsupported_tokens),
         is_fully_supported=plan.is_fully_supported,
