@@ -5,7 +5,7 @@ from app.modules.game.models import GameResult as GameResultModel
 from app.modules.quiz.models import QuizResult as QuizResultModel
 from app.modules.tutor.models import TutorStrategyPrediction
 from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse
-from app.modules.tutor.strategy_model import RuleBasedStrategyModel
+from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
 
 
 class DuplicateSessionConflictError(ValueError):
@@ -13,7 +13,7 @@ class DuplicateSessionConflictError(ValueError):
 
 
 class TutorStrategyService:
-    def __init__(self, model: RuleBasedStrategyModel | None = None) -> None:
+    def __init__(self, model: StrategyPredictor | None = None) -> None:
         self.model = model or RuleBasedStrategyModel()
 
     def recommend(
@@ -153,14 +153,12 @@ class TutorStrategyService:
             and result.concept_id == request.concept_id
             and result.weak_concept == quiz.weak_concept
             and result.quiz_mastery_score == quiz.quiz_mastery_score
-            and result.recommended_support_level
-            == quiz.recommended_support_level.value
+            and result.recommended_support_level == quiz.recommended_support_level.value
             and result.questions_total == quiz.questions_total
             and result.questions_attempted == quiz.questions_attempted
             and result.correct_answers == quiz.correct_answers
             and result.quiz_accuracy == quiz.quiz_accuracy
-            and result.quiz_avg_response_time_sec
-            == quiz.quiz_avg_response_time_sec
+            and result.quiz_avg_response_time_sec == quiz.quiz_avg_response_time_sec
             and result.quiz_hint_rate == quiz.quiz_hint_rate
             and result.misconception_code == quiz.misconception_code.value
             and result.quiz_difficulty_level == quiz.quiz_difficulty_level.value
@@ -177,8 +175,7 @@ class TutorStrategyService:
             result.student_id == request.student_id
             and result.concept_id == request.concept_id
             and result.engagement_level == game.engagement_level.value
-            and result.behavioral_difficulty
-            == game.behavioral_difficulty.value
+            and result.behavioral_difficulty == game.behavioral_difficulty.value
             and result.hint_dependency == game.hint_dependency
             and result.game_mastery_score == game.game_mastery_score
             and result.tasks_total == game.tasks_total
@@ -187,8 +184,7 @@ class TutorStrategyService:
             and result.successful_tasks == game.successful_tasks
             and result.game_success_rate == game.game_success_rate
             and result.game_completion_rate == game.game_completion_rate
-            and result.game_avg_attempts_per_task
-            == game.game_avg_attempts_per_task
+            and result.game_avg_attempts_per_task == game.game_avg_attempts_per_task
             and result.game_hint_rate == game.game_hint_rate
             and result.game_difficulty_level == game.game_difficulty_level.value
             and result.game_active_time_sec == game.game_active_time_sec

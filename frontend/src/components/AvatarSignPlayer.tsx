@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ModelViewerElement } from '@google/model-viewer'
+import { selectPlayback } from './playbackPolicy'
 
 const MASTER_AVATAR_URL =
   '/models/louise_signs_master.glb?v=linear-equation-avatar-v1'
 const BETWEEN_CLIP_DELAY_MS = 120
+const EMPTY_SIGNS: string[] = []
 
 export interface AvatarSignPlayerProps {
   signActions: string[]
   validatedSignIds?: string[]
   prototypeSignIds?: string[]
+  allowPrototype?: boolean
+  caption?: string
+  onInteraction?: (action: string) => void
 }
 
 interface QueuedSign {
@@ -18,19 +23,30 @@ interface QueuedSign {
 
 export function AvatarSignPlayer({
   signActions,
-  validatedSignIds = [],
-  prototypeSignIds = [],
+  validatedSignIds = EMPTY_SIGNS,
+  prototypeSignIds = EMPTY_SIGNS,
+  allowPrototype = false,
+  caption,
+  onInteraction,
 }: AvatarSignPlayerProps) {
   const modelViewerRef = useRef<ModelViewerElement>(null)
   const playbackQueueRef = useRef<QueuedSign[]>([])
   const playbackIndexRef = useRef(0)
   const advanceSequenceRef = useRef<() => void>(() => undefined)
   const transitionTimerRef = useRef<number | null>(null)
+  const playbackRevision = useRef(0)
+  const clipStarted = useRef(false)
   const [modelState, setModelState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   )
   const [availableAnimations, setAvailableAnimations] = useState<string[]>([])
   const [activeSignIndex, setActiveSignIndex] = useState<number | null>(null)
+  const [paused, setPaused] = useState(false)
+  const pausedRef = useRef(false)
+  const pendingAdvance = useRef(false)
+  const [speed, setSpeed] = useState(0.75)
+  const speedRef = useRef(speed)
+  const [autoPlay, setAutoPlay] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
 
   const validatedSet = useMemo(
     () => new Set(validatedSignIds),
@@ -41,28 +57,16 @@ export function AvatarSignPlayer({
     [prototypeSignIds],
   )
   const approvedForPlaybackSet = useMemo(
-    () => new Set([...validatedSignIds, ...prototypeSignIds]),
-    [prototypeSignIds, validatedSignIds],
+    () => new Set([...validatedSignIds, ...(allowPrototype ? prototypeSignIds : [])]),
+    [allowPrototype, prototypeSignIds, validatedSignIds],
   )
 
-  const requestedSigns = useMemo(() => {
-    const seen = new Set<string>()
-    return signActions
-      .map((name, sourceIndex) => ({ name, sourceIndex }))
-      .filter(({ name }) => {
-        if (seen.has(name)) return false
-        seen.add(name)
-        return true
-      })
-  }, [signActions])
+  const requestedSigns = useMemo(() => signActions.map((name, sourceIndex) => ({ name, sourceIndex })), [signActions])
 
   const playableSigns = useMemo(
     () =>
-      requestedSigns.filter(
-        ({ name }) =>
-          approvedForPlaybackSet.has(name) && availableAnimations.includes(name),
-      ),
-    [approvedForPlaybackSet, availableAnimations, requestedSigns],
+      selectPlayback(signActions, availableAnimations, validatedSignIds, prototypeSignIds, allowPrototype),
+    [signActions, availableAnimations, validatedSignIds, prototypeSignIds, allowPrototype],
   )
 
   const unavailableSigns = useMemo(
@@ -87,15 +91,30 @@ export function AvatarSignPlayer({
     }
   }, [])
 
+  const cancelPendingPlayback = useCallback(() => {
+    playbackRevision.current++
+  }, [])
+
   const playClip = useCallback(
-    (animationName: string, repetitions = 1, forceRestart = false) => {
+    (animationName: string, repetitions = 1) => {
       const modelViewer = modelViewerRef.current
       if (!modelViewer) return
-
-      if (forceRestart) modelViewer.pause()
+      const revision = ++playbackRevision.current
+      clipStarted.current = false
+      modelViewer.pause()
+      // Blend existing tracks only; never rotate/re-target the skeleton at runtime.
+      modelViewer.animationCrossfadeDuration = 200
       modelViewer.animationName = animationName
-      modelViewer.currentTime = 0
-      modelViewer.play({ repetitions, pingpong: false })
+      // animationName updates asynchronously and resets loop options. Wait for
+      // that update BEFORE setting time and repetitions, or the sequence loops.
+      void modelViewer.updateComplete.then(() => {
+        if (revision !== playbackRevision.current || modelViewer !== modelViewerRef.current) return
+        modelViewer.timeScale = speedRef.current
+        modelViewer.currentTime = 0
+        modelViewer.play({ repetitions, pingpong: false })
+        clipStarted.current = true
+        if (pausedRef.current) modelViewer.pause()
+      })
     },
     [],
   )
@@ -107,7 +126,7 @@ export function AvatarSignPlayer({
     setActiveSignIndex(null)
 
     if (availableAnimations.includes('IDLE')) {
-      playClip('IDLE', Infinity)
+      playClip('IDLE', 1)
     }
   }, [availableAnimations, clearTransitionTimer, playClip])
 
@@ -130,6 +149,9 @@ export function AvatarSignPlayer({
 
   const playSequence = useCallback(() => {
     clearTransitionTimer()
+    pendingAdvance.current = false
+    pausedRef.current = false
+    setPaused(false)
 
     if (playableSigns.length === 0) {
       returnToIdle()
@@ -140,7 +162,7 @@ export function AvatarSignPlayer({
     playbackQueueRef.current = [...playableSigns]
     playbackIndexRef.current = 0
     setActiveSignIndex(playableSigns[0].sourceIndex)
-    playClip(playableSigns[0].name, 1, true)
+    playClip(playableSigns[0].name, 1)
   }, [clearTransitionTimer, playClip, playableSigns, returnToIdle])
 
   useEffect(() => {
@@ -159,22 +181,33 @@ export function AvatarSignPlayer({
       setAvailableAnimations([])
       if (import.meta.env.DEV) {
         console.warn(
-          `[AvatarSignPlayer] Master avatar is unavailable at ${MASTER_AVATAR_URL}. Requested actions will use text/visual fallback: ${signActions.join(', ') || 'none'}`,
+          `[AvatarSignPlayer] Master avatar is unavailable. Using text/visual fallback.`,
         )
       }
     }
     const playNextClip = () => {
-      if (playbackQueueRef.current.length === 0) return
+      if (playbackQueueRef.current.length === 0 || !clipStarted.current) return
+      clipStarted.current = false
+      if (pausedRef.current) { pendingAdvance.current = true; return }
       clearTransitionTimer()
       transitionTimerRef.current = window.setTimeout(() => {
         transitionTimerRef.current = null
-        advanceSequenceRef.current()
+        if (pausedRef.current) pendingAdvance.current = true
+        else advanceSequenceRef.current()
       }, BETWEEN_CLIP_DELAY_MS)
     }
 
     modelViewer.addEventListener('load', showModel)
     modelViewer.addEventListener('error', showError)
     modelViewer.addEventListener('finished', playNextClip)
+    // Some model-viewer releases do not forward finished events from mixers
+    // created after load. Observe actual playback time as a fallback, never a
+    // wall-clock timeout (which would skip slow, paused or offscreen clips).
+    const completionWatch = window.setInterval(() => {
+      if (pausedRef.current || !clipStarted.current || playbackQueueRef.current.length === 0) return
+      const clip = playbackQueueRef.current[playbackIndexRef.current]
+      if (modelViewer.animationName === clip?.name && modelViewer.duration > 0 && modelViewer.currentTime >= modelViewer.duration - 0.005) playNextClip()
+    }, 100)
 
     window.ModelViewerElement ??= {}
     window.ModelViewerElement.dracoDecoderLocation = '/draco/'
@@ -187,16 +220,56 @@ export function AvatarSignPlayer({
 
     return () => {
       isActive = false
+      cancelPendingPlayback()
+      window.clearInterval(completionWatch)
       clearTransitionTimer()
       modelViewer.removeEventListener('load', showModel)
       modelViewer.removeEventListener('error', showError)
       modelViewer.removeEventListener('finished', playNextClip)
     }
-  }, [clearTransitionTimer, signActions])
+  }, [clearTransitionTimer, cancelPendingPlayback])
 
   useEffect(() => {
-    if (modelState === 'ready') playSequence()
-  }, [modelState, playSequence])
+    if (modelState !== 'ready') return
+    if (autoPlay) playSequence()
+    else {
+      playbackRevision.current++
+      clearTransitionTimer()
+      playbackQueueRef.current = []
+      setActiveSignIndex(null)
+      pausedRef.current = false
+      setPaused(false)
+      const viewer = modelViewerRef.current
+      if (viewer) {
+        viewer.pause()
+        if (availableAnimations.includes('IDLE')) {
+          const revision = playbackRevision.current
+          viewer.animationName = 'IDLE'
+          void viewer.updateComplete.then(() => {
+            if (revision === playbackRevision.current) {
+              // Apply the neutral clip without allowing a frame of motion.
+              viewer.play({ repetitions: 1, pingpong: false })
+              viewer.pause()
+              viewer.currentTime = 0
+            }
+          })
+        }
+      }
+    }
+    return () => { cancelPendingPlayback(); clearTransitionTimer() }
+  }, [modelState, playSequence, autoPlay, clearTransitionTimer, availableAnimations, cancelPendingPlayback])
+
+  function togglePause() {
+    const next = !pausedRef.current
+    pausedRef.current = next
+    setPaused(next)
+    onInteraction?.(next ? 'avatar_pause' : 'avatar_resume')
+    if (next) modelViewerRef.current?.pause()
+    else if (pendingAdvance.current) {
+      pendingAdvance.current = false
+      advanceSequenceRef.current()
+    } else modelViewerRef.current?.play({ repetitions: 1, pingpong: false })
+  }
 
   useEffect(() => {
     if (!import.meta.env.DEV || requestedSigns.length === 0) return
@@ -234,7 +307,20 @@ export function AvatarSignPlayer({
           <span className="eyebrow">Sign support</span>
           <h2 id="avatar-title">Tutor Avatar</h2>
         </div>
-        <span className="prototype-badge">Prototype gestures</span>
+        <span className="prototype-badge">{allowPrototype ? 'Prototype preview' : 'Validated clips only'}</span>
+      </div>
+
+      {caption && <p className="avatar-caption">{caption}</p>}
+      <div className="avatar-playback-controls">
+        <label>Speed <select aria-label="Avatar playback speed" value={speed} onChange={(event) => {
+          const value = Number(event.target.value)
+          setSpeed(value)
+          speedRef.current = value
+          if (modelViewerRef.current) modelViewerRef.current.timeScale = value
+          onInteraction?.(`avatar_speed_${value}`)
+        }}><option value={0.5}>0.5×</option><option value={0.75}>0.75×</option><option value={1}>1×</option></select></label>
+        <label><input type="checkbox" checked={autoPlay} onChange={(event) => setAutoPlay(event.target.checked)} /> Auto-play</label>
+        <button type="button" className="secondary-button" disabled={activeSignIndex === null} onClick={togglePause}>{paused ? 'Resume' : 'Pause'}</button>
       </div>
 
       <div className="avatar-stage">
@@ -326,7 +412,7 @@ export function AvatarSignPlayer({
         {playableSigns.length > 0 && (
           <button
             className="secondary-button replay-sign-button"
-            onClick={playSequence}
+            onClick={() => { onInteraction?.('avatar_replay'); playSequence() }}
             type="button"
           >
             Replay gestures ({playableSigns.length})
@@ -342,7 +428,7 @@ export function AvatarSignPlayer({
             : 'No animation is available for this step. The lesson remains available as text and visual mathematics support.'}
       </p>
       <p className="avatar-language-notice">
-        Prototype educational gestures — not validated Sri Lankan Sign Language.
+        {allowPrototype ? 'Prototype educational gestures — not validated Sri Lankan Sign Language. They support key terms, not full sentence translation.' : 'Only human-validated signs are enabled. Unvalidated or missing signs use the written lesson and equations.'}
       </p>
     </aside>
   )

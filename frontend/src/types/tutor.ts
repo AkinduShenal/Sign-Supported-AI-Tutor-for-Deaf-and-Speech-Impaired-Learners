@@ -4,8 +4,8 @@ export interface SignReference {
   sign_id: string
   label: string
   source_title: string
-  source_page: number
-  source_entry: number
+  source_page: number | null
+  source_entry: number | null
   animation_asset: string | null
   animation_action: string | null
   prototype_ready: boolean
@@ -49,4 +49,23 @@ export interface TutorLesson {
   sign_glossary: SignReference[]
   worked_examples: WorkedExample[]
   practice_questions: PracticeQuestion[]
+}
+
+export type LearningLevel = 'foundation' | 'one_step' | 'two_step' | 'extended'
+export interface AdaptiveLesson extends TutorLesson {
+  plan: {
+    level: LearningLevel
+    source: 'diagnostic' | 'preview'
+    model_version: string
+    content_version: string
+    primary_strategy: string
+    supporting_strategies: string[]
+    rationale: string
+    misconception_support: string
+    preferred_mode: string
+    sign_support_required: boolean
+    content_review_status: string
+    reassessment_note: string
+  }
+  practice_questions: (PracticeQuestion & { progressive_hints: SignSupportedText[] })[]
 }

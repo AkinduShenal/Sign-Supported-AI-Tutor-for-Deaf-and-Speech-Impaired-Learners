@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Protocol
 
 from app.modules.tutor.schemas import (
     BehavioralDifficulty,
@@ -15,6 +16,14 @@ class StrategyPrediction:
     primary_strategy: TutoringStrategy
     supporting_strategies: tuple[TutoringStrategy, ...]
     confidence: float
+
+
+class StrategyPredictor(Protocol):
+    """Common inference boundary for the baseline and a future evaluated model."""
+
+    version: str
+
+    def predict(self, request: TutorStrategyRequest) -> StrategyPrediction: ...
 
 
 class RuleBasedStrategyModel:

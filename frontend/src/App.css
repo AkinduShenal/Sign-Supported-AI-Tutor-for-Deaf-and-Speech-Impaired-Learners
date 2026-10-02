@@ -4,6 +4,20 @@
   padding: 38px 0 64px;
 }
 
+.tutor-setup, .plan-summary { margin-bottom: 24px; }
+.tutor-setup summary, .plan-summary summary { cursor: pointer; font-weight: 700; }
+.tutor-setup p, .plan-summary p { margin: 12px 0; }
+.tutor-setup .lesson-actions { flex-wrap: wrap; }
+.avatar-playback-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+.avatar-playback-controls label { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.avatar-playback-controls select, .example-picker select { padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: white; color: var(--text-main); }
+.example-picker { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+.original-equation { margin-top: 20px; }
+.equation.adaptive-equation { font-size: clamp(22px, 3vw, 38px); overflow-wrap: anywhere; }
+.avatar-caption { padding: 14px; background: #f5f3ff; border-radius: 12px; font-weight: 600; }
+.text-only-grid { grid-template-columns: minmax(0, 1fr); }
+.lesson-actions button[aria-pressed="true"] { border: 2px solid var(--primary); }
+
 .lesson-header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

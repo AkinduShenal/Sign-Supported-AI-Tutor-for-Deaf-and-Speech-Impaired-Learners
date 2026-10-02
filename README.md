@@ -38,9 +38,19 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+The main page contains the Grade 10 adaptive linear-equation workspace. Open
+**Lesson setup / team diagnostic handoff** to preview four difficulty paths or
+import Quiz/Game diagnostic JSON. See [the implementation and research guide](docs/GRADE10_TUTOR.md)
+for API integration, tests, model status and remaining validation requirements.
+
 ## Avatar research status
 
 The master GLB contains 22 technically checked prototype educational gesture
 actions. They are not validated Sri Lankan Sign Language. Missing or unavailable
 actions fall back to written and visual mathematics support rather than being
 fabricated at runtime.
+
+Validated-only playback is the default. To review existing unvalidated gestures,
+explicitly enable **Preview unvalidated gestures (reviewers only)**. The current
+strategy engine is a rule-based baseline, not a trained ML model. Teacher/sign
+review and actual learner evaluation remain necessary before research claims.

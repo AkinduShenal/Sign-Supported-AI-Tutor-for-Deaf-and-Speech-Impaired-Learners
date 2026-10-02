@@ -16,11 +16,44 @@ from app.modules.tutor.service import (
     TutorStrategyService,
 )
 from app.modules.tutor.sign_planner import MathSignPlanner
+from app.modules.tutor.adaptive_lesson import (
+    AdaptiveLesson,
+    Level,
+    PracticeCheckRequest,
+    PracticeCheckResponse,
+    check_practice,
+    plan_lesson,
+    preview_lesson,
+)
 
 
 router = APIRouter(prefix="/api/v1/tutor", tags=["Tutor"])
 service = TutorStrategyService()
 sign_planner = MathSignPlanner()
+
+
+@router.get("/grade10/{level}", response_model=AdaptiveLesson)
+def preview_grade10(level: Level) -> AdaptiveLesson:
+    return preview_lesson(level)
+
+
+@router.post("/adaptive-lesson", response_model=AdaptiveLesson)
+def adaptive_grade10(request: TutorStrategyRequest) -> AdaptiveLesson:
+    """Read-only planning; existing /strategy remains the persistence endpoint."""
+    try:
+        return plan_lesson(request, service.model)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@router.post("/practice/check", response_model=PracticeCheckResponse)
+def check_grade10_practice(request: PracticeCheckRequest) -> PracticeCheckResponse:
+    try:
+        return check_practice(request)
+    except KeyError as error:
+        raise HTTPException(
+            status_code=404, detail="Unknown practice question"
+        ) from error
 
 
 @router.get("/lessons/{concept_id}", response_model=TutorLessonResponse)

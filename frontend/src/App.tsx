@@ -1,8 +1,8 @@
-import { LessonPage } from './components/LessonPage'
+import { AdaptiveTutor } from './components/AdaptiveTutor'
 import './App.css'
 
 function App() {
-  return <LessonPage conceptId="linear_equation_balancing" />
+  return <AdaptiveTutor />
 }
 
 export default App

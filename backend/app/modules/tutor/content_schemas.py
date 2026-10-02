@@ -12,8 +12,8 @@ class SignReference(BaseModel):
     sign_id: str = Field(min_length=1)
     label: str = Field(min_length=1)
     source_title: str = Field(min_length=1)
-    source_page: int = Field(gt=0)
-    source_entry: int = Field(gt=0)
+    source_page: int | None = Field(default=None, gt=0)
+    source_entry: int | None = Field(default=None, gt=0)
     animation_asset: str | None = None
     animation_action: str | None = None
     prototype_ready: bool = False
