@@ -25,6 +25,12 @@ marks them with `prototype_ready: true`, while their lexical
 actions for research-prototype demonstrations, but must not describe them as
 validated Sri Lankan Sign Language.
 
+The current master includes the 2026-10-03 **arm-posture repair**: corrected FK
+arm/wrist poses, a shared ready pose, eased transitions and matte material.
+See [technical checks and limitations](docs/PROTOTYPE_TECHNICAL_VALIDATION.md).
+The historical builder is not the current build path; do not use it to overwrite
+the repaired master. No new lexical signs were validated by this repair.
+
 ## Recommended validation workflow
 
 1. Keep the existing Louise avatar mesh/skeleton as the base.

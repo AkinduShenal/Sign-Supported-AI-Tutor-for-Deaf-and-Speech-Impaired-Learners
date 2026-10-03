@@ -1,11 +1,12 @@
 {
   "package_name": "Sign-Supported AI Tutor Avatar Sign Package",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "architecture": "manifest_backed_clip_library",
   "master_avatar": "models/louise_signs_master.glb",
-  "master_avatar_sha256": "31fd3bbd41cf1cac8c808becd9fd285ba605e3981c721c5a4f1c822b4861b24e",
+  "master_avatar_sha256": "a4c837f03a64484bd75fe05c71a04d9bba36198811308d609c0b8fc4ad0cd5b0",
   "notes": [
     "This package intentionally avoids procedural IK sign generation.",
+    "Arm-posture revision 2 corrects FK arm/wrist poses and transition timing in the existing 22 prototype actions. Finger key shapes are retained, but arm paths/palm orientations changed and require fresh linguistic review. No lexical signs are newly validated.",
     "Each lexical sign must be authored/recorded/retargeted on the same Louise skeleton and validated before it is described as Sri Lankan Sign Language.",
     "Prototype-ready educational gestures may be played in the research prototype but are not validated Sri Lankan Sign Language signs.",
     "The research scope is sign-supported key terms and avatar actions, not full automatic sign-language translation.",

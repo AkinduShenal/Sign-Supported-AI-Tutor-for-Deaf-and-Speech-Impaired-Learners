@@ -69,6 +69,10 @@ non-improvement analysis remain separate components.
 ## Avatar behavior and safeguards
 
 - One runtime asset: `frontend/public/models/louise_signs_master.glb`.
+- The 2026-10-03 posture revision changes the actual GLB arm/wrist key poses,
+  transition timing and neutral pose; it is not just a player-control update.
+  The mesh/skeleton and finger key shapes remain from the supplied package.
+  See [avatar repair checks](../avatar-sign-package/docs/PROTOTYPE_TECHNICAL_VALIDATION.md).
 - Canonical manifests: `avatar-sign-package/manifest/` (backend deployment snapshots remain synced).
 - The library has 22 prototype actions; **zero lexical signs are human-validated**.
 - Default playback is validated-only. Missing/unvalidated actions use text and

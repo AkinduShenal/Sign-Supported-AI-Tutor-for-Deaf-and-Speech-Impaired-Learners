@@ -3,7 +3,7 @@ import type { ModelViewerElement } from '@google/model-viewer'
 import { selectPlayback } from './playbackPolicy'
 
 const MASTER_AVATAR_URL =
-  '/models/louise_signs_master.glb?v=linear-equation-avatar-v1'
+  '/models/louise_signs_master.glb?v=arm-posture-v2'
 const BETWEEN_CLIP_DELAY_MS = 120
 const EMPTY_SIGNS: string[] = []
 
@@ -13,6 +13,7 @@ export interface AvatarSignPlayerProps {
   prototypeSignIds?: string[]
   allowPrototype?: boolean
   caption?: string
+  expression?: string
   onInteraction?: (action: string) => void
 }
 
@@ -27,6 +28,7 @@ export function AvatarSignPlayer({
   prototypeSignIds = EMPTY_SIGNS,
   allowPrototype = false,
   caption,
+  expression,
   onInteraction,
 }: AvatarSignPlayerProps) {
   const modelViewerRef = useRef<ModelViewerElement>(null)
@@ -311,6 +313,7 @@ export function AvatarSignPlayer({
       </div>
 
       {caption && <p className="avatar-caption">{caption}</p>}
+      {expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>{expression}</p>}
       <div className="avatar-playback-controls">
         <label>Speed <select aria-label="Avatar playback speed" value={speed} onChange={(event) => {
           const value = Number(event.target.value)
@@ -350,13 +353,13 @@ export function AvatarSignPlayer({
           camera-controls
           disable-pan
           interaction-prompt="none"
-          camera-target="0m 1.2m 0m"
-          camera-orbit="0deg 82deg 3.2m"
-          min-camera-orbit="-20deg 72deg 2.7m"
-          max-camera-orbit="20deg 92deg 3.8m"
-          field-of-view="28deg"
-          min-field-of-view="25deg"
-          max-field-of-view="32deg"
+          camera-target="0m 1.28m 0.05m"
+          camera-orbit="0deg 88deg 2.2m"
+          min-camera-orbit="-20deg 78deg 2.2m"
+          max-camera-orbit="20deg 92deg 2.8m"
+          field-of-view="26deg"
+          min-field-of-view="26deg"
+          max-field-of-view="30deg"
           shadow-intensity="0.65"
           shadow-softness="0.8"
           exposure="1.05"

@@ -182,7 +182,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
           <div className="lesson-actions"><button className="secondary-button" onClick={exportEvidence}>Export session evidence</button>{independent === lesson.practice_questions.length && lesson.plan.level !== 'extended' && <button className="primary-button" onClick={onNextTopic}>Preview the next topic</button>}</div>
         </section>
       </div>
-      {showAvatar && <AvatarSignPlayer signActions={focusHint && hintCount ? hint.sign_actions : step.sign_actions} caption={focusHint && hintCount ? hint.text : step.instruction} validatedSignIds={validated} prototypeSignIds={prototypes} allowPrototype={allowPrototype} onInteraction={record} />}
+      {showAvatar && <AvatarSignPlayer signActions={focusHint && hintCount ? hint.sign_actions : step.sign_actions} caption={focusHint && hintCount ? hint.text : step.instruction} expression={focusHint && hintCount ? question.prompt : step.expression} validatedSignIds={validated} prototypeSignIds={prototypes} allowPrototype={allowPrototype} onInteraction={record} />}
     </section>
   </>
 }

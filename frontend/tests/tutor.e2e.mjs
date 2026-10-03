@@ -128,6 +128,12 @@ try {
   await until("document.querySelector('model-viewer')?.animationName === 'IDLE'")
 
   // Read-only visual audit: sample existing clips; never synthesize any motion.
+  const reviewSrc = process.argv.includes('--review-avatar') ? '/models/louise_arm_review.glb' : process.env.TUTOR_AVATAR_REVIEW_SRC
+  if (reviewSrc) {
+    await evaluate(`document.querySelector('model-viewer').src=${JSON.stringify(reviewSrc)}`)
+    await delay(200)
+    await until("document.querySelector('model-viewer')?.loaded")
+  }
   await evaluate("document.querySelector('model-viewer').pause()")
   const names = await evaluate("document.querySelector('model-viewer').availableAnimations")
   await send('Emulation.setDeviceMetricsOverride', { width: 420, height: 450, deviceScaleFactor: 1, mobile: false })
@@ -139,10 +145,31 @@ try {
     const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false })
     poses.push(shot.data)
   }
+  const motionSheets = []
+  // A midpoint alone misses transition flips. Sample complete clips from the
+  // front and side, including returns to rest and finger-heavy number actions.
+  for (const orbit of [0, 65]) {
+    const frames = []
+    await evaluate(`(() => {const v=document.querySelector('model-viewer');v.minCameraOrbit='-90deg 0deg 2.2m';v.maxCameraOrbit='90deg 180deg 3m';v.cameraOrbit='${orbit}deg 88deg 2.2m';v.jumpCameraToGoal()})()`)
+    for (const name of ['EQUATION', 'SUBTRACTION', 'SUBSTITUTION', 'NUMBER_5']) {
+      for (const fraction of [0, .2, .4, .6, .8, 1]) {
+        await evaluate(`(async () => {const v=document.querySelector('model-viewer');v.pause();v.animationName=${JSON.stringify(name)};await v.updateComplete;v.play({repetitions:1,pingpong:false});v.pause();v.currentTime=v.duration*${fraction};document.querySelector('#audit-label').textContent=${JSON.stringify(name + ' · ' + Math.round(fraction*100) + '%')};})()`)
+        await delay(100)
+        frames.push((await send('Page.captureScreenshot', {format:'png',captureBeyondViewport:false})).data)
+      }
+    }
+    motionSheets.push({name:`arm-transitions-${orbit}`,frames})
+  }
   await send('Emulation.setDeviceMetricsOverride', { width: 1260, height: 2030, deviceScaleFactor: 1, mobile: false })
   await evaluate(`document.body.innerHTML=${JSON.stringify('<div style="display:grid;grid-template-columns:repeat(4,315px)">' + poses.map(data => '<img width="315" src="data:image/png;base64,' + data + '">').join('') + '</div>')}`)
   await delay(300)
   await screenshot('all-action-midpoints')
+  for (const sheet of motionSheets) {
+    await send('Emulation.setDeviceMetricsOverride', {width:1800,height:1320,deviceScaleFactor:1,mobile:false})
+    await evaluate(`document.body.innerHTML=${JSON.stringify('<div style="display:grid;grid-template-columns:repeat(6,300px)">' + sheet.frames.map(data=>'<img width="300" src="data:image/png;base64,'+data+'">').join('')+'</div>')}`)
+    await delay(200)
+    await screenshot(sheet.name)
+  }
   assert.deepEqual(errors, [])
   console.log('PASS: strict fallback, 22 clips, explicit opt-in, pause, step sequence, server grading, first-attempt evidence, mobile layout, no JS errors. Pose contact sheet saved for human review.')
 } finally {
