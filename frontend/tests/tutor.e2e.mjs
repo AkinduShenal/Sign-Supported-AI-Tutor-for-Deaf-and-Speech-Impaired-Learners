@@ -107,6 +107,23 @@ try {
   assert.equal(await evaluate("document.querySelector('.avatar-expression').textContent === document.querySelector('.adaptive-equation').textContent"), true)
   assert.equal(await evaluate("document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')"), '1')
   await screenshot('strict-default')
+  // Visual-only redesign: preserve desktop proportions and mobile reading order.
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height: 1050, deviceScaleFactor: 1, mobile: width <= 900 })
+    await evaluate('window.scrollTo(0,0)')
+    await delay(250)
+    assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true, `Overflow at ${width}px`)
+    const layout = await evaluate(`(() => {
+      const example = document.querySelector('.worked-example').getBoundingClientRect();
+      const avatar = document.querySelector('.avatar-panel').getBoundingClientRect();
+      const practice = document.querySelector('.practice-card').getBoundingClientRect();
+      return { desktop: Math.abs(example.top-avatar.top)<2 && example.right<avatar.left && example.width>avatar.width,
+        stacked: example.top<avatar.top && avatar.top<practice.top };
+    })()`)
+    assert.equal(width > 900 ? layout.desktop : layout.stacked, true, `Layout at ${width}px`)
+    await screenshot(`redesign-${width}`)
+  }
+  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1050, deviceScaleFactor: 1, mobile: false })
   await evaluate("window.auditEvents=[]; for(const name of ['finished','loop','play','pause']) document.querySelector('model-viewer').addEventListener(name,()=>window.auditEvents.push([name,document.querySelector('model-viewer').animationName,document.querySelector('model-viewer').currentTime])); document.querySelector('model-viewer').scrollIntoView({block:'center'})")
   await click('Preview gestures')
   await until("document.querySelector('.sign-chip.is-active')")

@@ -56,10 +56,16 @@ export function AdaptiveTutor() {
     <a className="skip-lesson" href="#lesson-content">Skip to lesson</a>
     <nav className="workspace-bar" aria-label="Learning space">
       <span className="workspace-brand"><span className="brand-mark" aria-hidden="true">s<span>+</span></span> Sign & learn</span>
-      <span className="course-label">Mathematics <span aria-hidden="true">/</span> Grade 10</span>
+      <span className="course-label"><span>Mathematics</span><span>Grade 10</span></span>
     </nav>
     <header className="lesson-header">
-      <div className="header-copy"><h1>Linear equations</h1></div>
+      <div className="topic-mark" aria-hidden="true">x</div>
+      <div className="header-copy">
+        <span className="lesson-kicker">Today&apos;s maths mission</span>
+        <h1>Linear equations</h1>
+        <p>Learn it step by step, then try it yourself.</p>
+      </div>
+      <span className="lesson-status"><span aria-hidden="true">✦</span> Ready to learn</span>
     </header>
     {loading ? <p role="status">Preparing your lesson…</p> : error ? <div className="lesson-card" role="alert"><h2>Lesson unavailable</h2><p>{error}</p><button className="primary-button" onClick={() => setRetry(n => n + 1)}>Try again</button></div> : lesson &&
       <LearningSession key={session} lesson={lesson} requestMs={requestMs} onNextTopic={() => {
@@ -174,7 +180,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
           <p className="example-title">Worked example</p>
           <div className="card-heading"><h2>{stepIndex === 0 ? 'Key idea' : `Step ${stepIndex}`}</h2><span className="step-count">{stepIndex + 1} / {steps.length}</span></div>
           <div className="step-rail" role="progressbar" aria-label="Worked example progress" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={stepIndex + 1}>{steps.map((_, index) => <span key={index} className={index <= stepIndex ? 'reached' : ''} />)}</div>
-          <label className="example-picker">Choose an example <select value={exampleIndex} onChange={event => { setExampleIndex(Number(event.target.value)); setStepIndex(0); setFocusHint(false); record('example_selected', { item: event.target.value }) }}>{lesson.worked_examples.map((item, index) => <option key={item.problem} value={index}>{item.problem}</option>)}</select></label>
+          <label className="example-picker"><span><span className="picker-icon" aria-hidden="true">✦</span> Choose an example</span><select value={exampleIndex} onChange={event => { setExampleIndex(Number(event.target.value)); setStepIndex(0); setFocusHint(false); record('example_selected', { item: event.target.value }) }}>{lesson.worked_examples.map((item, index) => <option key={item.problem} value={index}>{item.problem}</option>)}</select></label>
           <p className="original-equation">Original equation: <strong>{example.problem}</strong></p>
           <div className="bilingual-instruction" aria-live="polite"><p className="instruction" lang="en">{step.instruction}</p><SinhalaText text={step.instruction} /></div>
           <div className="equation adaptive-equation" aria-label={step.expression}>{step.expression}</div>
