@@ -33,6 +33,8 @@ PREFIX = "mixamorig8:"
 FPS = 30
 START_FRAME = 1
 END_FRAME = 72
+NEUTRAL_SETTLE_FRAME = 9
+EXIT_SETTLE_OFFSET = 9
 
 FINGERS = ("Thumb", "Index", "Middle", "Ring", "Pinky")
 
@@ -70,15 +72,15 @@ def neutral_state() -> PoseState:
     """A relaxed, symmetrical pose that avoids the previous bent-arm idle."""
     return {
         "Left": hand_state(
-            (0.34, -0.015, 0.78),
-            (0.62, 0.05, 1.04),
+            (0.31, -0.015, 0.76),
+            (0.40, -0.10, 0.96),
             (0.0, 0.0, -1.0),
             (-1.0, 0.0, 0.0),
             set(FINGERS),
         ),
         "Right": hand_state(
-            (-0.34, -0.015, 0.78),
-            (-0.62, 0.05, 1.04),
+            (-0.31, -0.015, 0.76),
+            (-0.40, -0.10, 0.96),
             (0.0, 0.0, -1.0),
             (1.0, 0.0, 0.0),
             set(FINGERS),
@@ -119,22 +121,87 @@ def keyframe_orientation(
     target.keyframe_insert(data_path="rotation_quaternion", frame=frame)
 
 
+def signed_angle(vector_u: Vector, vector_v: Vector, normal: Vector) -> float:
+    """Return a signed angle around the supplied normal."""
+    if vector_u.length < 1e-8 or vector_v.length < 1e-8 or normal.length < 1e-8:
+        return 0.0
+
+    u = vector_u.normalized()
+    v = vector_v.normalized()
+    n = normal.normalized()
+
+    angle = u.angle(v)
+    if u.cross(v).dot(n) < 0.0:
+        angle = -angle
+    return angle
+
+
+def calculate_pole_angle(
+    armature: bpy.types.Object,
+    side: str,
+    pole_world_location: Vector,
+) -> float:
+    """Calculate the IK pole angle from Louise's real bone roll.
+
+    This replaces the old hard-coded -90/+90 degree values. Mixamo-style
+    left/right arm bones do not necessarily have mirrored local roll, so fixed
+    values can make symmetric targets produce asymmetric elbows.
+    """
+    base_bone = armature.pose.bones[f"{PREFIX}{side}Arm"]
+    ik_bone = armature.pose.bones[f"{PREFIX}{side}ForeArm"]
+
+    pole_location = armature.matrix_world.inverted() @ pole_world_location
+
+    chain_axis = ik_bone.tail - base_bone.head
+    upper_axis = base_bone.tail - base_bone.head
+
+    pole_normal = chain_axis.cross(pole_location - base_bone.head)
+    if pole_normal.length < 1e-8:
+        return 0.0
+
+    projected_pole_axis = pole_normal.cross(upper_axis)
+    if projected_pole_axis.length < 1e-8:
+        return 0.0
+
+    return signed_angle(
+        base_bone.x_axis,
+        projected_pole_axis,
+        upper_axis,
+    )
+
+
 def add_constraints(
     armature: bpy.types.Object,
     side: str,
     wrist_target: bpy.types.Object,
     pole_target: bpy.types.Object,
     orientation_target: bpy.types.Object,
+    pole_reference: tuple[float, float, float],
+    action_name: str,
 ) -> None:
     forearm = armature.pose.bones[f"{PREFIX}{side}ForeArm"]
     hand = armature.pose.bones[f"{PREFIX}{side}Hand"]
+
+    pole_target.location = pole_reference
+    bpy.context.view_layer.update()
 
     ik = forearm.constraints.new("IK")
     ik.target = wrist_target
     ik.pole_target = pole_target
     ik.chain_count = 2
     ik.use_tail = True
-    ik.pole_angle = math.radians(-90 if side == "Left" else 90)
+
+    pole_angle = calculate_pole_angle(
+        armature,
+        side,
+        pole_target.matrix_world.translation,
+    )
+    ik.pole_angle = pole_angle
+
+    print(
+        f"[{action_name}] {side} pole angle: "
+        f"{math.degrees(pole_angle):.2f} degrees"
+    )
 
     copy_rotation = hand.constraints.new("COPY_ROTATION")
     copy_rotation.target = orientation_target
@@ -185,8 +252,10 @@ def keyframe_pose(
 
         wrist_target.location = hand["wrist"]
         wrist_target.keyframe_insert(data_path="location", frame=frame)
+
         pole_target.location = hand["pole"]
         pole_target.keyframe_insert(data_path="location", frame=frame)
+
         keyframe_orientation(
             orientation_target,
             frame,
@@ -194,6 +263,31 @@ def keyframe_pose(
             hand["palm"],
         )
         keyframe_hand_shape(armature, frame, side, hand["extended"])
+
+
+def smooth_action_curves(action: bpy.types.Action) -> None:
+    """Smooth baked animation curves in legacy and Blender 5.x Actions."""
+    legacy_fcurves = getattr(action, "fcurves", None)
+    if legacy_fcurves is not None:
+        for fcurve in legacy_fcurves:
+            for point in fcurve.keyframe_points:
+                point.interpolation = "BEZIER"
+                point.handle_left_type = "AUTO_CLAMPED"
+                point.handle_right_type = "AUTO_CLAMPED"
+        return
+
+    for layer in getattr(action, "layers", ()):
+        for strip in getattr(layer, "strips", ()):
+            channelbags = getattr(strip, "channelbags", None)
+            if channelbags is None:
+                continue
+
+            for channelbag in channelbags:
+                for fcurve in channelbag.fcurves:
+                    for point in fcurve.keyframe_points:
+                        point.interpolation = "BEZIER"
+                        point.handle_left_type = "AUTO_CLAMPED"
+                        point.handle_right_type = "AUTO_CLAMPED"
 
 
 def create_action(
@@ -220,24 +314,33 @@ def create_action(
     for side in ("Left", "Right"):
         for role in ("wrist", "pole", "orientation"):
             targets[f"{side}_{role}"] = create_target(f"_{name}_{side}_{role}")
+
+        calibration_state = sign_keyframes[0][1][side]
+
         add_constraints(
             armature,
             side,
             targets[f"{side}_wrist"],
             targets[f"{side}_pole"],
             targets[f"{side}_orientation"],
+            calibration_state["pole"],
+            name,
         )
 
     neutral = neutral_state()
-    for frame in (START_FRAME, 8):
+
+    for frame in (START_FRAME, NEUTRAL_SETTLE_FRAME):
         keyframe_pose(armature, targets, frame, neutral)
+
     for frame, state in sign_keyframes:
         keyframe_pose(armature, targets, frame, state)
-    for frame in (frame_end - 8, frame_end):
+
+    for frame in (frame_end - EXIT_SETTLE_OFFSET, frame_end):
         keyframe_pose(armature, targets, frame, neutral)
 
     scene = bpy.context.scene
     scene.frame_set(START_FRAME)
+
     bpy.ops.nla.bake(
         frame_start=START_FRAME,
         frame_end=frame_end,
@@ -252,8 +355,11 @@ def create_action(
     )
 
     bpy.ops.object.mode_set(mode="OBJECT")
+
     for target in targets.values():
         bpy.data.objects.remove(target, do_unlink=True)
+
+    smooth_action_curves(action)
 
     action.name = name
     action.use_fake_user = True
@@ -281,17 +387,25 @@ def addition_pose() -> PoseState:
 
 
 def subtraction_pose(right_height: float) -> PoseState:
+    """Natural subtraction pose with lower shoulders and outward elbows.
+
+    The wrists stay separated in front of the torso while the pole targets sit
+    slightly outside each shoulder line. This prevents the elbows collapsing
+    inward toward the body.
+    """
+    lifted_right = 1.12 + max(0.0, right_height - 1.30) * 0.45
+
     return {
         "Left": hand_state(
-            (0.24, -0.19, 1.26),
-            (0.54, -0.04, 1.18),
+            (0.20, -0.34, 1.10),
+            (0.62, -0.10, 1.00),
             (-1.0, 0.0, 0.0),
             (0.0, 0.0, 1.0),
             set(FINGERS),
         ),
         "Right": hand_state(
-            (-0.02, -0.22, right_height),
-            (-0.48, -0.04, 1.23),
+            (-0.22, -0.30, lifted_right),
+            (-0.62, -0.10, 1.00),
             (0.0, 0.0, -1.0),
             (0.0, -1.0, 0.0),
             set(),
@@ -300,19 +414,21 @@ def subtraction_pose(right_height: float) -> PoseState:
 
 
 def equation_pose(outward: bool) -> PoseState:
-    x = 0.31 if outward else 0.09
+    """Relaxed equation pose with low shoulders and outward elbow bend."""
+    x = 0.32 if outward else 0.24
+
     return {
         "Left": hand_state(
-            (x, -0.20, 1.34),
-            (0.54, -0.05, 1.20),
-            (0.0, 0.0, -1.0),
+            (x, -0.34, 1.11),
+            (0.62, -0.10, 1.00),
+            (-1.0, 0.0, 0.0),
             (0.0, -1.0, 0.0),
             {"Index", "Middle"},
         ),
         "Right": hand_state(
-            (-x, -0.20, 1.34),
-            (-0.54, -0.05, 1.20),
-            (0.0, 0.0, -1.0),
+            (-x, -0.34, 1.11),
+            (-0.62, -0.10, 1.00),
+            (1.0, 0.0, 0.0),
             (0.0, -1.0, 0.0),
             {"Index", "Middle"},
         ),
@@ -320,19 +436,20 @@ def equation_pose(outward: bool) -> PoseState:
 
 
 def balance_pose(offset: float) -> PoseState:
+    """Relaxed balance pose with wider, outward-bending elbows."""
     return {
         "Left": hand_state(
-            (0.23, -0.18, 1.25 + offset),
-            (0.53, -0.03, 1.16),
+            (0.29, -0.33, 1.09 + offset),
+            (0.62, -0.10, 1.00),
             (-1.0, 0.0, 0.0),
-            (0.0, 0.0, 1.0),
+            (0.0, -1.0, 0.0),
             set(FINGERS),
         ),
         "Right": hand_state(
-            (-0.18, -0.20, 1.37 - offset),
-            (-0.50, -0.03, 1.20),
+            (-0.29, -0.33, 1.09 - offset),
+            (-0.62, -0.10, 1.00),
             (1.0, 0.0, 0.0),
-            (0.0, 0.0, -1.0),
+            (0.0, -1.0, 0.0),
             {"Index", "Middle"},
         ),
     }
@@ -356,6 +473,7 @@ def algebra_pose(stage: int) -> PoseState:
                 {"Index"},
             ),
         }
+
     return {
         "Left": hand_state(
             (0.08, -0.20, 1.24),
@@ -365,7 +483,11 @@ def algebra_pose(stage: int) -> PoseState:
             set(),
         ),
         "Right": hand_state(
-            (-0.06 + (0.08 if stage == 3 else 0.0), -0.22, 1.29 + (0.07 if stage == 3 else 0.0)),
+            (
+                -0.06 + (0.08 if stage == 3 else 0.0),
+                -0.22,
+                1.29 + (0.07 if stage == 3 else 0.0),
+            ),
             (-0.48, -0.03, 1.18),
             (1.0, 0.0, 0.0),
             (0.0, -1.0, 0.0),
@@ -375,9 +497,6 @@ def algebra_pose(stage: int) -> PoseState:
 
 
 def substitution_pose(distance: float) -> PoseState:
-    # Keep the elbows low and close to the torso, matching reference entry 101.
-    # Wide, shoulder-height pole targets make the arms flare unnaturally and can
-    # also force the hands to intersect as they move towards the centre.
     return {
         "Left": hand_state(
             (distance, -0.18, 1.13),
@@ -399,6 +518,7 @@ def substitution_pose(distance: float) -> PoseState:
 def number_pose(left_extended: set[str], right_extended: set[str]) -> PoseState:
     left_is_used = bool(left_extended)
     left = neutral_state()["Left"]
+
     if left_is_used:
         left = hand_state(
             (0.28, -0.18, 1.24),
@@ -407,6 +527,7 @@ def number_pose(left_extended: set[str], right_extended: set[str]) -> PoseState:
             (0.0, -1.0, 0.0),
             left_extended,
         )
+
     return {
         "Left": left,
         "Right": hand_state(
@@ -423,28 +544,59 @@ def generate_actions(armature: bpy.types.Object) -> None:
     for old_action in list(bpy.data.actions):
         bpy.data.actions.remove(old_action)
 
-    create_action(armature, "IDLE", [(18, neutral_state()), (22, neutral_state())], 30)
-    create_action(armature, "ADDITION", [(25, addition_pose()), (47, addition_pose())])
+    create_action(
+        armature,
+        "IDLE",
+        [(18, neutral_state()), (22, neutral_state())],
+        30,
+    )
+
+    create_action(
+        armature,
+        "ADDITION",
+        [(25, addition_pose()), (47, addition_pose())],
+    )
+
     create_action(
         armature,
         "SUBTRACTION",
-        [(20, subtraction_pose(1.48)), (34, subtraction_pose(1.30)), (47, subtraction_pose(1.30))],
+        [
+            (20, subtraction_pose(1.48)),
+            (34, subtraction_pose(1.30)),
+            (47, subtraction_pose(1.30)),
+        ],
     )
+
     create_action(
         armature,
         "EQUATION",
-        [(22, equation_pose(False)), (36, equation_pose(True)), (48, equation_pose(True))],
+        [
+            (22, equation_pose(False)),
+            (36, equation_pose(True)),
+            (48, equation_pose(True)),
+        ],
     )
+
     create_action(
         armature,
         "BALANCE",
-        [(22, balance_pose(0.03)), (34, balance_pose(-0.03)), (47, balance_pose(0.0))],
+        [
+            (22, balance_pose(0.03)),
+            (34, balance_pose(-0.03)),
+            (47, balance_pose(0.0)),
+        ],
     )
+
     create_action(
         armature,
         "ALGEBRA",
-        [(20, algebra_pose(1)), (34, algebra_pose(2)), (47, algebra_pose(3))],
+        [
+            (20, algebra_pose(1)),
+            (34, algebra_pose(2)),
+            (47, algebra_pose(3)),
+        ],
     )
+
     create_action(
         armature,
         "SUBSTITUTION",
@@ -454,21 +606,34 @@ def generate_actions(armature: bpy.types.Object) -> None:
             (48, substitution_pose(0.18)),
         ],
     )
+
     create_action(
         armature,
         "NUMBER_3",
-        [(24, number_pose(set(), {"Index", "Middle", "Ring"})), (48, number_pose(set(), {"Index", "Middle", "Ring"}))],
+        [
+            (24, number_pose(set(), {"Index", "Middle", "Ring"})),
+            (48, number_pose(set(), {"Index", "Middle", "Ring"})),
+        ],
     )
+
     create_action(
         armature,
         "NUMBER_4",
-        [(24, number_pose(set(), {"Index", "Middle", "Ring", "Pinky"})), (48, number_pose(set(), {"Index", "Middle", "Ring", "Pinky"}))],
+        [
+            (24, number_pose(set(), {"Index", "Middle", "Ring", "Pinky"})),
+            (48, number_pose(set(), {"Index", "Middle", "Ring", "Pinky"})),
+        ],
     )
+
     create_action(
         armature,
         "NUMBER_5",
-        [(24, number_pose(set(), set(FINGERS))), (48, number_pose(set(), set(FINGERS)))],
+        [
+            (24, number_pose(set(), set(FINGERS))),
+            (48, number_pose(set(), set(FINGERS))),
+        ],
     )
+
     create_action(
         armature,
         "NUMBER_7",
@@ -478,9 +643,6 @@ def generate_actions(armature: bpy.types.Object) -> None:
         ],
     )
 
-    # Keyframing the temporary IK targets creates helper actions in Blender.
-    # They are implementation details, not avatar clips, so exclude them from
-    # the GLB. Otherwise model-viewer exposes dozens of unusable animations.
     for helper_action in list(bpy.data.actions):
         if helper_action.name.startswith("_"):
             bpy.data.actions.remove(helper_action)
@@ -488,21 +650,27 @@ def generate_actions(armature: bpy.types.Object) -> None:
 
 def prepare_web_textures() -> Path:
     texture_dir = Path(tempfile.mkdtemp(prefix="louise_web_textures_"))
+
     for image in bpy.data.images:
         if image.source != "FILE" or not image.has_data:
             continue
+
         if image.packed_file is not None:
             image.unpack(method="REMOVE")
+
         width, height = image.size
         longest_side = max(width, height)
+
         if longest_side > 1024:
             scale = 1024 / longest_side
             image.scale(round(width * scale), round(height * scale))
+
         texture_path = texture_dir / image.name
         image.filepath_raw = str(texture_path)
         image.file_format = "PNG"
         image.save()
         image.filepath_raw = str(texture_path)
+
     return texture_dir
 
 
@@ -513,6 +681,7 @@ def main() -> None:
     scene.frame_end = END_FRAME
 
     armature = bpy.data.objects.get(ARMATURE_NAME)
+
     if armature is None or armature.type != "ARMATURE":
         raise RuntimeError(f"Expected an armature named {ARMATURE_NAME!r}")
 
@@ -521,15 +690,22 @@ def main() -> None:
 
     OUTPUT_BLEND.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_GLB.parent.mkdir(parents=True, exist_ok=True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT_BLEND), check_existing=False)
+
+    bpy.ops.wm.save_as_mainfile(
+        filepath=str(OUTPUT_BLEND),
+        check_existing=False,
+    )
 
     texture_dir = prepare_web_textures()
+
     try:
         for obj in bpy.context.selected_objects:
             obj.select_set(False)
+
         for obj in scene.objects:
             if obj.type in {"ARMATURE", "MESH"}:
                 obj.select_set(True)
+
         bpy.context.view_layer.objects.active = armature
 
         bpy.ops.export_scene.gltf(
@@ -557,7 +733,10 @@ def main() -> None:
     finally:
         shutil.rmtree(texture_dir, ignore_errors=True)
 
-    print("Created actions:", sorted(action.name for action in bpy.data.actions))
+    print(
+        "Created actions:",
+        sorted(action.name for action in bpy.data.actions),
+    )
     print(f"Editable Blender output: {OUTPUT_BLEND}")
     print(f"Web GLB output: {OUTPUT_GLB}")
 
