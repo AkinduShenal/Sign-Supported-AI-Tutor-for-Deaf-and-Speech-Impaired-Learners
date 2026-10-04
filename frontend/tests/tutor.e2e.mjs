@@ -107,6 +107,36 @@ try {
   assert.equal(await evaluate("document.querySelector('.avatar-expression').textContent === document.querySelector('.adaptive-equation').textContent"), true)
   assert.equal(await evaluate("document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')"), '1')
   await screenshot('strict-default')
+  // Visual redesign regression: layout must fit each requested viewport while
+  // preserving desktop proportions and the lesson/avatar/practice stack.
+  for (const width of [1440, 1024, 768, 390]) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height: 1050, deviceScaleFactor: 1, mobile: width < 900 })
+    await evaluate('window.scrollTo(0,0)')
+    await delay(250)
+    assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true, `Overflow at ${width}px`)
+    if (width >= 900) {
+      assert.equal(await evaluate(`(() => {
+        const lesson=document.querySelector('.worked-example').getBoundingClientRect();
+        const avatar=document.querySelector('.avatar-panel').getBoundingClientRect();
+        return Math.abs(lesson.top-avatar.top)<2 && lesson.right<avatar.left && lesson.width>avatar.width;
+      })()`), true, `Desktop columns at ${width}px`)
+    } else {
+      assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.avatar-panel').getBoundingClientRect().top && document.querySelector('.avatar-panel').getBoundingClientRect().top < document.querySelector('.practice-card').getBoundingClientRect().top"), true, `Stack order at ${width}px`)
+    }
+    await screenshot(`redesign-${width}`)
+  }
+  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1050, deviceScaleFactor: 1, mobile: false })
+  // Existing native example dropdown still changes examples and resets progress.
+  await evaluate("(() => { const picker=document.querySelector('.example-picker select'); picker.value='1'; picker.dispatchEvent(new Event('change',{bubbles:true})); })()")
+  await until("document.querySelector('.original-equation strong').textContent.includes('x - 4 = 2')")
+  await evaluate("(() => { const picker=document.querySelector('.example-picker select'); picker.value='0'; picker.dispatchEvent(new Event('change',{bubbles:true})); })()")
+  await until("document.querySelector('.original-equation strong').textContent.includes('x + 3 = 7')")
+  assert.equal(await evaluate("document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')"), '1')
+  await evaluate("document.querySelector('.avatar-options > summary').click()")
+  assert.equal(await evaluate("document.querySelector('.avatar-options').open"), true)
+  await evaluate("(() => { const speed=document.querySelector('[aria-label=\"Avatar playback speed\"]'); speed.value='0.5'; speed.dispatchEvent(new Event('change',{bubbles:true})); })()")
+  assert.equal(await evaluate("document.querySelector('model-viewer').timeScale"), 0.5)
+  await evaluate("(() => { const speed=document.querySelector('[aria-label=\"Avatar playback speed\"]'); speed.value='0.75'; speed.dispatchEvent(new Event('change',{bubbles:true})); document.querySelector('.avatar-options > summary').click(); })()")
   await evaluate("window.auditEvents=[]; for(const name of ['finished','loop','play','pause']) document.querySelector('model-viewer').addEventListener(name,()=>window.auditEvents.push([name,document.querySelector('model-viewer').animationName,document.querySelector('model-viewer').currentTime])); document.querySelector('model-viewer').scrollIntoView({block:'center'})")
   await click('Preview gestures')
   await until("document.querySelector('.sign-chip.is-active')")
