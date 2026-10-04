@@ -6,7 +6,7 @@ The main frontend now opens an adaptive linear-equation workspace. It uses the
 existing Louise master GLB, not any procedural IK script. The old static lesson
 endpoint and other component/database contracts remain intact.
 
-1. Open **Lesson setup / team diagnostic handoff**.
+1. Open **Lesson settings** below the learning workspace.
 2. Import a JSON payload matching `POST /api/v1/tutor/strategy`, containing
    `student_id`, `concept_id`, `quiz`, `game`, and `learner`.
 3. `POST /api/v1/tutor/adaptive-lesson` validates that same input and returns a
@@ -18,6 +18,21 @@ endpoint and other component/database contracts remain intact.
 6. Export practice evidence before changing plans or reloading. Export includes
    numerical attempts, hints, avatar interactions, request timing and content/model
    versions, but not the diagnostic payload, real names or student identifiers.
+
+The workspace starts with an always-visible **Worked example**, including its
+steps and navigation, beside the avatar. Practice questions, the answer field
+and **Show hint** button follow below. The worked example cannot be collapsed.
+Teaching/review details and session evidence are collapsed below the workspace;
+playback speed and sign details are collapsed under the avatar. On mobile, the
+worked example comes first, followed by the avatar and practice question. Avatar
+context follows the worked-example step or the selected practice question/hint.
+
+Questions, explanation steps, progressive hints and answer feedback display
+English followed by Sinhala (`lang="en"` / `lang="si"`). The frontend's
+`sinhalaLessonText.ts` contains wording for the current content bank and templates
+that preserve equation tokens, including negative numbers and fractions. New
+lesson wording needs a corresponding translation; unmatched text remains in
+English. The bilingual display uses the same equations and sign action IDs.
 
 Manual **Preview** buttons are for development/teacher review, not a diagnosis.
 They exercise the same content bank without inventing student records. Quiz/Game
@@ -78,6 +93,10 @@ non-improvement analysis remain separate components.
 - Default playback is validated-only. Missing/unvalidated actions use text and
   equation support. A reviewer must explicitly enable **Preview unvalidated
   gestures** to inspect the supplied prototype actions.
+- The avatar's **Preview gestures** button enables that same session-only preview
+  policy, with an explicit unvalidated-gesture notice. The model is visible in
+  neutral pose before opt-in; the old checkbox was a playback-policy gate, not a
+  model-loading fix. Reduced-motion preferences still disable automatic playback.
 - These clips are educational gestures, not reliable SLSL sentence translation.
   Sign grammar, finger shapes, facial expression and meaning need qualified
   review. No new lexical motion has been guessed or generated in this change.
@@ -153,6 +172,12 @@ npm run build
 npm run lint
 npm run test:e2e
 ```
+
+For UI changes without resampling the unchanged animation assets, use
+`npm run test:e2e -- --ui-only`. This includes question/hint navigation, explicit
+preview opt-in and opt-out, playback, answer grading, responsive layout,
+reduced-motion and unavailable-model checks. It saves desktop/mobile screenshots
+under the same ignored artifacts directory.
 
 `test:e2e` uses an isolated Chrome profile plus temporary local servers on ports
 8126/5176/9226 and an in-memory test database. It never opens your signed-in tabs,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ModelViewerElement } from '@google/model-viewer'
 import { selectPlayback } from './playbackPolicy'
+import { SinhalaText } from './SinhalaText'
 
 const MASTER_AVATAR_URL =
   '/models/louise_signs_master.glb?v=arm-posture-v2'
@@ -14,6 +15,8 @@ export interface AvatarSignPlayerProps {
   allowPrototype?: boolean
   caption?: string
   expression?: string
+  compact?: boolean
+  onEnablePrototype?: () => void
   onInteraction?: (action: string) => void
 }
 
@@ -29,6 +32,8 @@ export function AvatarSignPlayer({
   allowPrototype = false,
   caption,
   expression,
+  compact = false,
+  onEnablePrototype,
   onInteraction,
 }: AvatarSignPlayerProps) {
   const modelViewerRef = useRef<ModelViewerElement>(null)
@@ -303,28 +308,18 @@ export function AvatarSignPlayer({
   }, [approvedForPlaybackSet, availableAnimations, modelState, requestedSigns])
 
   return (
-    <aside className="avatar-panel" aria-labelledby="avatar-title">
+    <aside className={`avatar-panel ${compact ? 'avatar-compact' : ''}`} aria-labelledby="avatar-title">
       <div className="avatar-heading">
         <div>
-          <span className="eyebrow">Sign support</span>
-          <h2 id="avatar-title">Tutor Avatar</h2>
+          {!compact && <span className="eyebrow">Sign support</span>}
+          <h2 id="avatar-title">{compact ? 'Avatar' : 'Tutor Avatar'}</h2>
         </div>
         <span className="prototype-badge">{allowPrototype ? 'Prototype preview' : 'Validated clips only'}</span>
       </div>
 
-      {caption && <p className="avatar-caption">{caption}</p>}
-      {expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>{expression}</p>}
-      <div className="avatar-playback-controls">
-        <label>Speed <select aria-label="Avatar playback speed" value={speed} onChange={(event) => {
-          const value = Number(event.target.value)
-          setSpeed(value)
-          speedRef.current = value
-          if (modelViewerRef.current) modelViewerRef.current.timeScale = value
-          onInteraction?.(`avatar_speed_${value}`)
-        }}><option value={0.5}>0.5×</option><option value={0.75}>0.75×</option><option value={1}>1×</option></select></label>
-        <label><input type="checkbox" checked={autoPlay} onChange={(event) => setAutoPlay(event.target.checked)} /> Auto-play</label>
-        <button type="button" className="secondary-button" disabled={activeSignIndex === null} onClick={togglePause}>{paused ? 'Resume' : 'Pause'}</button>
-      </div>
+      {!compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
+      {!compact && caption && <SinhalaText text={caption} />}
+      {!compact && expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>{expression}</p>}
 
       <div className="avatar-stage">
         <div className="avatar-glow" aria-hidden="true" />
@@ -367,11 +362,41 @@ export function AvatarSignPlayer({
           aria-label="Interactive 3D view of Louise, the tutor avatar"
         />
 
-        {modelState === 'ready' && (
+        {!compact && modelState === 'ready' && (
           <span className="avatar-control-hint">Drag to turn the tutor</span>
         )}
       </div>
 
+      {compact && !allowPrototype && prototypeSignIds.length > 0 && playableSigns.length === 0 && modelState === 'ready' && (
+        <div className="avatar-preview-prompt">
+          <p>These demo gestures are not yet validated sign language.</p>
+          <button type="button" className="primary-button" onClick={onEnablePrototype}>Preview gestures</button>
+        </div>
+      )}
+      {playableSigns.length > 0 && modelState === 'ready' && (
+        <div className="avatar-main-controls">
+          <button className="secondary-button replay-sign-button" onClick={() => { onInteraction?.('avatar_replay'); playSequence() }} type="button">{compact ? 'Replay' : `Replay gestures (${playableSigns.length})`}</button>
+          <button type="button" className="secondary-button" disabled={activeSignIndex === null} onClick={togglePause}>{paused ? 'Resume' : 'Pause'}</button>
+        </div>
+      )}
+      {compact && allowPrototype && <p className="avatar-preview-note">Demo gestures · not yet validated sign language.</p>}
+      {compact && modelState === 'ready' && playableSigns.length === 0 && (allowPrototype || prototypeSignIds.length === 0) && <p className="avatar-preview-note" role="status">No gesture for this step. Follow the written hint.</p>}
+
+      <details className="avatar-options" open={compact ? undefined : true}>
+        <summary>Playback settings & sign details</summary>
+        <div className="avatar-playback-controls">
+          <label>Speed <select aria-label="Avatar playback speed" value={speed} onChange={(event) => {
+            const value = Number(event.target.value)
+            setSpeed(value)
+            speedRef.current = value
+            if (modelViewerRef.current) modelViewerRef.current.timeScale = value
+            onInteraction?.(`avatar_speed_${value}`)
+          }}><option value={0.5}>0.5×</option><option value={0.75}>0.75×</option><option value={1}>1×</option></select></label>
+          <label><input type="checkbox" checked={autoPlay} onChange={(event) => setAutoPlay(event.target.checked)} /> Auto-play</label>
+        </div>
+        {compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
+        {compact && caption && <SinhalaText text={caption} />}
+        {compact && expression && <p className="avatar-expression">{expression}</p>}
       <div className="sign-status" aria-live="polite">
         <span>Signs for this step</span>
         <div className="sign-list">
@@ -412,15 +437,6 @@ export function AvatarSignPlayer({
           </div>
         )}
 
-        {playableSigns.length > 0 && (
-          <button
-            className="secondary-button replay-sign-button"
-            onClick={() => { onInteraction?.('avatar_replay'); playSequence() }}
-            type="button"
-          >
-            Replay gestures ({playableSigns.length})
-          </button>
-        )}
       </div>
 
       <p className="avatar-note">
@@ -433,6 +449,7 @@ export function AvatarSignPlayer({
       <p className="avatar-language-notice">
         {allowPrototype ? 'Prototype educational gestures — not validated Sri Lankan Sign Language. They support key terms, not full sentence translation.' : 'Only human-validated signs are enabled. Unvalidated or missing signs use the written lesson and equations.'}
       </p>
+      </details>
     </aside>
   )
 }

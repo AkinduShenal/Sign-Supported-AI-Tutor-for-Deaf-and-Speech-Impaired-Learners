@@ -78,15 +78,37 @@ try {
   await send('Page.navigate', { url: 'http://127.0.0.1:5176/' })
   await until("document.querySelector('model-viewer')?.loaded")
   await until("document.body.innerText.includes('Validated clips only')")
+  // Every current level's teaching text must have Sinhala wording; math tokens
+  // still come from the same backend equation rather than a separate answer.
+  const untranslated = await evaluate(`(async () => {
+    const { sinhalaLessonText } = await import('/src/components/sinhalaLessonText.ts');
+    const lessons = await Promise.all(['foundation','one_step','two_step','extended'].map(async level => {
+      const response = await fetch('http://127.0.0.1:8126/api/v1/tutor/grade10/' + level);
+      if (!response.ok) throw Error('Unable to load translation coverage level ' + level);
+      return response.json();
+    }));
+    return lessons.flatMap(lesson => [lesson.simple_explanation.text,
+      ...lesson.worked_examples.flatMap(example => example.steps.map(step => step.instruction)),
+      ...lesson.practice_questions.flatMap(question => [question.prompt, question.hint.text,
+        ...question.progressive_hints.map(hint => hint.text), question.feedback.correct, question.feedback.incorrect])
+    ]).filter(text => !sinhalaLessonText(text));
+  })()`)
+  assert.deepEqual(untranslated, [])
+  assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent.includes('සමීකරණයක්')"), true)
+  assert.equal(await evaluate("document.querySelector('.bilingual-question [lang=si]').textContent.includes('x + 5 = 12')"), true)
   assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 22)
   assert.equal(await evaluate("document.querySelector('.sign-chip.is-active') === null"), true)
   assert.equal(await evaluate("document.querySelector('.tutor-setup').open"), false)
   assert.equal(await evaluate("document.querySelector('.reviewer-settings').open"), false)
   assert.equal(await evaluate("document.querySelector('.practice-evidence').open"), false)
+  assert.equal(await evaluate("document.querySelector('.worked-example').tagName"), 'ARTICLE')
+  assert.equal(await evaluate("document.querySelector('.avatar-options').open"), false)
+  assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < 250 && document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.practice-card').getBoundingClientRect().top"), true)
+  assert.equal(await evaluate("document.querySelector('.avatar-expression').textContent === document.querySelector('.adaptive-equation').textContent"), true)
   assert.equal(await evaluate("document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')"), '1')
   await screenshot('strict-default')
   await evaluate("window.auditEvents=[]; for(const name of ['finished','loop','play','pause']) document.querySelector('model-viewer').addEventListener(name,()=>window.auditEvents.push([name,document.querySelector('model-viewer').animationName,document.querySelector('model-viewer').currentTime])); document.querySelector('model-viewer').scrollIntoView({block:'center'})")
-  await evaluate("document.querySelector('.reviewer-settings > summary').click(); [...document.querySelectorAll('label')].find(e=>e.textContent.includes('Preview unvalidated')).querySelector('input').click(); document.querySelector('.reviewer-settings > summary').click()")
+  await click('Preview gestures')
   await until("document.querySelector('.sign-chip.is-active')")
   await click('Pause')
   const pausedTime = await evaluate("document.querySelector('model-viewer').currentTime")
@@ -96,15 +118,37 @@ try {
   await until("document.querySelector('.sign-chip.is-active') === null && document.querySelector('model-viewer').animationName === 'IDLE'")
   await click('Next step'); await until("document.querySelector('.instruction').innerText.startsWith('Identify')")
   await click('Next step'); await until("document.querySelector('.instruction').innerText.startsWith('Subtract 3')")
-  await until("document.querySelector('.sign-chip.is-active')?.innerText.includes('SUBTRACTION')")
+  assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent"), 'දෙපසින්ම 3 අඩු කරන්න.')
+  await until("document.querySelector('.sign-chip.is-active')?.textContent.includes('SUBTRACTION')")
   await delay(950); await click('Pause'); await screenshot('prototype-subtraction')
   await evaluate(`(() => { const input=document.querySelector('#practice-answer'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'7.0'); input.dispatchEvent(new Event('input',{bubbles:true})); })()`)
   await evaluate("document.querySelector('.answer-form').requestSubmit()")
   await until("document.querySelector('.feedback.correct')")
-  await evaluate("document.querySelector('.practice-evidence > summary').click()")
+  assert.equal(await evaluate("document.querySelector('.feedback [lang=si]') !== null"), true)
+  await evaluate("document.querySelector('.reviewer-settings > summary').click(); document.querySelector('.practice-evidence > summary').click()")
   assert.equal(await evaluate("document.body.innerText.includes('1 / 2 correct on the first attempt')"), true)
-  await evaluate("document.querySelector('.practice-evidence > summary').click(); window.scrollTo(0,0)")
+  await evaluate("document.querySelector('.practice-evidence > summary').click(); document.querySelector('.reviewer-settings > summary').click(); window.scrollTo(0,0)")
   assert.equal(await evaluate("document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')"), '3')
+  await click('Next question →')
+  await until("document.querySelector('.practice-prompt').textContent.includes('x + 2 = 8')")
+  assert.equal(await evaluate("document.querySelector('.worked-example').tagName"), 'ARTICLE')
+  assert.equal(await evaluate("document.querySelector('#practice-answer').value"), '')
+  assert.equal(await evaluate("document.querySelector('.feedback') === null"), true)
+  await click('Show hint')
+  await until("document.querySelector('.question-hints .hint-panel')")
+  assert.equal(await evaluate("document.querySelector('.avatar-caption').textContent === document.querySelector('.question-hints .hint-panel p').textContent"), true)
+  await click('Next hint')
+  await until("document.querySelector('.question-hints .hint-panel p').textContent.includes('Subtract 2')")
+  assert.equal(await evaluate("document.querySelector('.question-hints [lang=si]').textContent"), 'දෙපසින්ම 2 අඩු කරන්න.')
+  await click('Previous question')
+  await until("document.querySelector('.practice-prompt').textContent.includes('x + 5 = 12')")
+  assert.equal(await evaluate("document.querySelector('.question-hints .hint-panel') === null"), true)
+  assert.equal(await evaluate("document.querySelector('.avatar-expression').textContent === document.querySelector('.practice-prompt').textContent"), true)
+  // Hints survive question navigation, without leaking another question's hint.
+  await click('Next question →')
+  await until("document.querySelector('.avatar-caption').textContent.includes('Subtract 2')")
+  await click('Next hint')
+  await until("document.querySelector('.hint-button').disabled")
   await screenshot('student-desktop')
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
   await delay(300)
@@ -118,6 +162,9 @@ try {
   await evaluate("document.querySelector('.tutor-setup > summary').click(); document.querySelector('.reviewer-settings > summary').click(); document.querySelector('.practice-evidence > summary').click()")
   assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true)
   await screenshot('mobile-settings')
+  await evaluate("[...document.querySelectorAll('label')].find(e=>e.textContent.includes('Show avatar support')).querySelector('input').click()")
+  await until("document.querySelector('.avatar-panel') === null")
+  assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true)
 
   // Reduced-motion starts in a neutral, non-playing state, even after opt-in.
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
@@ -125,9 +172,14 @@ try {
   await until("document.querySelector('model-viewer')?.loaded")
   await until("document.querySelector('model-viewer')?.animationName === 'IDLE'")
   assert.equal(await evaluate("[...document.querySelectorAll('label')].find(e=>e.textContent.includes('Auto-play')).querySelector('input').checked"), false)
-  await evaluate("document.querySelector('.reviewer-settings > summary').click(); [...document.querySelectorAll('label')].find(e=>e.textContent.includes('Preview unvalidated')).querySelector('input').click()")
+  await click('Preview gestures')
   await delay(300)
   assert.equal(await evaluate("document.querySelector('.sign-chip.is-active') === null"), true)
+  await evaluate("document.querySelector('model-viewer').scrollIntoView({block:'center'})")
+  await click('Replay')
+  await until("document.querySelector('.sign-chip.is-active') !== null")
+  await evaluate("document.querySelector('.reviewer-settings > summary').click(); [...document.querySelectorAll('label')].find(e=>e.textContent.includes('Preview unvalidated')).querySelector('input').click()")
+  await until("document.querySelector('.sign-chip.is-active') === null && document.querySelector('model-viewer').animationName === 'IDLE'")
   await screenshot('reduced-motion')
 
   // A failed GLB request must not take down the mathematics lesson.
@@ -136,13 +188,15 @@ try {
   await send('Network.setBlockedURLs', { urls: ['*louise_signs_master.glb*'] })
   await send('Page.reload', { ignoreCache: true })
   await until("document.querySelector('.avatar-model-error')")
-  assert.equal(await evaluate("document.querySelector('.instruction') !== null"), true)
+  assert.equal(await evaluate("document.querySelector('.practice-prompt').textContent.includes('x + 5 = 12')"), true)
   await screenshot('missing-model-fallback')
   await send('Network.setBlockedURLs', { urls: [] })
   await send('Page.reload', { ignoreCache: true })
   await until("document.querySelector('model-viewer')?.loaded")
   await until("document.querySelector('model-viewer')?.animationName === 'IDLE'")
 
+  // Optional full motion audit; UI-only checks do not resample unchanged assets.
+  if (!process.argv.includes('--ui-only')) {
   // Read-only visual audit: sample existing clips; never synthesize any motion.
   const reviewSrc = process.argv.includes('--review-avatar') ? '/models/louise_arm_review.glb' : process.env.TUTOR_AVATAR_REVIEW_SRC
   if (reviewSrc) {
@@ -186,8 +240,9 @@ try {
     await delay(200)
     await screenshot(sheet.name)
   }
+  }
   assert.deepEqual(errors, [])
-  console.log('PASS: strict fallback, 22 clips, explicit opt-in, pause, step sequence, server grading, first-attempt evidence, mobile layout, no JS errors. Pose contact sheet saved for human review.')
+  console.log('PASS: always-visible worked-example-first layout, hints and navigation, strict fallback, 22 clips, explicit opt-in, pause/replay, step sequence, server grading, first-attempt evidence, mobile layout, reduced motion, missing model, no JS errors.')
 } finally {
   socket?.close()
   for (const child of children) child.kill('SIGTERM')
