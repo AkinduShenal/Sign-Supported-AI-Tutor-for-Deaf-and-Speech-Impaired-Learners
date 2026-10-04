@@ -18,8 +18,8 @@ This canonical package contains:
 
 ## Current prototype asset
 
-The runtime file `frontend/public/models/louise_signs_master.glb` contains 22 named educational
-gesture actions supplied by `linear-equation-avatar-package/`. The manifest
+The runtime file `frontend/public/models/louise_signs_master.glb` contains 56 named educational
+gesture actions: 22 repaired core actions plus 34 review-only composites. The manifest
 marks them with `prototype_ready: true`, while their lexical
 `validation_status` remains `needs_validation`. The application may play these
 actions for research-prototype demonstrations, but must not describe them as
@@ -30,6 +30,11 @@ arm/wrist poses, a shared ready pose, eased transitions and matte material.
 See [technical checks and limitations](docs/PROTOTYPE_TECHNICAL_VALIDATION.md).
 The historical builder is not the current build path; do not use it to overwrite
 the repaired master. No new lexical signs were validated by this repair.
+
+The 34 added actions concatenate the repaired core motions and preserve their
+neutral endpoints and joint limits. See
+[the composite recipes and review references](docs/COMPOSITE_PROTOTYPE_ACTIONS.md).
+They are placeholders for reviewer testing, not claims of lexical equivalence.
 
 ## Recommended validation workflow
 
@@ -64,6 +69,7 @@ Then add tutor/remedial support signs.
 - `docs/` — validation, animation catalog, and pose-review evidence
 - `tools/validate_sign_package.py` — manifest/master-GLB validator
 - `tools/build_linear_equation_glb_reference.py` — prototype master-GLB build reference
+- `tools/append_composite_prototype_actions.py` — guarded 34-action review expansion
 
 Runtime integration lives in:
 

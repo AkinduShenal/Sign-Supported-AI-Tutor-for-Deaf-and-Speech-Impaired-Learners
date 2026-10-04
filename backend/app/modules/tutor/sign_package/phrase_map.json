@@ -113,6 +113,162 @@
       "actions": [
         "INCORRECT"
       ]
+    },
+    {
+      "pattern": "\\bpositive\\b",
+      "actions": [
+        "POSITIVE"
+      ]
+    },
+    {
+      "pattern": "\\bnegative\\b",
+      "actions": [
+        "NEGATIVE"
+      ]
+    },
+    {
+      "pattern": "\\b(?:bracket|parentheses)\\b",
+      "actions": [
+        "BRACKET"
+      ]
+    },
+    {
+      "pattern": "\\b(?:start|begin)\\b",
+      "actions": [
+        "START"
+      ]
+    },
+    {
+      "pattern": "\\b(?:next|continue)\\b",
+      "actions": [
+        "NEXT"
+      ]
+    },
+    {
+      "pattern": "\\b(?:previous|back)\\b",
+      "actions": [
+        "PREVIOUS"
+      ]
+    },
+    {
+      "pattern": "\\bstep by step\\b",
+      "actions": [
+        "STEP_BY_STEP"
+      ]
+    },
+    {
+      "pattern": "(?<!step by )\\bstep\\b(?!\\s+by\\s+step)",
+      "actions": [
+        "STEP"
+      ]
+    },
+    {
+      "pattern": "\\bexample\\b",
+      "actions": [
+        "EXAMPLE"
+      ]
+    },
+    {
+      "pattern": "\\bpractice\\b",
+      "actions": [
+        "PRACTICE"
+      ]
+    },
+    {
+      "pattern": "\\bquestion\\b",
+      "actions": [
+        "QUESTION"
+      ]
+    },
+    {
+      "pattern": "\\brepeat\\b",
+      "actions": [
+        "REPEAT"
+      ]
+    },
+    {
+      "pattern": "\\bcheck\\b",
+      "actions": [
+        "CHECK"
+      ]
+    },
+    {
+      "pattern": "\\b(?:finish|complete)\\b",
+      "actions": [
+        "FINISH"
+      ]
+    },
+    {
+      "pattern": "\\b(?:error correction|correct mistake)\\b",
+      "actions": [
+        "ERROR_CORRECTION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:foundation|prerequisite)\\b",
+      "actions": [
+        "FOUNDATION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:match|matching)\\b",
+      "actions": [
+        "MATCH"
+      ]
+    },
+    {
+      "pattern": "\\bdrag and drop\\b",
+      "actions": [
+        "DRAG_DROP"
+      ]
+    },
+    {
+      "pattern": "\\b(?:sign keyword|keyword)\\b",
+      "actions": [
+        "SIGN_KEYWORD"
+      ]
+    },
+    {
+      "pattern": "\\bvisual\\b",
+      "actions": [
+        "VISUAL"
+      ]
+    },
+    {
+      "pattern": "\\btext\\b",
+      "actions": [
+        "TEXT"
+      ]
+    },
+    {
+      "pattern": "\\beasy\\b",
+      "actions": [
+        "EASY"
+      ]
+    },
+    {
+      "pattern": "\\b(?:difficult|hard)\\b",
+      "actions": [
+        "DIFFICULT"
+      ]
+    },
+    {
+      "pattern": "\\b(?:slow|slower)\\b",
+      "actions": [
+        "SLOW"
+      ]
+    },
+    {
+      "pattern": "\\bnot improved\\b",
+      "actions": [
+        "NOT_IMPROVED"
+      ]
+    },
+    {
+      "pattern": "(?<!not )\\bimproved\\b",
+      "actions": [
+        "IMPROVED"
+      ]
     }
   ],
   "expression_tokens": {

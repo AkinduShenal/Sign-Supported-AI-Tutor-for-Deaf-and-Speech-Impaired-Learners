@@ -29,7 +29,13 @@ def test_canonical_master_and_validation_policy(rig):
         hashlib.sha256(MASTER.read_bytes()).hexdigest()
         == manifest["master_avatar_sha256"]
     )
-    assert len(rig.tracks) == 22
+    assert len(rig.tracks) == 56
+    assert rig.doc["extras"]["composite_prototype_expansion"] == {
+        "language_validation": "none",
+        "review_required": True,
+        "core_actions_preserved": 22,
+        "composite_actions_added": 34,
+    }
     assert rig.doc["extras"]["arm_roll_repair"]["language_validation"] == "none"
     for sign in manifest["signs"]:
         if sign["id"] in rig.tracks and sign["id"] != "IDLE":
@@ -45,6 +51,13 @@ def test_full_motion_limits_and_consistent_neutral():
         # Asset regression bound, not a medical/anatomical validity claim.
         assert action["max_elbow_bend_degrees"] < 140
         assert action["max_arm_rotation_degrees_per_second"] <= 161
+
+
+def test_every_manifest_action_has_a_master_track(rig):
+    manifest = json.loads(
+        (ROOT / "avatar-sign-package/manifest/signs.json").read_text()
+    )
+    assert {sign["id"] for sign in manifest["signs"]} == set(rig.tracks)
 
 
 def test_no_duplicate_float32_times_and_unit_rotations(rig):

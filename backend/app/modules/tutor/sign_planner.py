@@ -132,6 +132,10 @@ class MathSignPlanner:
         entry = _manifest_by_id().get(sign_id)
         return dict(entry) if entry else None
 
+    def manifest_entries(self) -> list[dict[str, Any]]:
+        """Return defensive copies of every manifest entry in display order."""
+        return [dict(entry) for entry in _load_manifest()["signs"]]
+
     def _actions_from_instruction(self, instruction: str) -> list[str]:
         matches: list[tuple[int, int, str]] = []
         phrase_map = _load_phrase_map()

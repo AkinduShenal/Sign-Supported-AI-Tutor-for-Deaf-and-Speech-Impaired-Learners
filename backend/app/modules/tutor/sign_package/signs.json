@@ -1,10 +1,11 @@
 {
   "package_name": "Sign-Supported AI Tutor Avatar Sign Package",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "architecture": "manifest_backed_clip_library",
   "master_avatar": "models/louise_signs_master.glb",
-  "master_avatar_sha256": "a4c837f03a64484bd75fe05c71a04d9bba36198811308d609c0b8fc4ad0cd5b0",
+  "master_avatar_sha256": "dbecc512846c3a0bd1d3198c020f313eef017272a2e9df7a2f850d3000729fa9",
   "notes": [
+    "Composite prototype expansion adds 34 review-only actions assembled from the repaired core motions. These additions are not SLSL transcriptions and remain needs_validation until replaced or approved by a qualified reviewer.",
     "This package intentionally avoids procedural IK sign generation.",
     "Arm-posture revision 2 corrects FK arm/wrist poses and transition timing in the existing 22 prototype actions. Finger key shapes are retained, but arm paths/palm orientations changed and require fresh linguistic review. No lexical signs are newly validated.",
     "Each lexical sign must be authored/recorded/retargeted on the same Louise skeleton and validated before it is described as Sri Lankan Sign Language.",
@@ -311,7 +312,11 @@
       ],
       "clip": "clips/ALGEBRA.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: VARIABLE + EQUATION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "ALGEBRA",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "VARIABLE",
@@ -344,7 +349,11 @@
       ],
       "clip": "clips/EXPRESSION.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: VARIABLE + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "EXPRESSION",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "TERM",
@@ -357,7 +366,11 @@
       ],
       "clip": "clips/TERM.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: VARIABLE + NUMBER_1. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "TERM",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "COEFFICIENT",
@@ -370,7 +383,11 @@
       ],
       "clip": "clips/COEFFICIENT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: NUMBER_2 + VARIABLE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "COEFFICIENT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "SUBSTITUTION",
@@ -474,7 +491,11 @@
       ],
       "clip": "clips/POSITIVE.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: ADDITION + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "POSITIVE",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "NEGATIVE",
@@ -487,7 +508,11 @@
       ],
       "clip": "clips/NEGATIVE.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBTRACTION + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NEGATIVE",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "BRACKET",
@@ -503,7 +528,11 @@
       ],
       "clip": "clips/BRACKET.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: BOTH_SIDES + BALANCE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "BRACKET",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "START",
@@ -517,7 +546,11 @@
       ],
       "clip": "clips/START.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: ANSWER + SOLVE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "START",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "NEXT",
@@ -531,7 +564,11 @@
       ],
       "clip": "clips/NEXT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: ANSWER + ADDITION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NEXT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "PREVIOUS",
@@ -545,7 +582,11 @@
       ],
       "clip": "clips/PREVIOUS.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBTRACTION + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "PREVIOUS",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "STEP",
@@ -558,7 +599,11 @@
       ],
       "clip": "clips/STEP.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: NUMBER_1. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "STEP",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "EXAMPLE",
@@ -571,7 +616,11 @@
       ],
       "clip": "clips/EXAMPLE.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: EQUATION + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "EXAMPLE",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "PRACTICE",
@@ -584,7 +633,11 @@
       ],
       "clip": "clips/PRACTICE.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SOLVE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "PRACTICE",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "QUESTION",
@@ -597,7 +650,11 @@
       ],
       "clip": "clips/QUESTION.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: VARIABLE + BALANCE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "QUESTION",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "HINT",
@@ -610,7 +667,11 @@
       ],
       "clip": "clips/HINT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: VARIABLE + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "HINT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "REPEAT",
@@ -624,7 +685,11 @@
       ],
       "clip": "clips/REPEAT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBSTITUTION + SUBSTITUTION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "REPEAT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "TRY_AGAIN",
@@ -637,7 +702,11 @@
       ],
       "clip": "clips/TRY_AGAIN.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBTRACTION + SOLVE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "TRY_AGAIN",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "CHECK",
@@ -650,7 +719,11 @@
       ],
       "clip": "clips/CHECK.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBSTITUTION + EQUATION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "CHECK",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "CORRECT",
@@ -664,7 +737,11 @@
       ],
       "clip": "clips/CORRECT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: EQUATION + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "CORRECT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "INCORRECT",
@@ -678,7 +755,11 @@
       ],
       "clip": "clips/INCORRECT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBTRACTION + BALANCE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "INCORRECT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "FINISH",
@@ -692,7 +773,11 @@
       ],
       "clip": "clips/FINISH.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SOLVE + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FINISH",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "ERROR_CORRECTION",
@@ -706,7 +791,11 @@
       ],
       "clip": "clips/ERROR_CORRECTION.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBTRACTION + SUBSTITUTION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "ERROR_CORRECTION",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "FOUNDATION",
@@ -720,7 +809,11 @@
       ],
       "clip": "clips/FOUNDATION.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: BALANCE + EQUATION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FOUNDATION",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "STEP_BY_STEP",
@@ -734,7 +827,11 @@
       ],
       "clip": "clips/STEP_BY_STEP.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: NUMBER_1 + NUMBER_2. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "STEP_BY_STEP",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "MATCH",
@@ -748,7 +845,11 @@
       ],
       "clip": "clips/MATCH.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: EQUATION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "MATCH",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "DRAG_DROP",
@@ -761,7 +862,11 @@
       ],
       "clip": "clips/DRAG_DROP.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBSTITUTION. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "DRAG_DROP",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "SIGN_KEYWORD",
@@ -775,7 +880,11 @@
       ],
       "clip": "clips/SIGN_KEYWORD.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: VARIABLE + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SIGN_KEYWORD",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "VISUAL",
@@ -788,7 +897,11 @@
       ],
       "clip": "clips/VISUAL.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: ANSWER + VARIABLE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "VISUAL",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "TEXT",
@@ -801,7 +914,11 @@
       ],
       "clip": "clips/TEXT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: EQUATION + ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "TEXT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "EASY",
@@ -814,7 +931,11 @@
       ],
       "clip": "clips/EASY.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: ANSWER. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "EASY",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "DIFFICULT",
@@ -828,7 +949,11 @@
       ],
       "clip": "clips/DIFFICULT.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: BALANCE + VARIABLE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "DIFFICULT",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "SLOW",
@@ -842,7 +967,11 @@
       ],
       "clip": "clips/SLOW.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SOLVE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SLOW",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "IMPROVED",
@@ -855,7 +984,11 @@
       ],
       "clip": "clips/IMPROVED.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: ADDITION + SOLVE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "IMPROVED",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     },
     {
       "id": "NOT_IMPROVED",
@@ -868,7 +1001,11 @@
       ],
       "clip": "clips/NOT_IMPROVED.glb",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Review-only composite motion recipe: SUBTRACTION + BALANCE. Not a validated SLSL transcription.",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NOT_IMPROVED",
+      "prototype_ready": true,
+      "animation_type": "composite_prototype_educational_gesture"
     }
   ]
 }
