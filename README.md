@@ -45,10 +45,10 @@ for API integration, tests, model status and remaining validation requirements.
 
 ## Avatar research status
 
-The master GLB contains 22 technically checked prototype educational gesture
-actions. They are not validated Sri Lankan Sign Language. Missing or unavailable
-actions fall back to written and visual mathematics support rather than being
-fabricated at runtime.
+The master GLB contains 56 technically checked prototype educational gesture
+actions: 22 repaired core actions plus 34 review-only composites. They are not
+validated Sri Lankan Sign Language. Missing or unavailable actions fall back to
+written and visual mathematics support rather than being fabricated at runtime.
 
 Validated-only playback is the default. To review existing unvalidated gestures,
 explicitly enable **Preview unvalidated gestures (reviewers only)**. The current

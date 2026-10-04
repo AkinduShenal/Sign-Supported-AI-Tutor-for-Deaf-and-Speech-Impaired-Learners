@@ -77,7 +77,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1050, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: 'http://127.0.0.1:5176/' })
   await until("document.querySelector('model-viewer')?.loaded")
-  await until("document.body.innerText.includes('Validated clips only')")
+  await until("document.querySelector('#avatar-title')?.textContent === 'Avatar'")
   // Every current level's teaching text must have Sinhala wording; math tokens
   // still come from the same backend equation rather than a separate answer.
   const untranslated = await evaluate(`(async () => {
@@ -96,7 +96,7 @@ try {
   assert.deepEqual(untranslated, [])
   assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent.includes('සමීකරණයක්')"), true)
   assert.equal(await evaluate("document.querySelector('.bilingual-question [lang=si]').textContent.includes('x + 5 = 12')"), true)
-  assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 22)
+  assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 56)
   assert.equal(await evaluate("document.querySelector('.sign-chip.is-active') === null"), true)
   assert.equal(await evaluate("document.querySelector('.tutor-setup').open"), false)
   assert.equal(await evaluate("document.querySelector('.reviewer-settings').open"), false)
@@ -133,6 +133,17 @@ try {
   assert.equal(await evaluate("document.querySelector('model-viewer').currentTime"), pausedTime)
   await click('Resume')
   await until("document.querySelector('.sign-chip.is-active') === null && document.querySelector('model-viewer').animationName === 'IDLE'")
+  await evaluate("document.querySelector('.avatar-options > summary').click()")
+  assert.equal(await evaluate("document.querySelector('[aria-label=\"New animation example\"]').options.length"), 35)
+  await evaluate(`(() => {
+    const select = document.querySelector('[aria-label="New animation example"]');
+    Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(select, 'BRACKET');
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`)
+  await until("document.querySelector('model-viewer').animationName === 'BRACKET' && document.querySelector('.sign-chip.is-active')?.textContent.includes('BRACKET')")
+  assert.equal(await evaluate("document.querySelector('.animation-review-note').textContent.includes('Previewing: BRACKET')"), true)
+  await screenshot('new-animation-example')
+  await evaluate("document.querySelector('.avatar-options > summary').click()")
   await click('Next step'); await until("document.querySelector('.instruction').innerText.startsWith('Identify')")
   await click('Next step'); await until("document.querySelector('.instruction').innerText.startsWith('Subtract 3')")
   assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent"), 'දෙපසින්ම 3 අඩු කරන්න.')
@@ -259,7 +270,7 @@ try {
   }
   }
   assert.deepEqual(errors, [])
-  console.log('PASS: always-visible worked-example-first layout, hints and navigation, strict fallback, 22 clips, explicit opt-in, pause/replay, step sequence, server grading, first-attempt evidence, mobile layout, reduced motion, missing model, no JS errors.')
+  console.log('PASS: always-visible worked-example-first layout, hints and navigation, strict fallback, 56 clips, explicit opt-in, pause/replay, step sequence, server grading, first-attempt evidence, mobile layout, reduced motion, missing model, no JS errors.')
 } finally {
   socket?.close()
   for (const child of children) child.kill('SIGTERM')

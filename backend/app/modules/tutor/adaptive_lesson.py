@@ -271,6 +271,15 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     for question in questions:
         for hint in question.progressive_hints:
             sign_ids.update(hint.sign_actions)
+    # Expose the newly composed gestures to the reviewer preview without
+    # inserting them into the lesson's semantic sign sequences.
+    review_entries = [
+        entry
+        for entry in PLANNER.manifest_entries()
+        if entry.get("animation_type")
+        == "composite_prototype_educational_gesture"
+    ]
+    sign_ids.update(entry["id"] for entry in review_entries)
     glossary = []
     for sign_id in sorted(sign_ids):
         entry = PLANNER.manifest_entry(sign_id) or {}
@@ -283,6 +292,7 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
                 source_entry=None,
                 animation_asset=entry.get("animation_asset"),
                 animation_action=entry.get("animation_action"),
+                animation_type=entry.get("animation_type"),
                 prototype_ready=bool(entry.get("prototype_ready")),
                 validation_status="validated"
                 if entry.get("validation_status") == "validated"

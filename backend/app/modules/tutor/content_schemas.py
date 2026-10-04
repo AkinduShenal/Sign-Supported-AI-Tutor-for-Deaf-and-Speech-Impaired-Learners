@@ -16,6 +16,7 @@ class SignReference(BaseModel):
     source_entry: int | None = Field(default=None, gt=0)
     animation_asset: str | None = None
     animation_action: str | None = None
+    animation_type: str | None = None
     prototype_ready: bool = False
     validation_status: SignValidationStatus
 

@@ -38,6 +38,17 @@ def test_level_has_distinct_content_complete_glossary_and_hints(level):
     assert not any(
         s["validation_status"] == "validated" for s in lesson["sign_glossary"]
     )
+    review_animations = [
+        sign
+        for sign in lesson["sign_glossary"]
+        if sign["animation_type"]
+        == "composite_prototype_educational_gesture"
+    ]
+    assert len(review_animations) == 34
+    assert all(sign["prototype_ready"] for sign in review_animations)
+    assert {"ALGEBRA", "BRACKET", "COEFFICIENT", "HINT", "CORRECT"} <= {
+        sign["sign_id"] for sign in review_animations
+    }
 
 
 def test_low_diagnostic_receives_scaffolding_not_a_claimed_ml_prediction():

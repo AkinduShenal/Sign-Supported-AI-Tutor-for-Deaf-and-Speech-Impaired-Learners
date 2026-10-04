@@ -4,7 +4,7 @@ import { selectPlayback } from './playbackPolicy'
 import { SinhalaText } from './SinhalaText'
 
 const MASTER_AVATAR_URL =
-  '/models/louise_signs_master.glb?v=arm-posture-v2'
+  '/models/louise_signs_master.glb?v=prototype-expansion-v3'
 const BETWEEN_CLIP_DELAY_MS = 120
 const EMPTY_SIGNS: string[] = []
 
@@ -12,6 +12,7 @@ export interface AvatarSignPlayerProps {
   signActions: string[]
   validatedSignIds?: string[]
   prototypeSignIds?: string[]
+  reviewSignIds?: string[]
   allowPrototype?: boolean
   caption?: string
   expression?: string
@@ -29,6 +30,7 @@ export function AvatarSignPlayer({
   signActions,
   validatedSignIds = EMPTY_SIGNS,
   prototypeSignIds = EMPTY_SIGNS,
+  reviewSignIds = EMPTY_SIGNS,
   allowPrototype = false,
   caption,
   expression,
@@ -54,6 +56,16 @@ export function AvatarSignPlayer({
   const [speed, setSpeed] = useState(0.75)
   const speedRef = useRef(speed)
   const [autoPlay, setAutoPlay] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [reviewSign, setReviewSign] = useState('')
+  const signActionsKey = signActions.join('\0')
+  const effectiveSignActions = useMemo(
+    () => (reviewSign ? [reviewSign] : signActions),
+    [reviewSign, signActions],
+  )
+
+  useEffect(() => {
+    setReviewSign('')
+  }, [signActionsKey])
 
   const validatedSet = useMemo(
     () => new Set(validatedSignIds),
@@ -68,12 +80,12 @@ export function AvatarSignPlayer({
     [allowPrototype, prototypeSignIds, validatedSignIds],
   )
 
-  const requestedSigns = useMemo(() => signActions.map((name, sourceIndex) => ({ name, sourceIndex })), [signActions])
+  const requestedSigns = useMemo(() => effectiveSignActions.map((name, sourceIndex) => ({ name, sourceIndex })), [effectiveSignActions])
 
   const playableSigns = useMemo(
     () =>
-      selectPlayback(signActions, availableAnimations, validatedSignIds, prototypeSignIds, allowPrototype),
-    [signActions, availableAnimations, validatedSignIds, prototypeSignIds, allowPrototype],
+      selectPlayback(effectiveSignActions, availableAnimations, validatedSignIds, prototypeSignIds, allowPrototype),
+    [effectiveSignActions, availableAnimations, validatedSignIds, prototypeSignIds, allowPrototype],
   )
 
   const unavailableSigns = useMemo(
@@ -89,7 +101,7 @@ export function AvatarSignPlayer({
   )
 
   const activeSign =
-    activeSignIndex === null ? null : signActions[activeSignIndex]
+    activeSignIndex === null ? null : effectiveSignActions[activeSignIndex]
 
   const clearTransitionTimer = useCallback(() => {
     if (transitionTimerRef.current !== null) {
@@ -314,7 +326,6 @@ export function AvatarSignPlayer({
           {!compact && <span className="eyebrow">Sign support</span>}
           <h2 id="avatar-title">{compact ? 'Avatar' : 'Tutor Avatar'}</h2>
         </div>
-        <span className="prototype-badge">{allowPrototype ? 'Prototype preview' : 'Validated clips only'}</span>
       </div>
 
       {!compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
@@ -384,6 +395,29 @@ export function AvatarSignPlayer({
 
       <details className="avatar-options" open={compact ? undefined : true}>
         <summary>Playback settings & sign details</summary>
+        {compact && reviewSignIds.length > 0 && (
+          <label className="animation-review-picker">
+            <span>
+              <strong>New animation examples</strong>
+              <small>Choose one of the new review-only prototype actions.</small>
+            </span>
+            <select
+              aria-label="New animation example"
+              value={reviewSign}
+              onChange={(event) => {
+                const nextSign = event.target.value
+                setReviewSign(nextSign)
+                onInteraction?.(nextSign ? `avatar_review_${nextSign}` : 'avatar_review_lesson')
+                if (nextSign && !allowPrototype) onEnablePrototype?.()
+              }}
+            >
+              <option value="">Current lesson signs</option>
+              {reviewSignIds.map((sign) => (
+                <option key={sign} value={sign}>{sign.replaceAll('_', ' ')}</option>
+              ))}
+            </select>
+          </label>
+        )}
         <div className="avatar-playback-controls">
           <label>Speed <select aria-label="Avatar playback speed" value={speed} onChange={(event) => {
             const value = Number(event.target.value)
@@ -394,13 +428,22 @@ export function AvatarSignPlayer({
           }}><option value={0.5}>0.5×</option><option value={0.75}>0.75×</option><option value={1}>1×</option></select></label>
           <label><input type="checkbox" checked={autoPlay} onChange={(event) => setAutoPlay(event.target.checked)} /> Auto-play</label>
         </div>
-        {compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
-        {compact && caption && <SinhalaText text={caption} />}
-        {compact && expression && <p className="avatar-expression">{expression}</p>}
+        {reviewSign ? (
+          <div className="animation-review-note" role="status">
+            <strong>Previewing: {reviewSign.replaceAll('_', ' ')}</strong>
+            <span>This is an unvalidated educational gesture for technical review.</span>
+          </div>
+        ) : (
+          <>
+            {compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
+            {compact && caption && <SinhalaText text={caption} />}
+            {compact && expression && <p className="avatar-expression">{expression}</p>}
+          </>
+        )}
       <div className="sign-status" aria-live="polite">
-        <span>Signs for this step</span>
+        <span>{reviewSign ? 'Selected animation example' : 'Signs for this step'}</span>
         <div className="sign-list">
-          {signActions.map((sign, index) => {
+          {effectiveSignActions.map((sign, index) => {
             const isPlayable =
               approvedForPlaybackSet.has(sign) &&
               availableAnimations.includes(sign)

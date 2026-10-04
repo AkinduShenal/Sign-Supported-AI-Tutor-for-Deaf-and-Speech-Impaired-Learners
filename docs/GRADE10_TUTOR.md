@@ -89,7 +89,8 @@ non-improvement analysis remain separate components.
   The mesh/skeleton and finger key shapes remain from the supplied package.
   See [avatar repair checks](../avatar-sign-package/docs/PROTOTYPE_TECHNICAL_VALIDATION.md).
 - Canonical manifests: `avatar-sign-package/manifest/` (backend deployment snapshots remain synced).
-- The library has 22 prototype actions; **zero lexical signs are human-validated**.
+- The library has 56 prototype actions: 22 repaired core motions and 34
+  review-only composites; **zero lexical signs are human-validated**.
 - Default playback is validated-only. Missing/unvalidated actions use text and
   equation support. A reviewer must explicitly enable **Preview unvalidated
   gestures** to inspect the supplied prototype actions.
@@ -191,9 +192,9 @@ stability and sampled elbow bends using keyframes plus midpoint interpolation.
 It does **not** establish natural signing, collision-free skinning or finger/
 facial correctness. Review rendered animation, not just numeric audit results.
 
-Verification on 2026-10-02: 55 backend tests, 4 playback-policy unit tests,
+Verification on 2026-10-05: 69 backend tests, 4 playback-policy unit tests,
 frontend build/lint, manifest checks and the isolated browser smoke suite pass.
 Browser checks include complete sequence-to-idle playback, pause/resume,
-reduced-motion behavior, missing-model fallback, answer grading and mobile
-overflow. The production build still reports the existing large, lazily loaded
+reduced-motion behavior, all 56 embedded actions, missing-model fallback, answer
+grading and mobile overflow. The production build still reports the existing large, lazily loaded
 model-viewer chunk; no library rewrite was attempted here.

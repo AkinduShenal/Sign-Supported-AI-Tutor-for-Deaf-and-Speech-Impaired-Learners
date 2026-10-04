@@ -75,14 +75,47 @@ def test_api_labels_playable_prototype_actions_separately() -> None:
     }
 
 
-def test_missing_prototype_clip_remains_unavailable() -> None:
+def test_expanded_hint_prototype_is_available_for_review() -> None:
     plan = MathSignPlanner().plan(instruction="Show a hint")
 
     assert plan.sign_actions == ("HINT",)
-    assert plan.playable_actions == ()
-    assert plan.prototype_actions == ()
-    assert plan.unavailable_actions == ("HINT",)
-    assert plan.is_fully_supported is False
+    assert plan.playable_actions == ("HINT",)
+    assert plan.prototype_actions == ("HINT",)
+    assert plan.unavailable_actions == ()
+    assert plan.is_fully_supported is True
+
+
+@pytest.mark.parametrize(
+    ("instruction", "expected_action"),
+    [
+        ("Use the coefficient", "COEFFICIENT"),
+        ("Open the bracket", "BRACKET"),
+        ("Show the next step", "NEXT"),
+        ("Try the practice question", "PRACTICE"),
+        ("Check whether the answer improved", "CHECK"),
+    ],
+)
+def test_expanded_review_actions_are_plannable(
+    instruction: str, expected_action: str
+) -> None:
+    plan = MathSignPlanner().plan(instruction=instruction)
+
+    assert expected_action in plan.sign_actions
+    assert expected_action in plan.prototype_actions
+    assert plan.unavailable_actions == ()
+
+
+@pytest.mark.parametrize(
+    ("instruction", "expected_actions"),
+    [
+        ("Use step by step support", ("STEP_BY_STEP",)),
+        ("The learner has not improved", ("NOT_IMPROVED",)),
+    ],
+)
+def test_compound_review_actions_do_not_add_partial_matches(
+    instruction: str, expected_actions: tuple[str, ...]
+) -> None:
+    assert MathSignPlanner().plan(instruction=instruction).sign_actions == expected_actions
 
 
 def test_reports_unknown_expression_tokens_without_inventing_signs() -> None:
