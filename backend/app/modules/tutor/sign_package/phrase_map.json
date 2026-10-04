@@ -1,0 +1,137 @@
+{
+  "rules": [
+    {
+      "pattern": "\\bsubstitut(?:e|ed|ion)\\b",
+      "actions": [
+        "SUBSTITUTION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:subtract|subtracted|subtraction|minus|take away)\\b",
+      "actions": [
+        "SUBTRACTION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:add|added|addition|plus)\\b",
+      "actions": [
+        "ADDITION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:multiply|multiplied|multiplication|times)\\b",
+      "actions": [
+        "MULTIPLICATION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:divide|divided|division)\\b",
+      "actions": [
+        "DIVISION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:equation|equal|equals)\\b",
+      "actions": [
+        "EQUATION"
+      ]
+    },
+    {
+      "pattern": "\\b(?:balance|balanced|keep equal)\\b",
+      "actions": [
+        "BALANCE"
+      ]
+    },
+    {
+      "pattern": "\\b(?:both sides|same operation)\\b",
+      "actions": [
+        "BOTH_SIDES"
+      ]
+    },
+    {
+      "pattern": "\\b(?:variable|unknown)\\b",
+      "actions": [
+        "VARIABLE"
+      ]
+    },
+    {
+      "pattern": "\\b(?:algebra|algebraic)\\b",
+      "actions": [
+        "ALGEBRA"
+      ]
+    },
+    {
+      "pattern": "\\bexpression\\b",
+      "actions": [
+        "EXPRESSION"
+      ]
+    },
+    {
+      "pattern": "\\bcoefficient\\b",
+      "actions": [
+        "COEFFICIENT"
+      ]
+    },
+    {
+      "pattern": "\\bterm\\b",
+      "actions": [
+        "TERM"
+      ]
+    },
+    {
+      "pattern": "\\bsolve\\b",
+      "actions": [
+        "SOLVE"
+      ]
+    },
+    {
+      "pattern": "\\b(?:answer|result)\\b",
+      "actions": [
+        "ANSWER"
+      ]
+    },
+    {
+      "pattern": "\\bhint\\b",
+      "actions": [
+        "HINT"
+      ]
+    },
+    {
+      "pattern": "\\btry again\\b",
+      "actions": [
+        "TRY_AGAIN"
+      ]
+    },
+    {
+      "pattern": "\\bcorrect\\b",
+      "actions": [
+        "CORRECT"
+      ]
+    },
+    {
+      "pattern": "\\b(?:incorrect|wrong)\\b",
+      "actions": [
+        "INCORRECT"
+      ]
+    }
+  ],
+  "expression_tokens": {
+    "+": "ADDITION",
+    "-": "SUBTRACTION",
+    "−": "SUBTRACTION",
+    "*": "MULTIPLICATION",
+    "×": "MULTIPLICATION",
+    "/": "DIVISION",
+    "÷": "DIVISION",
+    "=": "EQUATION",
+    "x": "VARIABLE"
+  },
+  "sequence_policy": {
+    "max_actions_per_step": 4,
+    "prefer_instruction_over_raw_expression": true,
+    "deduplicate": true,
+    "allow_prototype_educational_gestures": true,
+    "skip_missing_or_unvalidated_clips": true,
+    "fallback_to_text_only": true
+  }
+}

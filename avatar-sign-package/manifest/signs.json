@@ -1,0 +1,874 @@
+{
+  "package_name": "Sign-Supported AI Tutor Avatar Sign Package",
+  "version": "1.1.0",
+  "architecture": "manifest_backed_clip_library",
+  "master_avatar": "models/louise_signs_master.glb",
+  "master_avatar_sha256": "a4c837f03a64484bd75fe05c71a04d9bba36198811308d609c0b8fc4ad0cd5b0",
+  "notes": [
+    "This package intentionally avoids procedural IK sign generation.",
+    "Arm-posture revision 2 corrects FK arm/wrist poses and transition timing in the existing 22 prototype actions. Finger key shapes are retained, but arm paths/palm orientations changed and require fresh linguistic review. No lexical signs are newly validated.",
+    "Each lexical sign must be authored/recorded/retargeted on the same Louise skeleton and validated before it is described as Sri Lankan Sign Language.",
+    "Prototype-ready educational gestures may be played in the research prototype but are not validated Sri Lankan Sign Language signs.",
+    "The research scope is sign-supported key terms and avatar actions, not full automatic sign-language translation.",
+    "Do not mark a lexical clip as validated until reviewed by a qualified Sri Lankan Sign Language reviewer/interpreter."
+  ],
+  "signs": [
+    {
+      "id": "IDLE",
+      "label": "Idle / neutral",
+      "category": "system",
+      "priority": 0,
+      "required_for_research": true,
+      "aliases": [],
+      "clip": "clips/IDLE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "IDLE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "technical_only",
+      "notes": "Relaxed neutral pose. Not a lexical sign."
+    },
+    {
+      "id": "NUMBER_0",
+      "label": "Number 0",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "0"
+      ],
+      "clip": "clips/NUMBER_0.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_0",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_1",
+      "label": "Number 1",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "1"
+      ],
+      "clip": "clips/NUMBER_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_1",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_2",
+      "label": "Number 2",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "2"
+      ],
+      "clip": "clips/NUMBER_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_2",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_3",
+      "label": "Number 3",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "3"
+      ],
+      "clip": "clips/NUMBER_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_3",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_4",
+      "label": "Number 4",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "4"
+      ],
+      "clip": "clips/NUMBER_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_4",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_5",
+      "label": "Number 5",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "5"
+      ],
+      "clip": "clips/NUMBER_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_5",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_6",
+      "label": "Number 6",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "6"
+      ],
+      "clip": "clips/NUMBER_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_6",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_7",
+      "label": "Number 7",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "7"
+      ],
+      "clip": "clips/NUMBER_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_7",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_8",
+      "label": "Number 8",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "8"
+      ],
+      "clip": "clips/NUMBER_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_8",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NUMBER_9",
+      "label": "Number 9",
+      "category": "number",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "9"
+      ],
+      "clip": "clips/NUMBER_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "NUMBER_9",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "ADDITION",
+      "label": "Addition / plus",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "add",
+        "addition",
+        "plus",
+        "+"
+      ],
+      "clip": "clips/ADDITION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "ADDITION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "SUBTRACTION",
+      "label": "Subtraction / minus",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "subtract",
+        "subtraction",
+        "minus",
+        "-"
+      ],
+      "clip": "clips/SUBTRACTION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SUBTRACTION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "MULTIPLICATION",
+      "label": "Multiplication / times",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "multiply",
+        "multiplication",
+        "times",
+        "×",
+        "*"
+      ],
+      "clip": "clips/MULTIPLICATION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "MULTIPLICATION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "DIVISION",
+      "label": "Division / divided by",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "divide",
+        "division",
+        "divided by",
+        "÷",
+        "/"
+      ],
+      "clip": "clips/DIVISION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "DIVISION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "EQUATION",
+      "label": "Equation / equals",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "equation",
+        "equal",
+        "equals",
+        "="
+      ],
+      "clip": "clips/EQUATION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "EQUATION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "ALGEBRA",
+      "label": "Algebra",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "algebra"
+      ],
+      "clip": "clips/ALGEBRA.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "VARIABLE",
+      "label": "Variable / unknown",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "variable",
+        "unknown",
+        "x"
+      ],
+      "clip": "clips/VARIABLE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "VARIABLE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "EXPRESSION",
+      "label": "Algebraic expression",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "expression",
+        "algebraic expression"
+      ],
+      "clip": "clips/EXPRESSION.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "TERM",
+      "label": "Algebraic term",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "term"
+      ],
+      "clip": "clips/TERM.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "COEFFICIENT",
+      "label": "Coefficient",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "coefficient"
+      ],
+      "clip": "clips/COEFFICIENT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "SUBSTITUTION",
+      "label": "Substitution",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "substitute",
+        "substitution"
+      ],
+      "clip": "clips/SUBSTITUTION.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SUBSTITUTION",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "BALANCE",
+      "label": "Balance / keep equal",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "balance",
+        "balanced",
+        "keep equal"
+      ],
+      "clip": "clips/BALANCE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "BALANCE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "BOTH_SIDES",
+      "label": "Both sides / same operation",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "both sides",
+        "same operation"
+      ],
+      "clip": "clips/BOTH_SIDES.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "BOTH_SIDES",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "SOLVE",
+      "label": "Solve",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "solve",
+        "solution"
+      ],
+      "clip": "clips/SOLVE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "SOLVE",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "ANSWER",
+      "label": "Answer",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "answer",
+        "result"
+      ],
+      "clip": "clips/ANSWER.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "ANSWER",
+      "prototype_ready": true,
+      "animation_type": "educational_avatar_gesture",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "POSITIVE",
+      "label": "Positive",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "positive"
+      ],
+      "clip": "clips/POSITIVE.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NEGATIVE",
+      "label": "Negative",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "negative"
+      ],
+      "clip": "clips/NEGATIVE.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "BRACKET",
+      "label": "Bracket / parentheses",
+      "category": "core_math",
+      "priority": 1,
+      "required_for_research": true,
+      "aliases": [
+        "bracket",
+        "parentheses",
+        "(",
+        ")"
+      ],
+      "clip": "clips/BRACKET.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "START",
+      "label": "Start",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "start",
+        "begin"
+      ],
+      "clip": "clips/START.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NEXT",
+      "label": "Next",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "next",
+        "continue"
+      ],
+      "clip": "clips/NEXT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "PREVIOUS",
+      "label": "Previous / back",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "previous",
+        "back"
+      ],
+      "clip": "clips/PREVIOUS.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "STEP",
+      "label": "Step",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "step"
+      ],
+      "clip": "clips/STEP.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "EXAMPLE",
+      "label": "Example",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "example"
+      ],
+      "clip": "clips/EXAMPLE.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "PRACTICE",
+      "label": "Practice",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "practice"
+      ],
+      "clip": "clips/PRACTICE.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "QUESTION",
+      "label": "Question",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "question"
+      ],
+      "clip": "clips/QUESTION.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "HINT",
+      "label": "Hint",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "hint"
+      ],
+      "clip": "clips/HINT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "REPEAT",
+      "label": "Repeat / again",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "repeat",
+        "again"
+      ],
+      "clip": "clips/REPEAT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "TRY_AGAIN",
+      "label": "Try again",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "try again"
+      ],
+      "clip": "clips/TRY_AGAIN.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "CHECK",
+      "label": "Check",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "check"
+      ],
+      "clip": "clips/CHECK.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "CORRECT",
+      "label": "Correct",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "correct",
+        "right"
+      ],
+      "clip": "clips/CORRECT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "INCORRECT",
+      "label": "Incorrect",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "incorrect",
+        "wrong"
+      ],
+      "clip": "clips/INCORRECT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "FINISH",
+      "label": "Finish / complete",
+      "category": "tutor_support",
+      "priority": 2,
+      "required_for_research": false,
+      "aliases": [
+        "finish",
+        "complete"
+      ],
+      "clip": "clips/FINISH.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "ERROR_CORRECTION",
+      "label": "Error correction",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "error correction",
+        "correct mistake"
+      ],
+      "clip": "clips/ERROR_CORRECTION.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "FOUNDATION",
+      "label": "Foundation / prerequisite",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "foundation",
+        "prerequisite"
+      ],
+      "clip": "clips/FOUNDATION.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "STEP_BY_STEP",
+      "label": "Step by step",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "step by step",
+        "scaffolded"
+      ],
+      "clip": "clips/STEP_BY_STEP.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "MATCH",
+      "label": "Match",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "match",
+        "matching"
+      ],
+      "clip": "clips/MATCH.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "DRAG_DROP",
+      "label": "Drag and drop",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "drag and drop"
+      ],
+      "clip": "clips/DRAG_DROP.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "SIGN_KEYWORD",
+      "label": "Sign keyword",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "sign keyword",
+        "keyword"
+      ],
+      "clip": "clips/SIGN_KEYWORD.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "VISUAL",
+      "label": "Visual",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "visual"
+      ],
+      "clip": "clips/VISUAL.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "TEXT",
+      "label": "Text",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "text"
+      ],
+      "clip": "clips/TEXT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "EASY",
+      "label": "Easy",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "easy"
+      ],
+      "clip": "clips/EASY.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "DIFFICULT",
+      "label": "Difficult / hard",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "difficult",
+        "hard"
+      ],
+      "clip": "clips/DIFFICULT.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "SLOW",
+      "label": "Slow / slower",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "slow",
+        "slower"
+      ],
+      "clip": "clips/SLOW.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "IMPROVED",
+      "label": "Improved",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "improved"
+      ],
+      "clip": "clips/IMPROVED.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    },
+    {
+      "id": "NOT_IMPROVED",
+      "label": "Not improved",
+      "category": "remedial_support",
+      "priority": 3,
+      "required_for_research": false,
+      "aliases": [
+        "not improved"
+      ],
+      "clip": "clips/NOT_IMPROVED.glb",
+      "validation_status": "needs_validation",
+      "notes": ""
+    }
+  ]
+}
