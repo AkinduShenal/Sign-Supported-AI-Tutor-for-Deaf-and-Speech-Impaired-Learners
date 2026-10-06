@@ -40,6 +40,114 @@
   font-weight: 800;
 }
 
+.app-navigation {
+  display: flex;
+  width: min(1180px, calc(100% - 40px));
+  min-height: 68px;
+  margin: 0 auto;
+  padding: 10px 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-navigation-title {
+  color: var(--text-main);
+  font-weight: 800;
+}
+
+.app-navigation-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  gap: 10px;
+}
+
+.app-navigation button {
+  min-height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 8px 14px;
+  color: var(--text-main);
+  background: var(--surface);
+}
+
+.app-navigation button.active {
+  border-color: var(--primary);
+  color: #fff;
+  background: var(--primary);
+}
+
+.game-page {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(100svh - 68px);
+  padding: 32px 20px;
+  place-content: center;
+  place-items: center;
+}
+
+.component-gateway-page {
+  display: grid;
+  min-height: calc(100svh - 68px);
+  padding: 32px 20px;
+  place-items: center;
+}
+
+.component-placeholder {
+  width: min(100%, 620px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: clamp(28px, 6vw, 52px);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.component-placeholder-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 7px 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.component-placeholder h1 {
+  margin: 18px 0 10px;
+  color: var(--text-main);
+  font-size: clamp(28px, 5vw, 40px);
+}
+
+.component-placeholder p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.phaser-game-container {
+  width: 100%;
+  max-width: 800px;
+  height: 600px;
+  aspect-ratio: 4 / 3;
+}
+
+.phaser-game-container canvas {
+  display: block;
+}
+
+@media (max-width: 619px) {
+  .phaser-game-container {
+    max-width: 420px;
+    height: 640px;
+    aspect-ratio: auto;
+  }
+}
+
 .header-copy h1 {
   margin: 3px 0 5px;
   font-size: clamp(30px, 4vw, 44px);
@@ -552,6 +660,20 @@ button:disabled {
 }
 
 @media (max-width: 850px) {
+  .app-navigation {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .app-navigation-actions {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-navigation button {
+    width: 100%;
+  }
+
   .lesson-page {
     width: min(100% - 24px, 680px);
     padding-top: 24px;
@@ -580,6 +702,19 @@ button:disabled {
 }
 
 @media (max-width: 520px) {
+  .app-navigation {
+    width: min(100% - 24px, 680px);
+  }
+
+  .app-navigation-actions {
+    gap: 8px;
+  }
+
+  .app-navigation button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
   .lesson-header {
     align-items: start;
   }
