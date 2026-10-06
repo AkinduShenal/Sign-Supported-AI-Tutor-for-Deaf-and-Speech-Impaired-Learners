@@ -1,23 +1,7 @@
 import Phaser from 'phaser'
-
-// --- EDIT HERE to change the equation for Milestone 1 ---
-const EQUATION_TEXT = 'x + 3 = 7'
-const EQUATION_STEP_TEXT = 'x + 3 - 3 = 7 - 3'
-const SOLVED_TEXT = 'x = 4'
-
-// --- EDIT HERE to change the four answer choices ---
-// Exactly one of these should have isCorrect: true.
-interface OperationChoice {
-  label: string
-  isCorrect: boolean
-}
-
-const OPERATION_CHOICES: OperationChoice[] = [
-  { label: '-3', isCorrect: true },
-  { label: '+3', isCorrect: false },
-  { label: '×3', isCorrect: false },
-  { label: '÷3', isCorrect: false },
-]
+import type { EquationLevel, LevelStep, OperationChoice } from '../../data/equationLevels'
+import { EQUATION_LEVELS } from '../../data/equationLevels'
+import { GameSessionTracker } from '../../analytics/GameSessionTracker'
 
 const COLORS = {
   text: '#1a1a1a',
@@ -32,16 +16,35 @@ const COLORS = {
 // matches the rest of the site instead of looking like a typewriter.
 const FONT_FAMILY = 'system-ui, "Segoe UI", Roboto, sans-serif'
 
+// Data carried through scene.restart() so a window-resize (or finishing the
+// session) can rebuild the scene without losing progress or analytics.
+interface SceneInitData {
+  tracker?: GameSessionTracker
+  levelIndex?: number
+  stepIndex?: number
+  showSummary?: boolean
+}
+
 // A Phaser "Scene" is one self-contained screen of the game: it has its own
 // create() (build everything once) and can react to input, timers and
-// tweens (animations) after that. This scene is the whole Milestone 1 game.
+// tweens (animations) after that. This scene is the whole equation game —
+// level progression and analytics are plain data/logic layered on top of
+// the same rendering and drag-and-drop built for Milestone 1/1.5.
 export class EquationGameScene extends Phaser.Scene {
+  private tracker!: GameSessionTracker
+  private currentLevelIndex = 0
+  private currentStepIndex = 0
+  private showSummary = false
+  private isCompactLayout = false
+
   private equationText!: Phaser.GameObjects.Text
+  private levelIndicatorText!: Phaser.GameObjects.Text
   private feedbackText!: Phaser.GameObjects.Text
+  private hintButton!: Phaser.GameObjects.Container
+  private hintText!: Phaser.GameObjects.Text
   private nextButton!: Phaser.GameObjects.Container
   private operationButtons: Phaser.GameObjects.Container[] = []
-  private hasAnsweredCorrectly = false
-  private isCompactLayout = false
+  private hasAnsweredStepCorrectly = false
 
   // The drop zone the operation cards get dragged into.
   private dropZone!: Phaser.GameObjects.Zone
@@ -55,35 +58,77 @@ export class EquationGameScene extends Phaser.Scene {
     super({ key: 'EquationGameScene' })
   }
 
-  // Phaser calls create() exactly once, right after the scene starts.
-  // Everything the player sees gets built here.
-  create(): void {
-    this.operationButtons = []
-    this.hasAnsweredCorrectly = false
-    this.isCompactLayout = this.scale.width < 620
-    this.createTitleAndInstructions()
-    this.createEquation()
-    this.createDropZone()
-    this.createOperationButtons()
-    this.createFeedbackText()
-    this.createNextButton()
-    this.createDragListeners()
+  private get currentLevel(): EquationLevel {
+    return EQUATION_LEVELS[this.currentLevelIndex]
+  }
 
-    // Recreate this small scene after an orientation or browser-size change.
-    // This lets the buttons switch cleanly between desktop and mobile layouts.
+  private get currentStep(): LevelStep {
+    return this.currentLevel.steps[this.currentStepIndex]
+  }
+
+  // Phaser calls init() right before create(), with whatever data
+  // scene.restart() was called with. This is how progress and the
+  // analytics tracker survive a resize or the move to the summary screen,
+  // instead of a fresh EquationGameScene starting from level 1 every time.
+  init(data: SceneInitData): void {
+    this.tracker = data.tracker ?? new GameSessionTracker()
+    this.currentLevelIndex = data.levelIndex ?? 0
+    this.currentStepIndex = data.stepIndex ?? 0
+    this.showSummary = data.showSummary ?? false
+  }
+
+  create(): void {
+    this.isCompactLayout = this.scale.width < 620
+
+    if (this.showSummary) {
+      this.createSessionSummaryScreen()
+    } else {
+      this.createGameplayScreen()
+    }
+
+    // Recreate this scene after an orientation or browser-size change, so
+    // the layout can switch cleanly between desktop and mobile. Progress
+    // and analytics are passed back in through init(), above.
     this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this)
     })
   }
 
+  private handleResize(): void {
+    this.scene.restart({
+      tracker: this.tracker,
+      levelIndex: this.currentLevelIndex,
+      stepIndex: this.currentStepIndex,
+      showSummary: this.showSummary,
+    } satisfies SceneInitData)
+  }
+
+  // ---- Gameplay screen ----------------------------------------------
+
+  private createGameplayScreen(): void {
+    this.operationButtons = []
+    this.hasAnsweredStepCorrectly = false
+
+    this.createTitleAndInstructions()
+    this.createLevelIndicator()
+    this.createEquation()
+    this.createDropZone()
+    this.createFeedbackText()
+    this.createHintArea()
+    this.createNextButton()
+    this.createDragListeners()
+
+    this.displayCurrentStep()
+  }
+
   private createTitleAndInstructions(): void {
     const centerX = this.scale.width / 2
 
     this.add
-      .text(centerX, this.isCompactLayout ? 32 : 36, 'Balance the Equation', {
+      .text(centerX, this.isCompactLayout ? 28 : 30, 'Balance the Equation', {
         fontFamily: FONT_FAMILY,
-        fontSize: this.isCompactLayout ? '28px' : '32px',
+        fontSize: this.isCompactLayout ? '26px' : '30px',
         fontStyle: 'bold',
         color: COLORS.text,
       })
@@ -92,11 +137,11 @@ export class EquationGameScene extends Phaser.Scene {
     this.add
       .text(
         centerX,
-        this.isCompactLayout ? 76 : 78,
+        this.isCompactLayout ? 62 : 64,
         'Choose the operation that keeps the equation balanced.',
         {
           fontFamily: FONT_FAMILY,
-          fontSize: '18px',
+          fontSize: '16px',
           color: COLORS.text,
           align: 'center',
           wordWrap: { width: Math.max(260, this.scale.width - 40) },
@@ -105,22 +150,39 @@ export class EquationGameScene extends Phaser.Scene {
       .setOrigin(0.5)
   }
 
+  private createLevelIndicator(): void {
+    this.levelIndicatorText = this.add
+      .text(this.scale.width / 2, this.isCompactLayout ? 100 : 98, '', {
+        fontFamily: FONT_FAMILY,
+        fontSize: '16px',
+        fontStyle: 'bold',
+        color: COLORS.text,
+      })
+      .setOrigin(0.5)
+  }
+
+  private updateLevelIndicator(): void {
+    let text = `Level ${this.currentLevelIndex + 1} of ${EQUATION_LEVELS.length}`
+    if (this.currentLevel.steps.length > 1) {
+      text += ` · Step ${this.currentStepIndex + 1} of ${this.currentLevel.steps.length}`
+    }
+    this.levelIndicatorText.setText(text)
+  }
+
   private createEquation(): void {
     this.equationText = this.add
-      .text(this.scale.width / 2, this.isCompactLayout ? 150 : 155, EQUATION_TEXT, {
+      .text(this.scale.width / 2, this.isCompactLayout ? 150 : 155, '', {
         fontFamily: FONT_FAMILY,
         fontSize: this.isCompactLayout ? '42px' : '48px',
         fontStyle: 'bold',
         color: COLORS.text,
       })
       .setOrigin(0.5)
-
-    this.setEquationDisplay(EQUATION_TEXT)
   }
 
-  // Keep equations on one readable line. The balancing step is much longer
-  // than the original equation, so compact screens need a smaller font for
-  // that step. Short equations still use the normal large font.
+  // Keep equations on one readable line. The balancing step text is much
+  // longer than the equation itself, so compact screens need a smaller
+  // font for that step. Short equations still use the normal large font.
   private setEquationDisplay(value: string): void {
     const preferredFontSize = this.isCompactLayout ? 42 : 48
     const minimumFontSize = 20
@@ -143,9 +205,9 @@ export class EquationGameScene extends Phaser.Scene {
   // ourselves so it has something to look at.
   private createDropZone(): void {
     const width = Math.min(240, this.scale.width - 48)
-    const height = this.isCompactLayout ? 64 : 70
+    const height = this.isCompactLayout ? 60 : 64
     this.dropZoneX = this.scale.width / 2
-    this.dropZoneY = this.isCompactLayout ? 221 : 235
+    this.dropZoneY = this.isCompactLayout ? 218 : 225
 
     this.dropZoneOutline = this.add
       .rectangle(this.dropZoneX, this.dropZoneY, width, height, 0xffffff, 0)
@@ -166,7 +228,14 @@ export class EquationGameScene extends Phaser.Scene {
       .setRectangleDropZone(width, height)
   }
 
+  // Destroys any operation cards from the previous step and builds a fresh
+  // set from the current step's choices. Called every time the visible
+  // step changes (new step, new level, or a resize rebuild).
   private createOperationButtons(): void {
+    this.operationButtons.forEach((button) => button.destroy())
+    this.operationButtons = []
+
+    const choices = this.currentStep.choices
     const centerX = this.scale.width / 2
 
     if (this.isCompactLayout) {
@@ -176,8 +245,8 @@ export class EquationGameScene extends Phaser.Scene {
       const buttonHeight = 72
       const leftX = centerX - buttonWidth / 2 - gap / 2
       const rightX = centerX + buttonWidth / 2 + gap / 2
-      const row1Y = 307
-      const row2Y = row1Y + buttonHeight + 16
+      const row1Y = 300
+      const row2Y = row1Y + buttonHeight + 14
       const positions = [
         { x: leftX, y: row1Y },
         { x: rightX, y: row1Y },
@@ -185,7 +254,7 @@ export class EquationGameScene extends Phaser.Scene {
         { x: rightX, y: row2Y },
       ]
 
-      OPERATION_CHOICES.forEach((choice, index) => {
+      choices.forEach((choice, index) => {
         const position = positions[index]
         const button = this.createButton(
           position.x,
@@ -204,14 +273,13 @@ export class EquationGameScene extends Phaser.Scene {
     const buttonWidth = 140
     const buttonHeight = 70
     const gap = 24
+    const rowY = 305
 
     // Wide screens have enough room to show all four choices in one row.
-    const totalWidth = OPERATION_CHOICES.length * buttonWidth + (OPERATION_CHOICES.length - 1) * gap
+    const totalWidth = choices.length * buttonWidth + (choices.length - 1) * gap
     const startX = centerX - totalWidth / 2 + buttonWidth / 2
 
-    const rowY = 330
-
-    OPERATION_CHOICES.forEach((choice, index) => {
+    choices.forEach((choice, index) => {
       const x = startX + index * (buttonWidth + gap)
       const button = this.createButton(x, rowY, buttonWidth, buttonHeight, choice.label, () =>
         this.handleOperationSelection(choice, button),
@@ -244,11 +312,12 @@ export class EquationGameScene extends Phaser.Scene {
     })
   }
 
-  // These four listeners are what make dragging work. They live on
-  // `this.input` (the scene's input plugin) rather than on each card,
-  // because Phaser reports *which* card is being dragged as an argument,
-  // so one shared listener is simpler than repeating the same code on
-  // every card.
+  // These listeners are what make dragging work. They live on `this.input`
+  // (the scene's input plugin) rather than on each card, because Phaser
+  // reports *which* card is being dragged as an argument, so one shared
+  // listener is simpler than repeating the same code on every card. They
+  // only need to be registered once per scene instance (not once per
+  // step), since they look at whichever card triggered them.
   private createDragListeners(): void {
     this.input.on(
       'dragstart',
@@ -274,18 +343,34 @@ export class EquationGameScene extends Phaser.Scene {
 
     // Highlight the drop zone while a card is hovering over it, so it's
     // obvious where a release will count as a drop.
-    this.input.on('dragenter', (_pointer: Phaser.Input.Pointer, _gameObject: Phaser.GameObjects.Container, zone: Phaser.GameObjects.Zone) => {
-      if (zone === this.dropZone) this.dropZoneOutline.setStrokeStyle(4, COLORS.buttonBorderHover)
-    })
+    this.input.on(
+      'dragenter',
+      (
+        _pointer: Phaser.Input.Pointer,
+        _gameObject: Phaser.GameObjects.Container,
+        zone: Phaser.GameObjects.Zone,
+      ) => {
+        if (zone === this.dropZone) this.dropZoneOutline.setStrokeStyle(4, COLORS.buttonBorderHover)
+      },
+    )
 
-    this.input.on('dragleave', (_pointer: Phaser.Input.Pointer, _gameObject: Phaser.GameObjects.Container, zone: Phaser.GameObjects.Zone) => {
-      if (zone === this.dropZone) this.dropZoneOutline.setStrokeStyle(3, COLORS.buttonBorder)
-    })
+    this.input.on(
+      'dragleave',
+      (
+        _pointer: Phaser.Input.Pointer,
+        _gameObject: Phaser.GameObjects.Container,
+        zone: Phaser.GameObjects.Zone,
+      ) => {
+        if (zone === this.dropZone) this.dropZoneOutline.setStrokeStyle(3, COLORS.buttonBorder)
+      },
+    )
 
     // This is where a correct or incorrect DROP is detected: the card was
     // released while over the drop zone. We read back which choice it was
     // (stored in makeCardDraggable) and hand it to the exact same
-    // handleOperationSelection() that the click/tap path uses.
+    // handleOperationSelection() that the click/tap path uses. Dragging a
+    // card around and releasing it somewhere else never reaches here, so it
+    // is never counted as an attempt.
     this.input.on(
       'drop',
       (_pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Container) => {
@@ -329,7 +414,7 @@ export class EquationGameScene extends Phaser.Scene {
     const text = this.add
       .text(0, 0, label, {
         fontFamily: FONT_FAMILY,
-        fontSize: '28px',
+        fontSize: '26px',
         fontStyle: 'bold',
         color: COLORS.text,
       })
@@ -366,11 +451,33 @@ export class EquationGameScene extends Phaser.Scene {
 
   private createFeedbackText(): void {
     this.feedbackText = this.add
-      .text(this.scale.width / 2, this.isCompactLayout ? 465 : 400, '', {
+      .text(this.scale.width / 2, this.isCompactLayout ? 530 : 455, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: '26px',
+        fontSize: '22px',
         fontStyle: 'bold',
         color: COLORS.text,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
+  }
+
+  private createHintArea(): void {
+    this.hintButton = this.createButton(
+      this.scale.width / 2,
+      this.isCompactLayout ? 460 : 380,
+      this.isCompactLayout ? 150 : 140,
+      44,
+      '💡 Hint',
+      () => this.handleHintClick(),
+    )
+
+    this.hintText = this.add
+      .text(this.scale.width / 2, this.isCompactLayout ? 498 : 420, '', {
+        fontFamily: FONT_FAMILY,
+        fontSize: '15px',
+        color: COLORS.text,
+        align: 'center',
+        wordWrap: { width: Math.max(240, this.scale.width - 60) },
       })
       .setOrigin(0.5)
       .setAlpha(0)
@@ -379,34 +486,91 @@ export class EquationGameScene extends Phaser.Scene {
   private createNextButton(): void {
     this.nextButton = this.createButton(
       this.scale.width / 2,
-      this.isCompactLayout ? 530 : 470,
+      this.isCompactLayout ? 585 : 515,
       180,
-      64,
+      56,
       'Next ▶',
-      () => this.resetLevel(),
+      () => this.advanceToNextLevel(),
     )
     this.nextButton.setAlpha(0)
     this.nextButton.disableInteractive()
+  }
+
+  // Rebuilds everything that depends on which step is currently active:
+  // the equation text, the operation cards, and the level/step indicator.
+  // Called when the scene first loads, when a step or level is completed,
+  // and after a resize rebuild.
+  private displayCurrentStep(): void {
+    this.tracker.startLevel(
+      this.currentLevel.id,
+      this.currentLevel.concept,
+      this.currentLevel.steps.map(
+        (step) => step.choices.find((choice) => choice.isCorrect)?.label ?? '',
+      ),
+    )
+    this.tracker.beginStep()
+
+    this.hasAnsweredStepCorrectly = false
+    this.updateLevelIndicator()
+
+    const equationBeforeThisStep =
+      this.currentStepIndex === 0
+        ? this.currentLevel.startingEquation
+        : this.currentLevel.steps[this.currentStepIndex - 1].resultText
+    this.setEquationDisplay(equationBeforeThisStep)
+
+    this.createOperationButtons()
+
+    this.feedbackText.setText('')
+    this.feedbackText.setAlpha(0)
+
+    this.hintText.setText('')
+    this.hintText.setAlpha(0)
+    this.hintButton.setInteractive()
+    this.tweens.add({ targets: this.hintButton, alpha: 1, duration: 150 })
+
+    this.nextButton.setAlpha(0)
+    this.nextButton.disableInteractive()
+
+    this.dropZoneLabel.setAlpha(1)
+    this.dropZoneOutline.setStrokeStyle(3, COLORS.buttonBorder)
   }
 
   private handleOperationSelection(
     choice: OperationChoice,
     button: Phaser.GameObjects.Container,
   ): void {
-    // Once the correct answer has been picked, ignore any further clicks
-    // (this is the "disable additional answer selection" requirement).
-    if (this.hasAnsweredCorrectly) return
+    // Once this step has been answered correctly, ignore any further
+    // clicks or drops (the "disable additional answer selection"
+    // requirement).
+    if (this.hasAnsweredStepCorrectly) return
 
     if (choice.isCorrect) {
       this.showCorrectFeedback(button)
     } else {
+      // This is where wrong attempts are recorded — only for a genuine
+      // click or a card actually dropped on the zone, never for just
+      // dragging a card around.
+      this.tracker.recordWrongAttempt(this.currentStepIndex)
       this.showWrongFeedback(button)
     }
   }
 
+  private handleHintClick(): void {
+    // Hints can be requested more than once; every request is recorded.
+    this.tracker.recordHintUsed(this.currentStepIndex)
+    this.hintText.setText(this.currentStep.hint)
+    this.tweens.add({ targets: this.hintText, alpha: 1, duration: 200 })
+  }
+
   private showCorrectFeedback(button: Phaser.GameObjects.Container): void {
-    this.hasAnsweredCorrectly = true
+    this.hasAnsweredStepCorrectly = true
     this.disableAllOperationButtons()
+    this.hintButton.disableInteractive()
+
+    const step = this.currentStep
+    const isLastStepOfLevel = this.currentStepIndex === this.currentLevel.steps.length - 1
+    const isLastLevel = this.currentLevelIndex === EQUATION_LEVELS.length - 1
 
     // Snap the winning card into the drop zone, whether it got there by
     // being dragged or just clicked.
@@ -425,23 +589,39 @@ export class EquationGameScene extends Phaser.Scene {
 
     // Step 1: show the same operation applied to both sides...
     this.time.delayedCall(600, () => {
-      this.setEquationDisplay(EQUATION_STEP_TEXT)
+      this.setEquationDisplay(step.stepText)
     })
 
-    // Step 2: ...then settle on the final answer, with a little "pop" tween
-    // so the change is noticeable without relying on anything audible.
+    // Step 2: ...then settle on the result, with a little "pop" tween so
+    // the change is noticeable without relying on anything audible. This
+    // is also when the step is marked complete for analytics.
     this.time.delayedCall(1400, () => {
       this.tweens.add({
         targets: this.equationText,
         scale: 1.15,
         duration: 200,
         yoyo: true,
-        onComplete: () => this.setEquationDisplay(SOLVED_TEXT),
+        onComplete: () => this.setEquationDisplay(step.resultText),
       })
+      this.tracker.completeStep(this.currentStepIndex)
     })
 
-    // Step 3: reveal the Next button.
+    // Step 3: decide what happens next — another step in this level, the
+    // next level, or (after level 5) the session summary.
     this.time.delayedCall(2000, () => {
+      if (!isLastStepOfLevel) {
+        this.currentStepIndex += 1
+        this.displayCurrentStep()
+        return
+      }
+
+      this.tracker.completeLevel()
+
+      if (isLastLevel) {
+        this.finishSession()
+        return
+      }
+
       this.nextButton.setInteractive()
       this.tweens.add({ targets: this.nextButton, alpha: 1, duration: 300 })
     })
@@ -471,36 +651,57 @@ export class EquationGameScene extends Phaser.Scene {
     this.operationButtons.forEach((button) => button.disableInteractive())
   }
 
-  private handleResize(): void {
-    this.scene.restart()
+  // Moves from the level just completed to the next one. Only reachable
+  // from the Next button, which only appears between levels 1-4 (level 5
+  // goes to the summary screen instead).
+  private advanceToNextLevel(): void {
+    this.currentLevelIndex += 1
+    this.currentStepIndex = 0
+    this.displayCurrentStep()
   }
 
-  // Puts the scene back to its starting state so the same level can be
-  // played again. A later milestone can load a different equation here
-  // instead of always resetting to the same one.
-  private resetLevel(): void {
-    this.hasAnsweredCorrectly = false
-    this.setEquationDisplay(EQUATION_TEXT)
-    this.equationText.setScale(1)
+  private finishSession(): void {
+    this.tracker.completeSession()
+    const summary = this.tracker.getSummary()
+    // Logged so the full structured analytics can be inspected during
+    // development. A later milestone sends this to the backend instead.
+    console.log('Game session summary:', summary)
 
-    this.feedbackText.setText('')
-    this.feedbackText.setAlpha(0)
+    this.scene.restart({
+      tracker: this.tracker,
+      levelIndex: this.currentLevelIndex,
+      stepIndex: this.currentStepIndex,
+      showSummary: true,
+    } satisfies SceneInitData)
+  }
 
-    this.nextButton.setAlpha(0)
-    this.nextButton.disableInteractive()
+  // ---- Session summary screen ----------------------------------------
 
-    this.dropZoneLabel.setAlpha(1)
-    this.dropZoneOutline.setStrokeStyle(3, COLORS.buttonBorder)
+  private createSessionSummaryScreen(): void {
+    const centerX = this.scale.width / 2
+    const summary = this.tracker.getSummary()
+    const totalTime = summary.totalTimeSec !== null ? `${summary.totalTimeSec}s` : '—'
 
-    // Move every card back to where it started (only the winning one will
-    // have actually moved, but resetting all of them is simplest) and
-    // re-enable both the click and the drag path.
-    this.operationButtons.forEach((button) => {
-      button.setPosition(button.getData('originX') as number, button.getData('originY') as number)
-      button.setData('dragging', false)
-      // Calling setInteractive() with no arguments re-enables a button using
-      // the hit area it was already given in createButton().
-      button.setInteractive()
+    const lines = [
+      'Session Complete',
+      `Levels Completed: ${summary.levelsCompleted} / ${EQUATION_LEVELS.length}`,
+      `Wrong Attempts: ${summary.totalWrongAttempts}`,
+      `Hints Used: ${summary.totalHintsUsed}`,
+      `Total Time: ${totalTime}`,
+    ]
+
+    let y = this.isCompactLayout ? 160 : 200
+    lines.forEach((line, index) => {
+      const isHeading = index === 0
+      this.add
+        .text(centerX, y, line, {
+          fontFamily: FONT_FAMILY,
+          fontSize: isHeading ? (this.isCompactLayout ? '28px' : '32px') : '20px',
+          fontStyle: isHeading ? 'bold' : 'normal',
+          color: COLORS.text,
+        })
+        .setOrigin(0.5)
+      y += isHeading ? 64 : 40
     })
   }
 }
