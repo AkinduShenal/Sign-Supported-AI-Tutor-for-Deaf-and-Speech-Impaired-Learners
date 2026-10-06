@@ -1,7 +1,7 @@
 # Avatar posture repair — 2026-10-03
 
 The **actual master GLB has been changed**, not just its player. This is a
-mechanical/visual repair of the supplied 22 prototype actions, **not validation
+mechanical/visual repair of the supplied 22 core prototype actions, **not validation
 or creation of Sri Lankan Sign Language**. Learner-facing playback remains
 validated-only by default; prototypes require the explicit reviewer checkbox.
 
@@ -50,7 +50,7 @@ accessors. An original-versus-repaired comparison confirmed identical nodes,
 skins, meshes, images and textures, and a maximum non-arm key-pose difference of
 less than 0.000003 degrees (floating-point normalization only).
 
-Browser QA captures all 22 action midpoints, plus front/65° side transition
+Browser QA captures the action midpoints, plus front/65° side transition
 contact sheets for EQUATION, SUBTRACTION, SUBSTITUTION and NUMBER_5. These were
 visually inspected, including the idle and return poses. Full lesson playback,
 pause/resume, missing-asset fallback and reduced-motion behavior are also tested.
@@ -70,6 +70,7 @@ Screenshots are saved under ignored `frontend/artifacts/tutor-qa/`:
 
 - Original SHA-256: `31fd3bbd41cf1cac8c808becd9fd285ba605e3981c721c5a4f1c822b4861b24e`
 - Repaired SHA-256: `a4c837f03a64484bd75fe05c71a04d9bba36198811308d609c0b8fc4ad0cd5b0`
+- Expanded 56-action SHA-256: `dbecc512846c3a0bd1d3198c020f313eef017272a2e9df7a2f850d3000729fa9`
 - Canonical path: `frontend/public/models/louise_signs_master.glb`
 - Original asset is retained in Git at commit `e70c31f`.
 - Offline repair tool: `tools/repair_master_arm_roll.py ORIGINAL.glb REVIEW.glb`.
@@ -81,6 +82,11 @@ Screenshots are saved under ignored `frontend/artifacts/tutor-qa/`:
 Do not run `avatar/create_sign_animations.py` or the historical
 `build_linear_equation_glb_reference.py` to overwrite this asset. The old
 `prototype_pose_report.json` describes the supplied pre-repair asset only.
+
+The later 34-action composite expansion preserves these 22 repaired tracks and
+appends review-only combinations of their neutral-to-neutral motion. See
+`COMPOSITE_PROTOTYPE_ACTIONS.md`. The same mechanical audit applies, but the
+expansion adds no linguistic validation.
 
 ## What this does NOT solve
 

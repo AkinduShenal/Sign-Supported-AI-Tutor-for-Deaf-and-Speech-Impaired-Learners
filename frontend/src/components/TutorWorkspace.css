@@ -18,7 +18,7 @@
   --success-soft: #e8f9f1;
   --danger-soft: #fff1ee;
   --shadow-soft: 0 15px 40px rgb(64 52 138 / 9%);
-  width: min(1200px, calc(100% - 64px));
+  width: min(1800px, calc(100% - 32px));
   padding: 0 0 40px;
   color: var(--text-main);
 }
@@ -44,13 +44,13 @@ body:has(.student-workspace) {
 .student-workspace .course-label { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
 .student-workspace .course-label > span { border: 1px solid #dedff0; border-radius: 999px; padding: 7px 11px; background: rgb(255 255 255 / 76%); }
 .student-workspace .course-label > span + span { border-color: #c8edf5; color: #087f99; background: var(--cyan-soft); }
-.student-workspace .lesson-header { margin: 0; padding: 32px 0 24px; gap: 16px; align-items: center; }
-.student-workspace .topic-mark { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 15px; border: 1px solid #d9d5ff; background: linear-gradient(145deg, #fff, #eeecff); color: var(--primary); box-shadow: 0 9px 22px rgb(88 73 213 / 13%); font: italic 28px Georgia, serif; }
+.student-workspace .lesson-header { margin: 0; padding: 40px 0 32px; gap: 24px; align-items: center; }
+.student-workspace .topic-mark { display: grid; place-items: center; width: 68px; height: 68px; border-radius: 20px; border: 1px solid #d9d5ff; background: linear-gradient(145deg, #fff, #eeecff); color: var(--primary); box-shadow: 0 9px 22px rgb(88 73 213 / 13%); font: italic 38px Georgia, serif; }
+.student-workspace .header-copy { width: 100%; min-width: 0; }
 .student-workspace .lesson-kicker { display: block; margin-bottom: 4px; color: var(--primary); font-size: 12px; font-weight: 600; }
-.student-workspace .header-copy h1 { margin: 0; font-size: clamp(30px, 3vw, 38px); font-weight: 700; letter-spacing: -1.2px; }
-.student-workspace .header-copy p { margin: 4px 0 0; font-size: 15px; }
-.student-workspace .lesson-status { display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border: 1px solid #f3d994; border-radius: 999px; color: #87580a; background: var(--amber-soft); font-size: 12px; font-weight: 700; }
-.student-workspace .lesson-grid { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 28px; }
+.student-workspace .header-copy h1 { margin: 0; font-size: clamp(46px, 5.4vw, 68px); font-weight: 750; letter-spacing: -2px; line-height: 1.08; }
+.student-workspace .header-copy .lesson-title-si { margin: 8px 0 0; color: var(--primary-dark); font-family: 'Noto Sans Sinhala', 'Sinhala Sangam MN', 'Iskoola Pota', sans-serif; font-size: clamp(28px, 3vw, 38px); font-weight: 700; line-height: 1.5; }
+.student-workspace .lesson-grid { grid-template-columns: minmax(0, 2.2fr) minmax(390px, 1fr); gap: 24px; }
 .student-workspace .text-only-grid { grid-template-columns: minmax(0, 1fr); }
 .student-workspace .learning-column { min-width: 0; gap: 24px; }
 .student-workspace .lesson-card, .student-workspace .avatar-panel { border: 1px solid var(--border); border-radius: 20px; background: var(--surface); box-shadow: var(--shadow-soft); }
@@ -73,7 +73,6 @@ body:has(.student-workspace) {
 .student-workspace .card-heading, .student-workspace .avatar-heading { align-items: center; }
 .student-workspace .card-heading h2, .student-workspace .avatar-heading h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.5px; }
 .student-workspace .worked-example .card-heading h2 { font-size: clamp(24px, 2.4vw, 28px); }
-.student-workspace .example-title { margin: 0 0 16px; color: var(--primary); font-size: 12px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase; }
 .student-workspace .step-count { border: 1px solid #d6e9df; padding: 7px 12px; color: var(--primary); background: var(--primary-soft); font-size: 13px; font-variant-numeric: tabular-nums; }
 .student-workspace .step-rail { display: flex; gap: 6px; margin: 24px 0; }
 .student-workspace .step-rail > span { flex: 1; height: 6px; border-radius: 999px; background: var(--track); transition: background 180ms ease; }
@@ -101,11 +100,12 @@ body:has(.student-workspace) {
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 .student-workspace select:hover { border-color: #9e96eb; box-shadow: 0 5px 14px rgb(77 61 204 / 10%); }
-.student-workspace .original-equation { margin: 20px 0; color: var(--text-muted); font-size: 14px; }
+.student-workspace .original-equation { margin: 24px 0 18px; color: var(--text-muted); font-size: clamp(17px, 1.5vw, 20px); line-height: 1.6; }
 .student-workspace .original-equation strong { color: var(--text-main); font-weight: 600; }
-.student-workspace .bilingual-instruction { margin: 24px 0; }
-.student-workspace .instruction { margin: 0; font-size: 17px; font-weight: 500; line-height: 1.7; }
+.student-workspace .bilingual-instruction { display: flex; min-height: 190px; flex-direction: column; justify-content: center; margin: 18px 0 28px; border: 1px solid #dfddff; border-radius: 16px; padding: 26px 30px; background: linear-gradient(145deg, #fdfcff, #f6f5ff); box-shadow: inset 4px 0 0 var(--primary); }
+.student-workspace .instruction { max-width: 100%; margin: 0; overflow-wrap: break-word; color: var(--text-main); font-size: clamp(20px, 1.55vw, 25px); font-weight: 600; line-height: 1.6; text-wrap: pretty; white-space: normal; }
 .student-workspace .sinhala-text { margin: 10px 0 0; overflow-wrap: anywhere; color: var(--text-muted); font-family: 'Noto Sans Sinhala', 'Sinhala Sangam MN', 'Iskoola Pota', sans-serif; font-size: 16px; line-height: 1.9; }
+.student-workspace .bilingual-instruction .sinhala-text { margin-top: 18px; color: #555b7b; font-size: clamp(19px, 1.7vw, 23px); font-weight: 550; line-height: 1.9; }
 .student-workspace .equation.adaptive-equation { min-height: 156px; margin: 24px 0; padding: 32px 24px; border: 1px solid #dedbff; border-radius: 16px; color: #4033a8; background: radial-gradient(circle at 7% 15%, rgb(244 166 42 / 17%), transparent 24%), radial-gradient(circle at 95% 85%, rgb(22 166 199 / 14%), transparent 27%), linear-gradient(145deg, #faf9ff, #f0eeff); font-size: clamp(28px, 3.2vw, 44px); font-weight: 600; line-height: 1.4; text-align: center; overflow-wrap: anywhere; }
 .student-workspace .lesson-actions { gap: 12px; margin-top: 24px; }
 .student-workspace .worked-example > .lesson-actions { justify-content: space-between; }
@@ -146,8 +146,7 @@ body:has(.student-workspace) {
 .student-workspace .avatar-panel { grid-row: auto; min-width: 0; padding: 24px; }
 .student-workspace .avatar-heading { gap: 12px; flex-wrap: wrap; }
 .student-workspace .avatar-heading h2 { font-size: 20px; }
-.student-workspace .prototype-badge { padding: 6px 9px; border: 1px solid #c8edf4; color: #087b91; background: var(--cyan-soft); font-size: 11px; font-weight: 650; }
-.student-workspace .avatar-stage { height: 356px; margin: 20px 0; border-color: #d2eaf0; border-radius: 16px; background: radial-gradient(ellipse at 50% 28%, #fff 0%, rgb(255 255 255 / 78%) 34%, transparent 58%), linear-gradient(155deg, #edfaff 0%, #eeefff 100%); box-shadow: inset 0 0 42px rgb(22 166 199 / 7%); }
+.student-workspace .avatar-stage { height: 400px; margin: 20px 0; border-color: #d2eaf0; border-radius: 16px; background: radial-gradient(ellipse at 50% 28%, #fff 0%, rgb(255 255 255 / 78%) 34%, transparent 58%), linear-gradient(155deg, #edfaff 0%, #eeefff 100%); box-shadow: inset 0 0 42px rgb(22 166 199 / 7%); }
 .student-workspace .avatar-glow { background: rgb(81 71 208 / 13%); }
 .student-workspace .avatar-control-hint { color: var(--text-muted); border-color: var(--border); background: #f7f9f6; backdrop-filter: none; box-shadow: none; }
 .student-workspace .avatar-preview-prompt { display: grid; gap: 12px; }
@@ -161,6 +160,13 @@ body:has(.student-workspace) {
 .student-workspace summary::marker { color: var(--primary); }
 .student-workspace details[open] > summary { margin-bottom: 16px; }
 .student-workspace .avatar-options summary { color: var(--text-muted); font-size: 13px; }
+.student-workspace .animation-review-picker { display: grid; gap: 12px; margin: 0 0 16px; border: 1px solid #cfd0ff; border-radius: 12px; padding: 14px; background: linear-gradient(135deg, var(--primary-soft), var(--cyan-soft)); }
+.student-workspace .animation-review-picker > span { display: grid; gap: 3px; }
+.student-workspace .animation-review-picker strong { color: var(--primary-dark); font-size: 14px; }
+.student-workspace .animation-review-picker small { color: var(--text-muted); font-size: 11px; line-height: 1.5; }
+.student-workspace .animation-review-picker select { width: 100%; background-color: rgb(255 255 255 / 92%); }
+.student-workspace .animation-review-note { display: grid; gap: 4px; margin: 14px 0; border-left: 3px solid var(--cyan); padding: 10px 12px; border-radius: 0 10px 10px 0; color: var(--text-muted); background: var(--cyan-soft); font-size: 12px; line-height: 1.55; }
+.student-workspace .animation-review-note strong { color: var(--text-main); font-size: 13px; }
 .student-workspace .avatar-playback-controls { gap: 16px; margin: 16px 0; }
 .student-workspace .avatar-playback-controls label { color: var(--text-muted); font-size: 13px; }
 .student-workspace .avatar-caption { margin: 16px 0; padding: 0; color: var(--text-muted); background: transparent; font-size: 14px; font-weight: 400; }
@@ -182,6 +188,16 @@ body:has(.student-workspace) {
 .student-workspace .skip-lesson { position: absolute; z-index: 10; top: -100px; padding: 12px; border-radius: 10px; color: var(--primary); background: #fff; }
 .student-workspace .skip-lesson:focus { top: 10px; }
 
+@media (min-width: 901px) {
+  .student-workspace .lesson-grid:not(.text-only-grid) { height: clamp(680px, calc(100vh - 48px), 960px); align-items: stretch; }
+  .student-workspace .learning-column { height: 100%; align-content: start; overflow-y: auto; overscroll-behavior: contain; padding: 2px 10px 16px 2px; scrollbar-color: #aaa3f5 transparent; scrollbar-width: thin; }
+  .student-workspace .avatar-panel { position: static; height: 100%; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: #79cbd9 transparent; scrollbar-width: thin; }
+  .student-workspace :is(.learning-column, .avatar-panel)::-webkit-scrollbar { width: 8px; }
+  .student-workspace :is(.learning-column, .avatar-panel)::-webkit-scrollbar-track { background: transparent; }
+  .student-workspace .learning-column::-webkit-scrollbar-thumb { border-radius: 999px; background: #aaa3f5; }
+  .student-workspace .avatar-panel::-webkit-scrollbar-thumb { border-radius: 999px; background: #79cbd9; }
+}
+
 @media (max-width: 1100px) {
   .lesson-page.student-workspace { width: calc(100% - 48px); }
   .student-workspace .lesson-grid { grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr); gap: 20px; }
@@ -199,7 +215,6 @@ body:has(.student-workspace) {
   .student-workspace .avatar-panel { order: 1; position: static; grid-row: auto; }
   .student-workspace .practice-card { order: 2; }
   .student-workspace .lesson-header { grid-template-columns: auto minmax(0, 1fr); }
-  .student-workspace .lesson-status { grid-column: 2; justify-self: start; }
   .student-workspace .avatar-stage { height: 320px; }
 }
 @media (max-width: 520px) {
@@ -211,9 +226,13 @@ body:has(.student-workspace) {
   .student-workspace .course-label > span { padding: 6px 8px; }
   .student-workspace .course-label > span:first-child { display: none; }
   .student-workspace .lesson-header { padding: 24px 0; gap: 12px; }
-  .student-workspace .header-copy h1 { font-size: 30px; }
-  .student-workspace .topic-mark { width: 38px; height: 38px; font-size: 24px; }
+  .student-workspace .header-copy h1 { font-size: clamp(34px, 10vw, 44px); letter-spacing: -1.3px; }
+  .student-workspace .header-copy .lesson-title-si { font-size: clamp(23px, 7vw, 29px); }
+  .student-workspace .topic-mark { width: 48px; height: 48px; border-radius: 15px; font-size: 28px; }
   .student-workspace .lesson-card, .student-workspace .avatar-panel { padding: 20px; border-radius: 16px; }
+  .student-workspace .bilingual-instruction { min-height: 170px; padding: 22px 20px; }
+  .student-workspace .instruction { font-size: clamp(20px, 6vw, 25px); }
+  .student-workspace .bilingual-instruction .sinhala-text { font-size: clamp(18px, 5vw, 21px); }
   .student-workspace .equation.adaptive-equation, .student-workspace .practice-prompt { min-height: 128px; padding: 24px 16px; font-size: clamp(26px, 7.5vw, 36px); }
   .student-workspace .worked-example > .lesson-actions, .student-workspace .question-navigation { flex-direction: row; }
   .student-workspace .worked-example > .lesson-actions button { width: auto; min-width: 104px; }

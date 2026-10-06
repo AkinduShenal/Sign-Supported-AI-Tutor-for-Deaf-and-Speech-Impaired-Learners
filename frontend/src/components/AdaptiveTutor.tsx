@@ -63,9 +63,8 @@ export function AdaptiveTutor() {
       <div className="header-copy">
         <span className="lesson-kicker">Today&apos;s maths mission</span>
         <h1>Linear equations</h1>
-        <p>Learn it step by step, then try it yourself.</p>
+        <p className="lesson-title-si" lang="si">රේඛීය සමීකරණ</p>
       </div>
-      <span className="lesson-status"><span aria-hidden="true">✦</span> Ready to learn</span>
     </header>
     {loading ? <p role="status">Preparing your lesson…</p> : error ? <div className="lesson-card" role="alert"><h2>Lesson unavailable</h2><p>{error}</p><button className="primary-button" onClick={() => setRetry(n => n + 1)}>Try again</button></div> : lesson &&
       <LearningSession key={session} lesson={lesson} requestMs={requestMs} onNextTopic={() => {
@@ -111,6 +110,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
   const independent = Object.values(attempts).filter(attempt => attempt.independent).length
   const validated = useMemo(() => lesson.sign_glossary.filter(sign => sign.validation_status === 'validated').map(sign => sign.sign_id), [lesson])
   const prototypes = useMemo(() => lesson.sign_glossary.filter(sign => sign.prototype_ready).map(sign => sign.sign_id), [lesson])
+  const reviewAnimations = useMemo(() => lesson.sign_glossary.filter(sign => sign.animation_type === 'composite_prototype_educational_gesture').map(sign => sign.sign_id), [lesson])
   const strategy = lesson.plan.primary_strategy
   const avatarContent = focusHint
     ? hintCount > 0
@@ -177,7 +177,6 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
     <section id="lesson-content" tabIndex={-1} className={`lesson-grid ${!showAvatar ? 'text-only-grid' : ''}`}>
       <div className="learning-column">
         <article className="lesson-card worked-example">
-          <p className="example-title">Worked example</p>
           <div className="card-heading"><h2>{stepIndex === 0 ? 'Key idea' : `Step ${stepIndex}`}</h2><span className="step-count">{stepIndex + 1} / {steps.length}</span></div>
           <div className="step-rail" role="progressbar" aria-label="Worked example progress" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={stepIndex + 1}>{steps.map((_, index) => <span key={index} className={index <= stepIndex ? 'reached' : ''} />)}</div>
           <label className="example-picker"><span><span className="picker-icon" aria-hidden="true">✦</span> Choose an example</span><select value={exampleIndex} onChange={event => { setExampleIndex(Number(event.target.value)); setStepIndex(0); setFocusHint(false); record('example_selected', { item: event.target.value }) }}>{lesson.worked_examples.map((item, index) => <option key={item.problem} value={index}>{item.problem}</option>)}</select></label>
@@ -203,7 +202,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
           <div className="lesson-actions question-navigation"><button className="secondary-button" disabled={checking || questionIndex === 0} onClick={() => selectQuestion(questionIndex - 1)}>Previous question</button><button className="secondary-button" disabled={checking || questionIndex === lesson.practice_questions.length - 1} onClick={() => selectQuestion(questionIndex + 1)}>Next question <span aria-hidden="true">→</span></button></div>
         </article>
       </div>
-      {showAvatar && <AvatarSignPlayer compact signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} validatedSignIds={validated} prototypeSignIds={prototypes} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
+      {showAvatar && <AvatarSignPlayer compact signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
     </section>
     <details className="lesson-card reviewer-settings"><summary>Teaching & review settings</summary>
       <div className="avatar-playback-controls">

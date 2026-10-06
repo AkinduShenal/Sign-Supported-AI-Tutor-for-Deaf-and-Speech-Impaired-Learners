@@ -220,7 +220,6 @@
 }
 
 .step-count,
-.prototype-badge,
 .practice-badge {
   flex: none;
   border-radius: 999px;
@@ -229,8 +228,7 @@
   font-weight: 750;
 }
 
-.step-count,
-.prototype-badge {
+.step-count {
   color: var(--primary);
   background: var(--primary-soft);
 }

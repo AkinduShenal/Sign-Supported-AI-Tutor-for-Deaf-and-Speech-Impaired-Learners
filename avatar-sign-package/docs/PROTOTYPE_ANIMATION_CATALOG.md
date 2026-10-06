@@ -1,6 +1,8 @@
 # Linear Equation Avatar Animation Catalog
 
-This package contains 22 animation clips embedded in one Louise GLB.
+This package contains 56 animation clips embedded in one Louise GLB: 22
+repaired core clips and 34 review-only composites. See
+`COMPOSITE_PROTOTYPE_ACTIONS.md` for the added action recipes and references.
 
 ## Lesson concept clips
 - IDLE — shared neutral start/end pose
