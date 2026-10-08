@@ -6,6 +6,8 @@ services:
 
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set in .env}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL}
       FRONTEND_URL: http://localhost:${FRONTEND_PORT:-5173}
 
     ports:
