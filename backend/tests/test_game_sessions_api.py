@@ -511,3 +511,86 @@ def test_game_result_handles_a_fully_unsuccessful_assessment_without_dividing_by
     body = client.get(f"/api/v1/game/results/{session_id}").json()
     assert body["game_success_rate"] == 0.0
     assert body["successful_tasks"] == 0
+
+
+# ---- Batch 5: audit/reconstruction and integrity ----
+
+
+def test_session_can_be_reconstructed_from_events_and_attempts():
+    """Milestone 3 Step 21 audit: from stored rows alone, can we tell which
+    question (variant + step) the learner got and what they submitted?"""
+    from sqlalchemy import select
+
+    from app.modules.game.models import GameplayEvent, GameTaskAttempt
+
+    session_id = _create_session()["game_session_id"]
+    ts = datetime.now(UTC).isoformat()
+    step = {"variant_id": "LEQ_M_001", "difficulty_level": "medium", "step_index": 0}
+    events = [
+        ("QUESTION_SHOWN", {**step, "equation_shown": "2x + 1 = 7", "choices_offered": ["-1", "+1"]}),
+        ("ANSWER_SUBMITTED", {**step, "selected_choice": "+1", "is_correct": False}),
+        ("ANSWER_INCORRECT", {**step, "selected_choice": "+1", "is_correct": False}),
+        ("HINT_REQUESTED", step),
+        ("RETRY_STARTED", {}),
+        ("ANSWER_SUBMITTED", {**step, "selected_choice": "-1", "is_correct": True}),
+    ]
+    for event_type, payload in events:
+        response = client.post(
+            "/api/v1/game/events",
+            json={
+                "game_session_id": session_id,
+                "task_id": "LEQ_M_001",
+                "event_type": event_type,
+                "event_timestamp": ts,
+                "event_payload": payload,
+            },
+        )
+        assert response.status_code == 201, response.text
+    _save_attempt(session_id, "LEQ_M_001", "medium", attempts_count=2, wrong_attempts=1, hints_used=1)
+
+    database = TestingSessionLocal()
+    try:
+        rows = database.scalars(
+            select(GameplayEvent).where(GameplayEvent.game_session_id == session_id)
+        ).all()
+        shown = [r for r in rows if r.event_type == "QUESTION_SHOWN"]
+        submitted = [r for r in rows if r.event_type == "ANSWER_SUBMITTED"]
+        assert shown[0].event_payload["variant_id"] == "LEQ_M_001"
+        assert shown[0].event_payload["equation_shown"] == "2x + 1 = 7"
+        assert [r.event_payload["selected_choice"] for r in submitted] == ["+1", "-1"]
+        assert [r.event_payload["is_correct"] for r in submitted] == [False, True]
+        attempts = database.scalars(
+            select(GameTaskAttempt).where(GameTaskAttempt.game_session_id == session_id)
+        ).all()
+        assert len(attempts) == 1 and attempts[0].variant_id == "LEQ_M_001"
+    finally:
+        database.close()
+
+
+def test_multi_step_task_saved_once_counts_as_one_task():
+    session_id = _create_session()["game_session_id"]
+    for task_id, difficulty in [
+        ("E1", "easy"), ("E2", "easy"), ("M1", "medium"),
+        ("M2", "medium"), ("H1", "hard"), ("H2", "hard"),
+    ]:
+        # a 3-step task summarised in one row: attempts_count spans all steps
+        _save_attempt(session_id, task_id, difficulty, attempts_count=3)
+    client.post(f"/api/v1/game/sessions/{session_id}/complete")
+    result = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert result["tasks_completed"] == 6
+    assert result["game_completion_rate"] == 1.0
+    assert result["game_avg_attempts_per_task"] == 3.0
+
+
+def test_event_and_attempt_for_unknown_session_rejected_by_foreign_key():
+    ts = datetime.now(UTC).isoformat()
+    event = client.post(
+        "/api/v1/game/events",
+        json={"game_session_id": "nope", "event_type": "GAME_STARTED", "event_timestamp": ts},
+    )
+    attempt = client.post(
+        "/api/v1/game/task-attempts",
+        json={"game_session_id": "nope", "task_id": "E1"},
+    )
+    assert event.status_code == 404
+    assert attempt.status_code == 404

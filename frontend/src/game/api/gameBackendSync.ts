@@ -35,7 +35,7 @@ export class GameBackendSync {
       assessment_phase: input.assessmentPhase,
     })
       .then((session) => {
-        this.sendEvent(null, 'GAME_STARTED', session.game_session_id)
+        this.sendEvent(null, 'GAME_STARTED', {}, session.game_session_id)
         return session.game_session_id
       })
       .catch((error: unknown) => {
@@ -47,6 +47,9 @@ export class GameBackendSync {
   sendEvent(
     taskId: string | null,
     eventType: GameplayEventType,
+    // Evidence for reconstructing what the learner saw and chose (variant,
+    // step, selected card) — stored as gameplay_events.event_payload.
+    payload: Record<string, unknown> = {},
     // Only passed internally by startSession(), which already has the id
     // before this.sessionIdPromise resolves to it.
     knownSessionId?: string,
@@ -57,6 +60,7 @@ export class GameBackendSync {
         task_id: taskId,
         event_type: eventType,
         event_timestamp: new Date().toISOString(),
+        event_payload: payload,
       }).then(() => undefined),
     )
   }

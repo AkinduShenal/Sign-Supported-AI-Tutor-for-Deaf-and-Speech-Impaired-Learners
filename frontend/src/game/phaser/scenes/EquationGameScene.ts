@@ -642,13 +642,16 @@ export class EquationGameScene extends Phaser.Scene {
 
     this.hasAnsweredStepCorrectly = false
     this.hasAttemptedCurrentStep = false
-    this.backendSync.sendEvent(this.currentLevel.variantId, 'QUESTION_SHOWN')
-    this.updateLevelIndicator()
-
     const equationBeforeThisStep =
       this.currentStepIndex === 0
         ? this.currentLevel.startingEquation
         : this.currentLevel.steps[this.currentStepIndex - 1].resultText
+    this.backendSync.sendEvent(this.currentLevel.variantId, 'QUESTION_SHOWN', {
+      ...this.stepEvidence(),
+      equation_shown: equationBeforeThisStep,
+      choices_offered: this.currentStep.choices.map((c) => c.label),
+    })
+    this.updateLevelIndicator()
     this.setEquationDisplay(equationBeforeThisStep)
 
     this.createOperationButtons()
@@ -683,25 +686,41 @@ export class EquationGameScene extends Phaser.Scene {
     }
     this.hasAttemptedCurrentStep = true
     this.tracker.recordAttempt(this.currentStepIndex)
-    this.backendSync.sendEvent(taskId, 'ANSWER_SUBMITTED')
+    const answerEvidence = {
+      ...this.stepEvidence(),
+      selected_choice: choice.label,
+      is_correct: choice.isCorrect,
+    }
+    this.backendSync.sendEvent(taskId, 'ANSWER_SUBMITTED', answerEvidence)
 
     if (choice.isCorrect) {
-      this.backendSync.sendEvent(taskId, 'ANSWER_CORRECT')
+      this.backendSync.sendEvent(taskId, 'ANSWER_CORRECT', answerEvidence)
       this.showCorrectFeedback(button)
     } else {
       // This is where wrong attempts are recorded — only for a genuine
       // click or a card actually dropped on the zone, never for just
       // dragging a card around.
       this.tracker.recordWrongAttempt(this.currentStepIndex)
-      this.backendSync.sendEvent(taskId, 'ANSWER_INCORRECT')
+      this.backendSync.sendEvent(taskId, 'ANSWER_INCORRECT', answerEvidence)
       this.showWrongFeedback(button)
+    }
+  }
+
+  // Identifies exactly which question/step an event refers to, so the
+  // static variant data plus gameplay_events can reconstruct the session.
+  private stepEvidence(): Record<string, unknown> {
+    return {
+      variant_id: this.currentLevel.variantId,
+      difficulty_level: this.currentLevel.difficulty,
+      step_index: this.currentStepIndex,
+      step_count: this.currentLevel.steps.length,
     }
   }
 
   private handleHintClick(): void {
     // Hints can be requested more than once; every request is recorded.
     this.tracker.recordHintUsed(this.currentStepIndex)
-    this.backendSync.sendEvent(this.currentLevel.variantId, 'HINT_REQUESTED')
+    this.backendSync.sendEvent(this.currentLevel.variantId, 'HINT_REQUESTED', this.stepEvidence())
     this.hintText.setText(this.currentStep.hint)
     this.tweens.add({ targets: this.hintText, alpha: 1, duration: 200 })
   }
@@ -750,19 +769,22 @@ export class EquationGameScene extends Phaser.Scene {
         onComplete: () => this.setEquationDisplay(step.resultText),
       })
       this.tracker.completeStep(this.currentStepIndex)
-      this.backendSync.sendEvent(taskId, 'TASK_COMPLETED')
+      this.backendSync.sendEvent(taskId, 'TASK_COMPLETED', this.stepEvidence())
 
-      const stepAnalytics = this.tracker.getStepAnalytics(this.currentStepIndex)
-      if (stepAnalytics) {
+      // A variant can have several steps; the backend wants one task
+      // summary per variant, so it's saved once, on the final step, with
+      // the whole variant's counts.
+      const totals = this.tracker.getCurrentLevelTotals()
+      if (isLastStepOfLevel && totals) {
         this.backendSync.saveTaskAttempt({
           task_id: taskId,
           activity_id: variant.activityId,
           variant_id: variant.variantId,
           difficulty_level: variant.difficulty,
-          attempts_count: stepAnalytics.attemptsCount,
-          wrong_attempts: stepAnalytics.wrongAttempts,
-          hints_used: stepAnalytics.hintCount,
-          time_taken_sec: stepAnalytics.timeTakenSec ?? 0,
+          attempts_count: totals.attemptsCount,
+          wrong_attempts: totals.wrongAttempts,
+          hints_used: totals.hintCount,
+          time_taken_sec: totals.timeTakenSec,
           is_completed: true,
           is_successful: true,
         })

@@ -141,6 +141,27 @@ export class GameSessionTracker {
     return this.levels[this.levels.length - 1]?.steps[stepIndex] ?? null
   }
 
+  // One task = one variant = possibly several steps, but the backend wants
+  // one game_task_attempts row per task (Milestone 3 Step 21: "6 task
+  // summaries"), so this sums the current level's steps.
+  getCurrentLevelTotals(): {
+    attemptsCount: number
+    wrongAttempts: number
+    hintCount: number
+    timeTakenSec: number
+  } | null {
+    const level = this.levels[this.levels.length - 1]
+    if (!level) return null
+    const sum = (pick: (step: StepAnalytics) => number) =>
+      level.steps.reduce((total, step) => total + pick(step), 0)
+    return {
+      attemptsCount: sum((s) => s.attemptsCount),
+      wrongAttempts: sum((s) => s.wrongAttempts),
+      hintCount: sum((s) => s.hintCount),
+      timeTakenSec: Math.round(sum((s) => s.timeTakenSec ?? 0) * 10) / 10,
+    }
+  }
+
   private currentLevel(): LevelAnalytics {
     const level = this.levels[this.levels.length - 1]
     if (!level) {
