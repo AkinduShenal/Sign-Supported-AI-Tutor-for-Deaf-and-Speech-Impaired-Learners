@@ -54,6 +54,23 @@ export class EquationGameScene extends Phaser.Scene {
   private isFreshStart = false
   private hasAttemptedCurrentStep = false
   private levels: EquationVariant[] = []
+  // Bumped on every init() (every create() cycle, including a resize
+  // restart). loadAssessmentVariants() captures this before its one await
+  // and checks it again after — Phaser reuses this same scene instance
+  // across scene.restart(), so without this check, a load that was still
+  // in flight when a later restart superseded it would resolve and call
+  // this.add.text(...) against a scene instance that's mid-teardown for
+  // that restart (this.add is briefly null then), or just overwrite a
+  // newer, already-displayed set of tasks with a stale one.
+  private sceneGeneration = 0
+  // True once this whole scene (not just one cycle of it) has been torn
+  // down — e.g. React 19's StrictMode intentionally mounts PhaserGame,
+  // unmounts it (which calls game.destroy(true)), then mounts it again, to
+  // surface exactly this kind of bug. The generation check above only
+  // catches a restart *within* a still-alive scene instance; it can't
+  // catch this, since nothing calls init() again afterwards to bump it.
+  private isDestroyed = false
+  private loadingText: Phaser.GameObjects.Text | null = null
   private currentLevelIndex = 0
   private currentStepIndex = 0
   private showSummary = false
@@ -93,6 +110,7 @@ export class EquationGameScene extends Phaser.Scene {
   // analytics tracker survive a resize or the move to the summary screen,
   // instead of a fresh EquationGameScene starting from level 1 every time.
   init(data: SceneInitData): void {
+    this.sceneGeneration += 1
     this.tracker = data.tracker ?? new GameSessionTracker()
     // A resize rebuild always passes backendSync through; only a genuine
     // first load leaves it undefined, which is how we know not to start a
@@ -112,21 +130,30 @@ export class EquationGameScene extends Phaser.Scene {
 
     if (this.showSummary) {
       this.createSessionSummaryScreen()
-    } else if (!this.isFreshStart) {
-      // A resize rebuild: the assessment's 6 tasks were already chosen.
+    } else if (this.levels.length > 0) {
+      // Tasks were already chosen — either a resize rebuild mid-assessment,
+      // or a resize that landed after loadAssessmentVariants() finished.
       this.createGameplayScreen()
     } else {
-      // A genuine fresh start: create the backend session right away (it
-      // doesn't depend on which tasks get chosen), then pick this
-      // assessment's 6 Easy/Medium/Hard tasks before the first one can be
-      // shown — the only thing in this scene actually worth a brief wait,
-      // since it decides what content the learner sees.
-      this.backendSync.startSession({
-        studentId: this.studentId,
-        conceptId: CONCEPT_ID,
-        learningCycleId: this.learningCycleId,
-        assessmentPhase: 'pre_tutor',
-      })
+      // No tasks chosen yet: either a genuine fresh start, or a resize that
+      // landed *while* loadAssessmentVariants() was still waiting on the
+      // backend (Phaser's RESIZE scale mode can fire more than once right
+      // after boot, before that fetch resolves — more likely the slower
+      // the environment starts up, e.g. a cold Docker container). Only
+      // call startSession() on a genuine fresh start, so a mid-load resize
+      // can't create a second backend session. The display list was just
+      // cleared by this restart, so always repaint the loading screen and
+      // start a fresh load for *this* cycle — loadAssessmentVariants()
+      // checks sceneGeneration before acting, so an earlier cycle's load
+      // that resolves late is a safe no-op rather than a second render.
+      if (this.isFreshStart) {
+        this.backendSync.startSession({
+          studentId: this.studentId,
+          conceptId: CONCEPT_ID,
+          learningCycleId: this.learningCycleId,
+          assessmentPhase: 'pre_tutor',
+        })
+      }
       this.createLoadingScreen()
       void this.loadAssessmentVariants()
     }
@@ -137,6 +164,9 @@ export class EquationGameScene extends Phaser.Scene {
     this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this)
+    })
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => {
+      this.isDestroyed = true
     })
   }
 
@@ -159,7 +189,7 @@ export class EquationGameScene extends Phaser.Scene {
   // the one place in this scene where we deliberately make the learner
   // wait on the network, because it decides what content to show next.
   private createLoadingScreen(): void {
-    this.add
+    this.loadingText = this.add
       .text(this.scale.width / 2, this.scale.height / 2, 'Preparing your assessment…', {
         fontFamily: FONT_FAMILY,
         fontSize: '20px',
@@ -174,6 +204,8 @@ export class EquationGameScene extends Phaser.Scene {
   // request fails, fall back to treating every variant as unused rather
   // than leaving the learner stuck on the loading screen.
   private async loadAssessmentVariants(): Promise<void> {
+    const generation = this.sceneGeneration
+
     let usageCounts: Record<string, number> = {}
     try {
       const usage = await getVariantUsage(this.studentId, CONCEPT_ID)
@@ -182,6 +214,17 @@ export class EquationGameScene extends Phaser.Scene {
       console.warn('[game] failed to load variant usage, assuming none yet', error)
     }
 
+    // A restart (init() bumps sceneGeneration) may have superseded this
+    // call while the request above was in flight. If so, a newer create()
+    // cycle already owns the display list — possibly mid-teardown for that
+    // very restart right now — so touching this.add here would be unsafe
+    // and the result would be stale anyway. Let the current cycle's own
+    // load (already running) be the one that renders. Likewise, if the
+    // whole scene was destroyed outright (no restart follows that, so
+    // sceneGeneration alone wouldn't catch it), there's nothing left to
+    // render into.
+    if (generation !== this.sceneGeneration || this.isDestroyed) return
+
     this.levels = selectAssessmentVariants(usageCounts)
     this.createGameplayScreen()
   }
@@ -189,6 +232,12 @@ export class EquationGameScene extends Phaser.Scene {
   private createGameplayScreen(): void {
     this.operationButtons = []
     this.hasAnsweredStepCorrectly = false
+
+    // The loading screen's text is never cleared by anything else — within
+    // one create() call there's no scene.restart() to clear the display
+    // list for us (that only happens between separate create() calls).
+    this.loadingText?.destroy()
+    this.loadingText = null
 
     this.createTitleAndInstructions()
     this.createLevelIndicator()
