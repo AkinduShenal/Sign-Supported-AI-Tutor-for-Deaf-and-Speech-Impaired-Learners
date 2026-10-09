@@ -5,6 +5,7 @@ import { selectAssessmentVariants } from '../../data/variantSelection'
 import { GameSessionTracker } from '../../analytics/GameSessionTracker'
 import { GameBackendSync } from '../../api/gameBackendSync'
 import { getVariantUsage } from '../../api/gameApi'
+import type { GameResultResponse } from '../../api/gameApi'
 import { getOrCreateStudentId } from '../../identity'
 
 // Every task in an assessment is one of the 18 Easy/Medium/Hard variants
@@ -823,7 +824,11 @@ export class EquationGameScene extends Phaser.Scene {
     this.displayCurrentStep()
   }
 
-  private finishSession(): void {
+  // Async because the summary screen it leads to needs the backend's
+  // completion check (Milestone 3 Step 16) and game_results creation
+  // (Step 17) to have actually finished first — unlike every other
+  // backend call in this scene, this one is deliberately awaited.
+  private async finishSession(): Promise<void> {
     this.tracker.completeSession()
     const summary = this.tracker.getSummary()
     // Still logged locally for development visibility — the backend now
@@ -831,7 +836,7 @@ export class EquationGameScene extends Phaser.Scene {
     console.log('Game session summary:', summary)
 
     this.backendSync.sendEvent(null, 'SESSION_ENDED')
-    this.backendSync.completeSession()
+    await this.backendSync.completeSession()
 
     this.scene.restart({
       tracker: this.tracker,
@@ -847,7 +852,83 @@ export class EquationGameScene extends Phaser.Scene {
 
   // ---- Session summary screen ----------------------------------------
 
+  // Milestone 3 Step 18: shows the backend's calculated analytics, not
+  // anything the frontend worked out itself. By the time this screen
+  // shows, completeSession() has already resolved, so the game_results
+  // row (if the 2+2+2 blueprint was reached) already exists — this is
+  // just fetching it, the same brief-wait pattern as the loading screen
+  // in loadAssessmentVariants().
   private createSessionSummaryScreen(): void {
+    this.createLoadingScreen()
+    this.loadingText?.setText('Calculating your results…')
+    void this.loadAndShowResult()
+  }
+
+  private async loadAndShowResult(): Promise<void> {
+    const generation = this.sceneGeneration
+    const result = await this.backendSync.getGameResult()
+
+    // Same staleness guard as loadAssessmentVariants() — a resize (or
+    // React StrictMode's double-mount) may have superseded this call
+    // while the request was in flight.
+    if (generation !== this.sceneGeneration || this.isDestroyed) return
+
+    this.loadingText?.destroy()
+    this.loadingText = null
+
+    if (result) {
+      this.renderResultSummary(result)
+    } else {
+      // The backend never calculates nothing — a null result here means
+      // the fetch itself failed (network/server issue), not that the
+      // assessment was somehow incomplete (the game only ever reaches
+      // this screen after finishing all 6 tasks). Fall back to the local
+      // tracker's raw counts rather than leaving the screen blank; these
+      // are tallies, not the calculated rates the backend owns, so
+      // showing them here doesn't break the "frontend never calculates a
+      // rate" rule (Important Rule #9).
+      this.renderFallbackSummary()
+    }
+  }
+
+  private renderResultSummary(result: GameResultResponse): void {
+    const centerX = this.scale.width / 2
+
+    const lines = [
+      'Linear Equations',
+      'Pre-Tutor Assessment Complete',
+      `Tasks: ${result.tasks_total}`,
+      `Successful: ${result.successful_tasks}`,
+      `Success Rate: ${formatPercent(result.game_success_rate)}`,
+      `Completion Rate: ${formatPercent(result.game_completion_rate)}`,
+      `Average Attempts: ${result.game_avg_attempts_per_task.toFixed(1)}`,
+      `Hint Rate: ${formatPercent(result.game_hint_rate)}`,
+      `Wrong Attempts: ${result.wrong_attempt_count}`,
+      `Retries: ${result.retry_count}`,
+      `Hints Used: ${result.total_hint_count}`,
+      `Active Time: ${formatActiveTime(result.game_active_time_sec)}`,
+    ]
+
+    let y = this.isCompactLayout ? 90 : 110
+    lines.forEach((line, index) => {
+      const isHeading = index < 2
+      this.add
+        .text(centerX, y, line, {
+          fontFamily: FONT_FAMILY,
+          fontSize: isHeading
+            ? this.isCompactLayout
+              ? '22px'
+              : '26px'
+            : '18px',
+          fontStyle: isHeading ? 'bold' : 'normal',
+          color: COLORS.text,
+        })
+        .setOrigin(0.5)
+      y += isHeading ? 36 : 32
+    })
+  }
+
+  private renderFallbackSummary(): void {
     const centerX = this.scale.width / 2
     const summary = this.tracker.getSummary()
     const totalTime = summary.totalTimeSec !== null ? `${summary.totalTimeSec}s` : '—'
@@ -874,4 +955,14 @@ export class EquationGameScene extends Phaser.Scene {
       y += isHeading ? 64 : 40
     })
   }
+}
+
+function formatPercent(fraction: number): string {
+  return `${Math.round(fraction * 100)}%`
+}
+
+function formatActiveTime(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = Math.round(totalSeconds % 60)
+  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
 }

@@ -312,3 +312,202 @@ def test_full_session_event_attempt_flow():
     complete_response = client.post(f"/api/v1/game/sessions/{session_id}/complete")
     assert complete_response.status_code == 200
     assert complete_response.json()["status"] == "completed"
+
+
+# ---- Batch 4: feature engineering, automatic completion, game_results ----
+
+
+def _save_attempt(session_id: str, task_id: str, difficulty: str, **overrides) -> dict:
+    payload = {
+        "game_session_id": session_id,
+        "task_id": task_id,
+        "variant_id": task_id,
+        "activity_id": f"ACTIVITY_{task_id}",
+        "difficulty_level": difficulty,
+        "attempts_count": 1,
+        "wrong_attempts": 0,
+        "hints_used": 0,
+        "time_taken_sec": 10,
+        "is_completed": True,
+        "is_successful": True,
+        **overrides,
+    }
+    response = client.post("/api/v1/game/task-attempts", json=payload)
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+def _complete_full_assessment(session_id: str, **first_task_overrides) -> dict:
+    """Saves 2 easy + 2 medium + 2 hard task attempts (the Step 10
+    blueprint), then completes the session. The first easy task accepts
+    overrides so individual tests can control one task's numbers while
+    the rest stay at tidy defaults."""
+    _save_attempt(session_id, "E1", "easy", **first_task_overrides)
+    _save_attempt(session_id, "E2", "easy")
+    _save_attempt(session_id, "M1", "medium")
+    _save_attempt(session_id, "M2", "medium")
+    _save_attempt(session_id, "H1", "hard")
+    _save_attempt(session_id, "H2", "hard")
+    return client.post(f"/api/v1/game/sessions/{session_id}/complete").json()
+
+
+def test_game_result_not_created_before_full_2_2_2_spread():
+    session = _create_session()
+    session_id = session["game_session_id"]
+    # Only 1 easy + 1 medium + 1 hard — short of the 2+2+2 blueprint.
+    _save_attempt(session_id, "E1", "easy")
+    _save_attempt(session_id, "M1", "medium")
+    _save_attempt(session_id, "H1", "hard")
+    client.post(f"/api/v1/game/sessions/{session_id}/complete")
+
+    result_response = client.get(f"/api/v1/game/results/{session_id}")
+    assert result_response.status_code == 404
+
+
+def test_game_result_created_automatically_once_2_2_2_reached():
+    session = _create_session()
+    session_id = session["game_session_id"]
+    _complete_full_assessment(session_id)
+
+    result_response = client.get(f"/api/v1/game/results/{session_id}")
+    assert result_response.status_code == 200, result_response.text
+    body = result_response.json()
+    assert body["tasks_total"] == 6
+    assert body["tasks_attempted"] == 6
+    assert body["tasks_completed"] == 6
+    assert body["successful_tasks"] == 6
+    assert body["game_success_rate"] == 1.0
+    assert body["game_completion_rate"] == 1.0
+
+
+def test_game_result_rate_calculations_are_correct():
+    session = _create_session()
+    session_id = session["game_session_id"]
+    # One task wrong/unsuccessful, with 1 hint and 1 retry recorded via a
+    # gameplay event — everything else tidy defaults (0 hints, 1 attempt).
+    _save_attempt(
+        session_id,
+        "E1",
+        "easy",
+        attempts_count=3,
+        wrong_attempts=2,
+        hints_used=1,
+        time_taken_sec=20,
+        is_successful=False,
+    )
+    client.post(
+        "/api/v1/game/events",
+        json={
+            "game_session_id": session_id,
+            "task_id": "E1",
+            "event_type": "RETRY_STARTED",
+            "event_timestamp": datetime.now(UTC).isoformat(),
+        },
+    )
+    _save_attempt(session_id, "E2", "easy")
+    _save_attempt(session_id, "M1", "medium")
+    _save_attempt(session_id, "M2", "medium")
+    _save_attempt(session_id, "H1", "hard")
+    _save_attempt(session_id, "H2", "hard")
+    client.post(f"/api/v1/game/sessions/{session_id}/complete")
+
+    body = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert body["tasks_attempted"] == 6
+    assert body["successful_tasks"] == 5
+    assert body["game_success_rate"] == pytest.approx(5 / 6)
+    assert body["wrong_attempt_count"] == 2
+    assert body["retry_count"] == 1
+    assert body["total_hint_count"] == 1
+    # 1 of 6 tasks had a hint -> game_hint_rate is a share of tasks, not
+    # hints-per-task (that has no upper bound and the column is 0-1).
+    assert body["game_hint_rate"] == pytest.approx(1 / 6)
+    # (3 + 1 + 1 + 1 + 1 + 1) / 6 attempted tasks
+    assert body["game_avg_attempts_per_task"] == pytest.approx(8 / 6)
+    assert body["game_active_time_sec"] == 20 + 10 * 5
+
+
+def test_game_hint_rate_stays_within_0_and_1_even_with_many_hints_per_task():
+    """A learner who requests several hints on every task must not push
+    game_hint_rate past 1 — the database column enforces 0-1 on every
+    *_rate field, same as the others."""
+    session = _create_session()
+    session_id = session["game_session_id"]
+    for task_id, difficulty in [
+        ("E1", "easy"),
+        ("E2", "easy"),
+        ("M1", "medium"),
+        ("M2", "medium"),
+        ("H1", "hard"),
+        ("H2", "hard"),
+    ]:
+        _save_attempt(session_id, task_id, difficulty, hints_used=4)
+    client.post(f"/api/v1/game/sessions/{session_id}/complete")
+
+    body = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert body["game_hint_rate"] == 1.0
+    assert body["total_hint_count"] == 24
+
+
+def test_game_result_creation_is_idempotent_on_repeated_completion():
+    session = _create_session()
+    session_id = session["game_session_id"]
+    _complete_full_assessment(session_id)
+    first = client.get(f"/api/v1/game/results/{session_id}").json()
+
+    # Completing an already-completed session again must not create a
+    # second row (game_results.game_session_id is unique) or change it.
+    second_complete = client.post(f"/api/v1/game/sessions/{session_id}/complete")
+    assert second_complete.status_code == 200
+    second = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert second == first
+
+
+def test_game_result_is_ai_tutor_ready_json():
+    """Mirrors Milestone 3 Step 19's required field list."""
+    session = _create_session(student_id="AI_TUTOR_READY_001", concept_id="linear_equations")
+    session_id = session["game_session_id"]
+    _complete_full_assessment(session_id)
+
+    body = client.get(f"/api/v1/game/results/{session_id}").json()
+    for field in [
+        "student_id",
+        "concept_id",
+        "game_session_id",
+        "game_success_rate",
+        "game_completion_rate",
+        "game_avg_attempts_per_task",
+        "game_hint_rate",
+        "game_difficulty_level",
+        "game_active_time_sec",
+        "assessment_phase",
+        "learning_cycle_id",
+        "wrong_attempt_count",
+        "retry_count",
+        "total_hint_count",
+        "skipped_step_count",
+    ]:
+        assert field in body, f"missing AI-Tutor-ready field: {field}"
+    assert body["student_id"] == "AI_TUTOR_READY_001"
+    assert body["assessment_phase"] == "pre_tutor"
+    # Prototype-only indicators must be clearly labelled, never presented
+    # as a trained model's output (Milestone 3 Step 17 / CLAUDE.md).
+    assert body["model_version"] == "game-heuristic-v1"
+
+
+def test_game_result_handles_a_fully_unsuccessful_assessment_without_dividing_by_zero():
+    session = _create_session()
+    session_id = session["game_session_id"]
+    for task_id, difficulty in [
+        ("E1", "easy"),
+        ("E2", "easy"),
+        ("M1", "medium"),
+        ("M2", "medium"),
+        ("H1", "hard"),
+        ("H2", "hard"),
+    ]:
+        _save_attempt(session_id, task_id, difficulty, is_successful=False)
+    client.post(f"/api/v1/game/sessions/{session_id}/complete")
+
+    body = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert body["game_success_rate"] == 0.0
+    assert body["successful_tasks"] == 0
