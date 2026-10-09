@@ -1,7 +1,15 @@
 import Phaser from 'phaser'
-import type { EquationLevel, LevelStep, OperationChoice } from '../../data/equationLevels'
-import { EQUATION_LEVELS } from '../../data/equationLevels'
+import type { LevelStep, OperationChoice } from '../../data/equationLevels'
+import type { EquationVariant } from '../../data/equationVariants'
+import { selectAssessmentVariants } from '../../data/variantSelection'
 import { GameSessionTracker } from '../../analytics/GameSessionTracker'
+import { GameBackendSync } from '../../api/gameBackendSync'
+import { getVariantUsage } from '../../api/gameApi'
+import { getOrCreateStudentId } from '../../identity'
+
+// Every task in an assessment is one of the 18 Easy/Medium/Hard variants
+// (Milestone 3 Steps 10-13) under this same overall concept.
+const CONCEPT_ID = 'linear_equations'
 
 const COLORS = {
   text: '#1a1a1a',
@@ -20,6 +28,14 @@ const FONT_FAMILY = 'system-ui, "Segoe UI", Roboto, sans-serif'
 // session) can rebuild the scene without losing progress or analytics.
 interface SceneInitData {
   tracker?: GameSessionTracker
+  backendSync?: GameBackendSync
+  studentId?: string
+  learningCycleId?: string
+  // The 6 Easy/Medium/Hard tasks chosen for this assessment (Milestone 3
+  // Steps 10-13). Only a genuine fresh start leaves this undefined — a
+  // resize or the move to the summary screen always carries it through, so
+  // the task list never gets re-rolled mid-assessment.
+  levels?: EquationVariant[]
   levelIndex?: number
   stepIndex?: number
   showSummary?: boolean
@@ -32,6 +48,12 @@ interface SceneInitData {
 // the same rendering and drag-and-drop built for Milestone 1/1.5.
 export class EquationGameScene extends Phaser.Scene {
   private tracker!: GameSessionTracker
+  private backendSync!: GameBackendSync
+  private studentId = ''
+  private learningCycleId = ''
+  private isFreshStart = false
+  private hasAttemptedCurrentStep = false
+  private levels: EquationVariant[] = []
   private currentLevelIndex = 0
   private currentStepIndex = 0
   private showSummary = false
@@ -58,8 +80,8 @@ export class EquationGameScene extends Phaser.Scene {
     super({ key: 'EquationGameScene' })
   }
 
-  private get currentLevel(): EquationLevel {
-    return EQUATION_LEVELS[this.currentLevelIndex]
+  private get currentLevel(): EquationVariant {
+    return this.levels[this.currentLevelIndex]
   }
 
   private get currentStep(): LevelStep {
@@ -72,6 +94,14 @@ export class EquationGameScene extends Phaser.Scene {
   // instead of a fresh EquationGameScene starting from level 1 every time.
   init(data: SceneInitData): void {
     this.tracker = data.tracker ?? new GameSessionTracker()
+    // A resize rebuild always passes backendSync through; only a genuine
+    // first load leaves it undefined, which is how we know not to start a
+    // second backend session or re-send GAME_STARTED on every resize.
+    this.isFreshStart = data.backendSync === undefined
+    this.backendSync = data.backendSync ?? new GameBackendSync()
+    this.studentId = data.studentId ?? getOrCreateStudentId()
+    this.learningCycleId = data.learningCycleId ?? crypto.randomUUID()
+    this.levels = data.levels ?? []
     this.currentLevelIndex = data.levelIndex ?? 0
     this.currentStepIndex = data.stepIndex ?? 0
     this.showSummary = data.showSummary ?? false
@@ -82,8 +112,23 @@ export class EquationGameScene extends Phaser.Scene {
 
     if (this.showSummary) {
       this.createSessionSummaryScreen()
-    } else {
+    } else if (!this.isFreshStart) {
+      // A resize rebuild: the assessment's 6 tasks were already chosen.
       this.createGameplayScreen()
+    } else {
+      // A genuine fresh start: create the backend session right away (it
+      // doesn't depend on which tasks get chosen), then pick this
+      // assessment's 6 Easy/Medium/Hard tasks before the first one can be
+      // shown — the only thing in this scene actually worth a brief wait,
+      // since it decides what content the learner sees.
+      this.backendSync.startSession({
+        studentId: this.studentId,
+        conceptId: CONCEPT_ID,
+        learningCycleId: this.learningCycleId,
+        assessmentPhase: 'pre_tutor',
+      })
+      this.createLoadingScreen()
+      void this.loadAssessmentVariants()
     }
 
     // Recreate this scene after an orientation or browser-size change, so
@@ -98,6 +143,10 @@ export class EquationGameScene extends Phaser.Scene {
   private handleResize(): void {
     this.scene.restart({
       tracker: this.tracker,
+      backendSync: this.backendSync,
+      studentId: this.studentId,
+      learningCycleId: this.learningCycleId,
+      levels: this.levels,
       levelIndex: this.currentLevelIndex,
       stepIndex: this.currentStepIndex,
       showSummary: this.showSummary,
@@ -105,6 +154,37 @@ export class EquationGameScene extends Phaser.Scene {
   }
 
   // ---- Gameplay screen ----------------------------------------------
+
+  // Shown only while loadAssessmentVariants() is waiting on the backend —
+  // the one place in this scene where we deliberately make the learner
+  // wait on the network, because it decides what content to show next.
+  private createLoadingScreen(): void {
+    this.add
+      .text(this.scale.width / 2, this.scale.height / 2, 'Preparing your assessment…', {
+        fontFamily: FONT_FAMILY,
+        fontSize: '20px',
+        color: COLORS.text,
+      })
+      .setOrigin(0.5)
+  }
+
+  // Milestone 3 Steps 12-13: ask the backend how many times this student
+  // has already seen each variant of this concept, then pick 2 Easy + 2
+  // Medium + 2 Hard tasks respecting the "maximum two uses" rule. If the
+  // request fails, fall back to treating every variant as unused rather
+  // than leaving the learner stuck on the loading screen.
+  private async loadAssessmentVariants(): Promise<void> {
+    let usageCounts: Record<string, number> = {}
+    try {
+      const usage = await getVariantUsage(this.studentId, CONCEPT_ID)
+      usageCounts = usage.usage_counts
+    } catch (error) {
+      console.warn('[game] failed to load variant usage, assuming none yet', error)
+    }
+
+    this.levels = selectAssessmentVariants(usageCounts)
+    this.createGameplayScreen()
+  }
 
   private createGameplayScreen(): void {
     this.operationButtons = []
@@ -162,7 +242,7 @@ export class EquationGameScene extends Phaser.Scene {
   }
 
   private updateLevelIndicator(): void {
-    let text = `Level ${this.currentLevelIndex + 1} of ${EQUATION_LEVELS.length}`
+    let text = `Level ${this.currentLevelIndex + 1} of ${this.levels.length}`
     if (this.currentLevel.steps.length > 1) {
       text += ` · Step ${this.currentStepIndex + 1} of ${this.currentLevel.steps.length}`
     }
@@ -502,15 +582,17 @@ export class EquationGameScene extends Phaser.Scene {
   // and after a resize rebuild.
   private displayCurrentStep(): void {
     this.tracker.startLevel(
-      this.currentLevel.id,
+      this.currentLevel.variantId,
       this.currentLevel.concept,
       this.currentLevel.steps.map(
-        (step) => step.choices.find((choice) => choice.isCorrect)?.label ?? '',
+        (step: LevelStep) => step.choices.find((choice) => choice.isCorrect)?.label ?? '',
       ),
     )
     this.tracker.beginStep()
 
     this.hasAnsweredStepCorrectly = false
+    this.hasAttemptedCurrentStep = false
+    this.backendSync.sendEvent(this.currentLevel.variantId, 'QUESTION_SHOWN')
     this.updateLevelIndicator()
 
     const equationBeforeThisStep =
@@ -545,13 +627,23 @@ export class EquationGameScene extends Phaser.Scene {
     // requirement).
     if (this.hasAnsweredStepCorrectly) return
 
+    const taskId = this.currentLevel.variantId
+    if (this.hasAttemptedCurrentStep) {
+      this.backendSync.sendEvent(taskId, 'RETRY_STARTED')
+    }
+    this.hasAttemptedCurrentStep = true
+    this.tracker.recordAttempt(this.currentStepIndex)
+    this.backendSync.sendEvent(taskId, 'ANSWER_SUBMITTED')
+
     if (choice.isCorrect) {
+      this.backendSync.sendEvent(taskId, 'ANSWER_CORRECT')
       this.showCorrectFeedback(button)
     } else {
       // This is where wrong attempts are recorded — only for a genuine
       // click or a card actually dropped on the zone, never for just
       // dragging a card around.
       this.tracker.recordWrongAttempt(this.currentStepIndex)
+      this.backendSync.sendEvent(taskId, 'ANSWER_INCORRECT')
       this.showWrongFeedback(button)
     }
   }
@@ -559,6 +651,7 @@ export class EquationGameScene extends Phaser.Scene {
   private handleHintClick(): void {
     // Hints can be requested more than once; every request is recorded.
     this.tracker.recordHintUsed(this.currentStepIndex)
+    this.backendSync.sendEvent(this.currentLevel.variantId, 'HINT_REQUESTED')
     this.hintText.setText(this.currentStep.hint)
     this.tweens.add({ targets: this.hintText, alpha: 1, duration: 200 })
   }
@@ -570,7 +663,7 @@ export class EquationGameScene extends Phaser.Scene {
 
     const step = this.currentStep
     const isLastStepOfLevel = this.currentStepIndex === this.currentLevel.steps.length - 1
-    const isLastLevel = this.currentLevelIndex === EQUATION_LEVELS.length - 1
+    const isLastLevel = this.currentLevelIndex === this.levels.length - 1
 
     // Snap the winning card into the drop zone, whether it got there by
     // being dragged or just clicked.
@@ -594,7 +687,10 @@ export class EquationGameScene extends Phaser.Scene {
 
     // Step 2: ...then settle on the result, with a little "pop" tween so
     // the change is noticeable without relying on anything audible. This
-    // is also when the step is marked complete for analytics.
+    // is also when the step is marked complete for analytics, both local
+    // and backend.
+    const taskId = this.currentLevel.variantId
+    const variant = this.currentLevel
     this.time.delayedCall(1400, () => {
       this.tweens.add({
         targets: this.equationText,
@@ -604,6 +700,23 @@ export class EquationGameScene extends Phaser.Scene {
         onComplete: () => this.setEquationDisplay(step.resultText),
       })
       this.tracker.completeStep(this.currentStepIndex)
+      this.backendSync.sendEvent(taskId, 'TASK_COMPLETED')
+
+      const stepAnalytics = this.tracker.getStepAnalytics(this.currentStepIndex)
+      if (stepAnalytics) {
+        this.backendSync.saveTaskAttempt({
+          task_id: taskId,
+          activity_id: variant.activityId,
+          variant_id: variant.variantId,
+          difficulty_level: variant.difficulty,
+          attempts_count: stepAnalytics.attemptsCount,
+          wrong_attempts: stepAnalytics.wrongAttempts,
+          hints_used: stepAnalytics.hintCount,
+          time_taken_sec: stepAnalytics.timeTakenSec ?? 0,
+          is_completed: true,
+          is_successful: true,
+        })
+      }
     })
 
     // Step 3: decide what happens next — another step in this level, the
@@ -618,6 +731,7 @@ export class EquationGameScene extends Phaser.Scene {
       this.tracker.completeLevel()
 
       if (isLastLevel) {
+        this.backendSync.sendEvent(taskId, 'GAME_COMPLETED')
         this.finishSession()
         return
       }
@@ -663,12 +777,19 @@ export class EquationGameScene extends Phaser.Scene {
   private finishSession(): void {
     this.tracker.completeSession()
     const summary = this.tracker.getSummary()
-    // Logged so the full structured analytics can be inspected during
-    // development. A later milestone sends this to the backend instead.
+    // Still logged locally for development visibility — the backend now
+    // also has the same session via gameplay_events/game_task_attempts.
     console.log('Game session summary:', summary)
+
+    this.backendSync.sendEvent(null, 'SESSION_ENDED')
+    this.backendSync.completeSession()
 
     this.scene.restart({
       tracker: this.tracker,
+      backendSync: this.backendSync,
+      studentId: this.studentId,
+      learningCycleId: this.learningCycleId,
+      levels: this.levels,
       levelIndex: this.currentLevelIndex,
       stepIndex: this.currentStepIndex,
       showSummary: true,
@@ -684,7 +805,7 @@ export class EquationGameScene extends Phaser.Scene {
 
     const lines = [
       'Session Complete',
-      `Levels Completed: ${summary.levelsCompleted} / ${EQUATION_LEVELS.length}`,
+      `Levels Completed: ${summary.levelsCompleted} / ${this.levels.length}`,
       `Wrong Attempts: ${summary.totalWrongAttempts}`,
       `Hints Used: ${summary.totalHintsUsed}`,
       `Total Time: ${totalTime}`,
