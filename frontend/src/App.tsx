@@ -38,7 +38,10 @@ function App() {
   return (
     <>
       <nav className="app-navigation" aria-label="Learning tools">
-        <span className="app-navigation-title">Sign &amp; Learn</span>
+        <span className="app-navigation-title">
+          <img className="app-navigation-logo" src="/connected-learning-emblem.png" alt="" width="48" height="48" />
+          Sign &amp; Learn
+        </span>
         <div className="app-navigation-actions">
           {gateways.map((gateway) => (
             <button

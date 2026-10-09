@@ -55,7 +55,7 @@ export function AdaptiveTutor() {
   return <main className="lesson-page student-workspace">
     <a className="skip-lesson" href="#lesson-content">Skip to lesson</a>
     <nav className="workspace-bar" aria-label="Learning space">
-      <span className="workspace-brand"><span className="brand-mark" aria-hidden="true">s<span>+</span></span> Sign & learn</span>
+      <span className="workspace-brand"><img className="brand-mark" src="/connected-learning-emblem.png" alt="" width="48" height="48" /> Sign & learn</span>
       <span className="course-label"><span>Mathematics</span><span>Grade 10</span></span>
     </nav>
     <header className="lesson-header">

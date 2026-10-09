@@ -28,16 +28,11 @@
 }
 
 .brand-mark {
-  display: grid;
+  display: block;
   width: 54px;
   height: 54px;
-  place-items: center;
-  border-radius: 18px;
-  color: #fff;
-  background: linear-gradient(145deg, #5b4ae8, #7c3aed);
-  box-shadow: 0 12px 30px rgba(91, 74, 232, 0.24);
-  font-size: 25px;
-  font-weight: 800;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .app-navigation {
@@ -53,8 +48,19 @@
 }
 
 .app-navigation-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--text-main);
   font-weight: 800;
+}
+
+.app-navigation-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .app-navigation-actions {
@@ -722,8 +728,6 @@ button:disabled {
   .brand-mark {
     width: 44px;
     height: 44px;
-    border-radius: 14px;
-    font-size: 21px;
   }
 
   .header-copy h1 {
