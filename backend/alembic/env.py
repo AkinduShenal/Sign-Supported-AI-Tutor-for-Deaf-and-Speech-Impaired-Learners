@@ -5,7 +5,12 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
-from app.modules.game.models import GameResult  # noqa: F401
+from app.modules.game.models import (  # noqa: F401
+    GameplayEvent,
+    GameResult,
+    GameSession,
+    GameTaskAttempt,
+)
 from app.modules.quiz.models import QuizResult  # noqa: F401
 from app.modules.tutor.models import TutorStrategyPrediction  # noqa: F401
 

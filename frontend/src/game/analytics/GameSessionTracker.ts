@@ -1,6 +1,7 @@
 export interface StepAnalytics {
   stepNumber: number
   expectedOperation: string
+  attemptsCount: number
   wrongAttempts: number
   hintCount: number
   completed: boolean
@@ -62,6 +63,7 @@ export class GameSessionTracker {
       steps: stepOperations.map((expectedOperation, index) => ({
         stepNumber: index + 1,
         expectedOperation,
+        attemptsCount: 0,
         wrongAttempts: 0,
         hintCount: 0,
         completed: false,
@@ -76,6 +78,10 @@ export class GameSessionTracker {
   // its duration is measured from when it actually started.
   beginStep(): void {
     this.stepStartedAtMs = Date.now()
+  }
+
+  recordAttempt(stepIndex: number): void {
+    this.currentLevel().steps[stepIndex].attemptsCount += 1
   }
 
   recordWrongAttempt(stepIndex: number): void {
@@ -125,6 +131,14 @@ export class GameSessionTracker {
         : null,
       levels: this.levels,
     }
+  }
+
+  // Read-only snapshot of one step's live counts, for callers that need to
+  // report them elsewhere (e.g. sending a task-attempt summary to the
+  // backend) without this tracker knowing anything about where that data
+  // goes.
+  getStepAnalytics(stepIndex: number): StepAnalytics | null {
+    return this.levels[this.levels.length - 1]?.steps[stepIndex] ?? null
   }
 
   private currentLevel(): LevelAnalytics {

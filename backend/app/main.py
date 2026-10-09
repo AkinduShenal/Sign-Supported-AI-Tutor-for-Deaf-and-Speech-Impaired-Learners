@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.db.session import engine
+from app.modules.game.router import router as game_router
 from app.modules.tutor.router import router as tutor_router
 
 
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(tutor_router)
+app.include_router(game_router)
 
 
 @app.get("/api/v1/health", tags=["System"])

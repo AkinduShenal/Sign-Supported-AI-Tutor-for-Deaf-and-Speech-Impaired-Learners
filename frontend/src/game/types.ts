@@ -2,6 +2,8 @@ import type { Localized } from './i18n/language'
 
 export type AssessmentPhase = 'pre_tutor' | 'post_tutor'
 
+export type DifficultyLevel = 'easy' | 'medium' | 'hard'
+
 // Matches the gameplay_events.event_type vocabulary agreed for the backend contract.
 export type GameplayEventType =
   | 'GAME_STARTED'
