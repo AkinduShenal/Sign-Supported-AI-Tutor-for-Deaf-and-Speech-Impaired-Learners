@@ -1,0 +1,63 @@
+{
+  "status": "development_prototype_teacher_review_pending",
+  "concept_id": "linear_equations",
+  "assessment_use": "pre",
+  "misconceptions": [
+    {"code": "inverse_operation", "name_en": "Inverse operation error"},
+    {"code": "sign_error", "name_en": "Sign error"},
+    {"code": "arithmetic_error", "name_en": "Arithmetic error"},
+    {"code": "concept_confusion", "name_en": "Concept confusion"}
+  ],
+  "questions": [
+    {
+      "code": "DEV-PRE-LE-01", "subconcept": "one_step_addition", "difficulty": "easy",
+      "text_en": "Solve x + 5 = 12.", "text_si": "සමීකරණය විසඳන්න: x + 5 = 12.",
+      "options": [["A", "7", true, null], ["B", "17", false, "inverse_operation"], ["C", "5", false, "concept_confusion"], ["D", "12", false, "concept_confusion"]]
+    },
+    {
+      "code": "DEV-PRE-LE-02", "subconcept": "one_step_subtraction", "difficulty": "easy",
+      "text_en": "Solve x - 8 = 3.", "text_si": "සමීකරණය විසඳන්න: x - 8 = 3.",
+      "options": [["A", "-5", false, "sign_error"], ["B", "11", true, null], ["C", "5", false, "arithmetic_error"], ["D", "8", false, "concept_confusion"]]
+    },
+    {
+      "code": "DEV-PRE-LE-03", "subconcept": "one_step_multiplication", "difficulty": "easy",
+      "text_en": "Solve 4x = 28.", "text_si": "සමීකරණය විසඳන්න: 4x = 28.",
+      "options": [["A", "32", false, "inverse_operation"], ["B", "24", false, "inverse_operation"], ["C", "7", true, null], ["D", "4", false, "concept_confusion"]]
+    },
+    {
+      "code": "DEV-PRE-LE-04", "subconcept": "one_step_division", "difficulty": "easy",
+      "text_en": "Solve x ÷ 3 = 6.", "text_si": "සමීකරණය විසඳන්න: x ÷ 3 = 6.",
+      "options": [["A", "2", false, "inverse_operation"], ["B", "9", false, "inverse_operation"], ["C", "3", false, "concept_confusion"], ["D", "18", true, null]]
+    },
+    {
+      "code": "DEV-PRE-LE-05", "subconcept": "two_step_equations", "difficulty": "medium",
+      "text_en": "Solve 2x + 3 = 15.", "text_si": "සමීකරණය විසඳන්න: 2x + 3 = 15.",
+      "options": [["A", "6", true, null], ["B", "9", false, "inverse_operation"], ["C", "12", false, "concept_confusion"], ["D", "4", false, "arithmetic_error"]]
+    },
+    {
+      "code": "DEV-PRE-LE-06", "subconcept": "two_step_equations", "difficulty": "medium",
+      "text_en": "Solve 3x - 4 = 17.", "text_si": "සමීකරණය විසඳන්න: 3x - 4 = 17.",
+      "options": [["A", "21", false, "concept_confusion"], ["B", "7", true, null], ["C", "13", false, "sign_error"], ["D", "4", false, "arithmetic_error"]]
+    },
+    {
+      "code": "DEV-PRE-LE-07", "subconcept": "two_step_equations", "difficulty": "medium",
+      "text_en": "Solve 5x + 2 = 32.", "text_si": "සමීකරණය විසඳන්න: 5x + 2 = 32.",
+      "options": [["A", "7", false, "inverse_operation"], ["B", "30", false, "concept_confusion"], ["C", "6", true, null], ["D", "10", false, "arithmetic_error"]]
+    },
+    {
+      "code": "DEV-PRE-LE-08", "subconcept": "two_step_equations", "difficulty": "medium",
+      "text_en": "Solve x ÷ 2 + 4 = 9.", "text_si": "සමීකරණය විසඳන්න: x ÷ 2 + 4 = 9.",
+      "options": [["A", "2.5", false, "inverse_operation"], ["B", "13", false, "inverse_operation"], ["C", "5", false, "concept_confusion"], ["D", "10", true, null]]
+    },
+    {
+      "code": "DEV-PRE-LE-09", "subconcept": "variables_both_sides", "difficulty": "hard",
+      "text_en": "Solve 3x + 4 = x + 18.", "text_si": "සමීකරණය විසඳන්න: 3x + 4 = x + 18.",
+      "options": [["A", "7", true, null], ["B", "14", false, "concept_confusion"], ["C", "11", false, "sign_error"], ["D", "5", false, "arithmetic_error"]]
+    },
+    {
+      "code": "DEV-PRE-LE-10", "subconcept": "distributive_equations", "difficulty": "hard",
+      "text_en": "Solve 2(x + 3) = x + 14.", "text_si": "සමීකරණය විසඳන්න: 2(x + 3) = x + 14.",
+      "options": [["A", "11", false, "sign_error"], ["B", "16", false, "concept_confusion"], ["C", "8", true, null], ["D", "10", false, "arithmetic_error"]]
+    }
+  ]
+}

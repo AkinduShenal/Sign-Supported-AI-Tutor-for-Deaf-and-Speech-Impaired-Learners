@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AdaptiveTutor } from './components/AdaptiveTutor'
 import { PhaserGame } from './game/phaser/PhaserGame'
+import { QuizAssessment } from './quiz/QuizAssessment'
 import './App.css'
 
 type AppView = 'quiz' | 'game' | 'tutor' | 'remedial'
@@ -54,9 +55,7 @@ function App() {
         </div>
       </nav>
 
-      {view === 'quiz' && (
-        <PendingGateway title="Quiz Assessment" teamName="Quiz Assessment" />
-      )}
+      {view === 'quiz' && <QuizAssessment />}
       {view === 'game' && (
         <main className="game-page">
           <PhaserGame />
