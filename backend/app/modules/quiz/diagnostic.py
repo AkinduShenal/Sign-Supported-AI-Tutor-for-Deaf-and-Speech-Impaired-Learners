@@ -15,6 +15,8 @@ from app.modules.quiz.diagnostic_rules import (
 
 @dataclass(frozen=True)
 class ResponseEvidence:
+    question_id: str
+    question_order: int
     subconcept_code: str
     difficulty_level: str
     is_correct: bool
@@ -140,6 +142,11 @@ def calculate_diagnostic(
         confidence_counts["correct" if item.is_correct else "incorrect"][
             item.confidence_level
         ] += 1
+    confidence_correctness = {
+        f"{level}_{outcome}": confidence_counts[outcome][level]
+        for level in ("high", "medium", "low")
+        for outcome in ("correct", "incorrect")
+    }
     high_wrong = confidence_counts["incorrect"]["high"]
     low_right = confidence_counts["correct"]["low"]
     extremes = sum(
@@ -162,6 +169,52 @@ def calculate_diagnostic(
         confidence_pattern = "mixed_inconsistent"
     else:
         confidence_pattern = "generally_calibrated"
+
+    # This chooses learner copy; it does not change mastery or diagnose errors.
+    if (
+        high_wrong >= rules.confidence_pattern_min_count
+        and low_right >= rules.confidence_pattern_min_count
+    ):
+        insight_kind = "mixed"
+    elif high_wrong >= rules.confidence_pattern_min_count:
+        insight_kind = "high_incorrect"
+    elif low_right >= rules.confidence_pattern_min_count:
+        insight_kind = "low_correct"
+    else:
+        insight_kind = "neutral"
+
+    question_evidence = [
+        {
+            "question_order": item.question_order,
+            "question_id": item.question_id,
+            "is_correct": item.is_correct,
+            "confidence_level": item.confidence_level,
+            "confidence_correctness_state": (
+                "secure_understanding"
+                if item.is_correct and item.confidence_level == "high"
+                else "fragile_understanding"
+                if item.is_correct and item.confidence_level == "low"
+                else "knowledge_gap_signal"
+                if not item.is_correct and item.confidence_level == "low"
+                else "possible_misconception_signal"
+                if not item.is_correct and item.confidence_level == "high"
+                else "medium_confidence_correct"
+                if item.is_correct
+                else "medium_confidence_incorrect"
+            ),
+            "response_time_sec": item.response_time_sec,
+            "subconcept_code": item.subconcept_code,
+            "difficulty_level": item.difficulty_level,
+            "misconception_code": item.misconception_code
+            if not item.is_correct
+            else None,
+        }
+        for item in sorted(responses, key=lambda row: row.question_order)
+    ]
+    average_time_by_subconcept = {
+        code: round(sum(item.response_time_sec for item in rows) / len(rows), 2)
+        for code, rows in sorted(by_subconcept.items())
+    }
 
     weighted_tier_accuracy = (
         difficulty_performance["easy"]["accuracy"] * rules.easy_tier_weight
@@ -255,10 +308,21 @@ def calculate_diagnostic(
         ),
         "selected_source_misconception_code": selected_source_code,
         "confidence_counts": confidence_counts,
+        "confidence_correctness": confidence_correctness,
+        "confidence_insight": {
+            "kind": insight_kind,
+            "high_confidence_incorrect_count": high_wrong,
+            "low_confidence_correct_count": low_right,
+        },
+        "question_evidence": question_evidence,
         "response_time_summary": {
             "average_sec": round(average_time, 2),
             "minimum_sec": min(response_times),
             "maximum_sec": max(response_times),
+            "overall_average_sec": round(average_time, 2),
+            "minimum_response_time_sec": min(response_times),
+            "maximum_response_time_sec": max(response_times),
+            "by_subconcept": average_time_by_subconcept,
         },
         "mastery_components": {
             "overall_accuracy": round(accuracy, 4),
