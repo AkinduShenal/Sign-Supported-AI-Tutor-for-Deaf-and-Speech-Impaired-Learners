@@ -4,10 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.modules.quiz.diagnostic_service import QuizDiagnosticService
 from app.modules.quiz.schemas import (
     AssessmentPhase,
     QuizAnswerSavedResponse,
     QuizAnswerSubmit,
+    QuizDiagnosticResponse,
     QuizQuestionResponse,
     QuizSessionCreate,
     QuizSessionDetailResponse,
@@ -23,6 +25,7 @@ from app.modules.quiz.service import (
 
 router = APIRouter(prefix="/api/v1/quiz", tags=["Quiz"])
 service = QuizService()
+diagnostic_service = QuizDiagnosticService()
 Database = Annotated[Session, Depends(get_db)]
 
 
@@ -88,3 +91,23 @@ def complete_session(quiz_session_id: str, database: Database) -> QuizSessionRes
         raise HTTPException(status_code=404, detail=str(error)) from error
     except QuizConflictError as error:
         raise HTTPException(status_code=409, detail=str(error)) from error
+
+
+@router.post(
+    "/sessions/{quiz_session_id}/analyze", response_model=QuizDiagnosticResponse
+)
+def analyze_session(quiz_session_id: str, database: Database) -> QuizDiagnosticResponse:
+    try:
+        return diagnostic_service.analyze(database, quiz_session_id)
+    except QuizNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except QuizConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+
+
+@router.get("/sessions/{quiz_session_id}/result", response_model=QuizDiagnosticResponse)
+def get_result(quiz_session_id: str, database: Database) -> QuizDiagnosticResponse:
+    try:
+        return diagnostic_service.get_result(database, quiz_session_id)
+    except QuizNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error

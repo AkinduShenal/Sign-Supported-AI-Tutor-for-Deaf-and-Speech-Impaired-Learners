@@ -91,3 +91,31 @@ class QuizAnswerSavedResponse(BaseModel):
     question_id: uuid.UUID
     question_order: int
     saved: Literal[True] = True
+
+
+class QuizDiagnosticResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    quiz_session_id: str
+    student_id: str
+    concept_id: str
+    learning_cycle_id: uuid.UUID | None
+    assessment_phase: str | None
+    questions_total: int
+    questions_attempted: int
+    correct_answers: int
+    quiz_accuracy: float
+    quiz_avg_response_time_sec: float
+    quiz_hint_rate: float
+    misconception_code: str
+    repeated_error_count: int | None
+    weak_concept: str
+    weak_subconcept: str | None
+    quiz_mastery_score: float
+    mastery_level: str | None
+    recommended_support_level: str
+    recommended_focus: str | None
+    confidence_pattern: str | None
+    quiz_difficulty_level: str
+    diagnostic_evidence: dict | None
+    completed_at: datetime

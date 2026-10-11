@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { getOrCreateStudentId } from '../game/identity'
 import {
+  analyzeQuizSession,
   completeQuizSession,
   createPreQuizSession,
   getPreQuizQuestions,
@@ -10,18 +11,20 @@ import {
 } from './api'
 import { ConfidenceSelector } from './ConfidenceSelector'
 import { QuizProgress } from './QuizProgress'
+import { QuizDiagnosticResult } from './QuizDiagnosticResult'
 import { QuizQuestionCard } from './QuizQuestionCard'
 import { QuizResultPlaceholder } from './QuizResultPlaceholder'
-import type { ConfidenceLevel, QuizLanguage, QuizQuestion, QuizSession } from './types'
+import type { ConfidenceLevel, QuizDiagnosticResult as DiagnosticResult, QuizLanguage, QuizQuestion, QuizSession } from './types'
 import { elapsedQuestionSeconds, QUIZ_LENGTH, validatePreQuestionBank } from './workflow'
 import './quiz.css'
 
-type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'finalizing' | 'complete'
+type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'finalizing' | 'analyzing' | 'complete'
 
 export function QuizAssessment() {
   const [phase, setPhase] = useState<QuizPhase>('loading')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [session, setSession] = useState<QuizSession | null>(null)
+  const [diagnostic, setDiagnostic] = useState<DiagnosticResult | null>(null)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [language, setLanguage] = useState<QuizLanguage>('bilingual')
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null)
@@ -31,6 +34,18 @@ export function QuizAssessment() {
   const busy = useRef(false)
   const finishing = useRef(false)
   const [completionBusy, setCompletionBusy] = useState(false)
+
+  async function loadResult(sessionId: string) {
+    setPhase('analyzing')
+    setError(null)
+    try {
+      setDiagnostic(await analyzeQuizSession(sessionId))
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Your result could not be loaded. Please try again.')
+    } finally {
+      setPhase('complete')
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -61,6 +76,7 @@ export function QuizAssessment() {
     try {
       const created = await createPreQuizSession(getOrCreateStudentId())
       setSession(created)
+      setDiagnostic(null)
       setQuestionIndex(0)
       setSelectedOptionId(null)
       setConfidence(null)
@@ -79,22 +95,23 @@ export function QuizAssessment() {
     setCompletionBusy(true)
     setPhase('finalizing')
     setError(null)
+    let completed = false
     try {
       await completeQuizSession(sessionId)
-      setPhase('complete')
+      completed = true
     } catch {
       try {
         const saved = await getQuizSession(sessionId)
         if (saved.status === 'completed') {
-          setPhase('complete')
-          return
+          completed = true
         }
       } catch { /* Keep the last answer locked until completion is confirmed. */ }
-      setError('All ten answers are saved. Please use “Finish recording” to confirm completion.')
+      if (!completed) setError('All ten answers are saved. Please use “Finish recording” to confirm completion.')
     } finally {
       finishing.current = false
       setCompletionBusy(false)
     }
+    if (completed) await loadResult(sessionId)
   }
 
   async function moveAfterSave(sessionId: string) {
@@ -137,7 +154,8 @@ export function QuizAssessment() {
         const saved = await getQuizSession(sessionId)
         if (saved.responses_saved >= questionIndex + 1) {
           if (saved.status === 'completed' && questionIndex + 1 === QUIZ_LENGTH) {
-            setPhase('complete')
+            setQuestionIndex(QUIZ_LENGTH)
+            await loadResult(sessionId)
           } else {
             await moveAfterSave(sessionId)
           }
@@ -221,7 +239,14 @@ export function QuizAssessment() {
           {error ? <><p className="quiz-error" role="alert">{error}</p><button className="quiz-primary" type="button" disabled={completionBusy} onClick={() => session && finishSession(session.quiz_session_id)}>{language === 'si' ? 'සටහන් කිරීම අවසන් කරන්න' : 'Finish recording'}</button></> : <p>{language === 'si' ? 'කරුණාකර රැඳී සිටින්න…' : 'Please wait…'}</p>}
         </section>
       )}
-      {phase === 'complete' && <QuizResultPlaceholder language={language} />}
+      {phase === 'analyzing' && <section className="quiz-panel" role="status">{language === 'si' ? 'ඔබේ ප්‍රතිඵලය සකස් වෙමින් පවතී…' : 'Preparing your learning summary…'}</section>}
+      {phase === 'complete' && (diagnostic ? <QuizDiagnosticResult result={diagnostic} language={language} /> : <>
+        <QuizResultPlaceholder language={language} />
+        <section className="quiz-panel quiz-result-retry">
+          <p className="quiz-error" role="alert">{error || 'Your learning summary is not available yet.'}</p>
+          <button className="quiz-primary" type="button" onClick={() => session && loadResult(session.quiz_session_id)}>{language === 'si' ? 'ප්‍රතිඵලය නැවත පූරණය කරන්න' : 'Load learning summary'}</button>
+        </section>
+      </>)}
     </main>
   )
 }

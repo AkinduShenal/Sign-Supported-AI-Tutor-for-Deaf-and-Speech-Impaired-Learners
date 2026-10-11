@@ -1,4 +1,4 @@
-import type { QuizAnswer, QuizAnswerSaved, QuizQuestion, QuizSession, QuizSessionDetail } from './types'
+import type { QuizAnswer, QuizAnswerSaved, QuizDiagnosticResult, QuizQuestion, QuizSession, QuizSessionDetail } from './types'
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000/api/v1'
 const API_BASE_URL = (
@@ -50,4 +50,8 @@ export function submitQuizAnswer(sessionId: string, answer: QuizAnswer): Promise
 
 export function completeQuizSession(sessionId: string): Promise<QuizSession> {
   return quizRequest<QuizSession>(`sessions/${encodeURIComponent(sessionId)}/complete`, {})
+}
+
+export function analyzeQuizSession(sessionId: string): Promise<QuizDiagnosticResult> {
+  return quizRequest<QuizDiagnosticResult>(`sessions/${encodeURIComponent(sessionId)}/analyze`, {})
 }

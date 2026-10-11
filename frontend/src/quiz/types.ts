@@ -52,3 +52,14 @@ export interface QuizAnswerSaved {
   question_order: number
   saved: true
 }
+
+export interface QuizDiagnosticResult {
+  quiz_session_id: string
+  questions_total: number
+  questions_attempted: number
+  correct_answers: number
+  mastery_level: 'low' | 'medium' | 'high'
+  weak_subconcept: string | null
+  recommended_focus: string | null
+  recommended_support_level: 'low' | 'medium' | 'high'
+}

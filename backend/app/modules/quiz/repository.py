@@ -5,9 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.modules.quiz.models import (
+    MisconceptionMapping,
     QuizQuestion,
     QuizQuestionOption,
     QuizResponse,
+    QuizResult,
     QuizSession,
 )
 
@@ -114,3 +116,36 @@ def complete_quiz_session(
     session.completed_at = completed_at
     database.flush()
     return session
+
+
+def get_quiz_result(database: Session, quiz_session_id: str) -> QuizResult | None:
+    return database.scalar(
+        select(QuizResult).where(QuizResult.quiz_session_id == quiz_session_id)
+    )
+
+
+def get_diagnostic_rows(
+    database: Session, quiz_session_id: str
+) -> list[tuple[QuizResponse, QuizQuestion]]:
+    return list(
+        database.execute(
+            select(QuizResponse, QuizQuestion)
+            .join(QuizQuestion, QuizQuestion.id == QuizResponse.question_id)
+            .where(QuizResponse.quiz_session_id == quiz_session_id)
+            .order_by(QuizResponse.question_order)
+        ).all()
+    )
+
+
+def get_misconception_mappings(
+    database: Session, codes: set[str]
+) -> list[MisconceptionMapping]:
+    if not codes:
+        return []
+    return list(
+        database.scalars(
+            select(MisconceptionMapping).where(
+                MisconceptionMapping.misconception_code.in_(codes)
+            )
+        )
+    )

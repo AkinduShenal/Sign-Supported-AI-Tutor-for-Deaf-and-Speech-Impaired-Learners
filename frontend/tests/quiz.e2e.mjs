@@ -54,15 +54,15 @@ async function ready(url, child) {
 }
 
 try {
-  for (const port of [5177, 9227]) {
+  for (const port of [5187, 9237]) {
     try { await fetch(`http://127.0.0.1:${port}`); throw Error(`Port ${port} is already occupied`) }
     catch (error) { if (error.message.includes('occupied')) throw error }
   }
-  const vite = launch(process.execPath, [path.join(frontend, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', '5177', '--strictPort'], frontend)
-  const chrome = launch(chromePath, ['--headless=new', '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*', '--remote-debugging-port=9227', `--user-data-dir=${profile}`, 'about:blank'], frontend)
-  await Promise.all([ready('http://127.0.0.1:5177', vite), ready('http://127.0.0.1:9227/json', chrome)])
+  const vite = launch(process.execPath, [path.join(frontend, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', '5187', '--strictPort'], frontend)
+  const chrome = launch(chromePath, ['--headless=new', '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*', '--remote-debugging-port=9237', `--user-data-dir=${profile}`, 'about:blank'], frontend)
+  await Promise.all([ready('http://127.0.0.1:5187', vite), ready('http://127.0.0.1:9237/json', chrome)])
 
-  const targets = await (await fetch('http://127.0.0.1:9227/json')).json()
+  const targets = await (await fetch('http://127.0.0.1:9237/json')).json()
   socket = new WebSocket(targets.find(target => target.type === 'page').webSocketDebuggerUrl)
   await new Promise(resolve => socket.addEventListener('open', resolve, { once: true }))
   let id = 0
@@ -97,7 +97,7 @@ try {
 
   const mockSource = `(() => {
     const questions = ${JSON.stringify(questions)};
-    const calls = { questions: 0, sessions: 0, responses: [], completions: 0, failNextResponse: false, loseNextConfirmation: false };
+    const calls = { questions: 0, sessions: 0, responses: [], completions: 0, analyses: 0, failNextResponse: false, loseNextConfirmation: false };
     window.__quizMock = calls;
     const originalFetch = window.fetch.bind(window);
     const session = { quiz_session_id: 'QUIZ-e2e', concept_id: 'linear_equations', learning_cycle_id: '${uuid(500)}', assessment_phase: 'pre_tutor', quiz_attempt_number: 1, display_language: 'bilingual', status: 'in_progress', started_at: new Date().toISOString(), completed_at: null };
@@ -118,6 +118,10 @@ try {
         return reply({ response_id: '${uuid(600)}', quiz_session_id: session.quiz_session_id, question_id: last.question_id, question_order: last.question_order, saved: true }, 201);
       }
       if (path.endsWith('/complete') && method === 'POST') { calls.completions++; session.status = 'completed'; session.completed_at = new Date().toISOString(); return reply(session); }
+      if (path.endsWith('/analyze') && method === 'POST') {
+        calls.analyses++;
+        return reply({ quiz_session_id: session.quiz_session_id, questions_total: 10, questions_attempted: 10, correct_answers: 7, mastery_level: 'medium', weak_subconcept: 'two_step_equations', recommended_focus: 'Two-step Equations', recommended_support_level: 'medium', misconception_code: 'inverse_operation', diagnostic_evidence: { private: true } });
+      }
       if (path.includes('/sessions/') && method === 'GET') return reply({ ...session, responses_saved: calls.responses.length });
       return reply({ detail: 'Unexpected request' }, 404);
     };
@@ -126,7 +130,7 @@ try {
   await send('Page.enable')
   await send('Runtime.enable')
   await send('Page.addScriptToEvaluateOnNewDocument', { source: mockSource })
-  await send('Page.navigate', { url: 'http://127.0.0.1:5177/' })
+  await send('Page.navigate', { url: 'http://127.0.0.1:5187/' })
   await until("[...document.querySelectorAll('.app-navigation button')].some(button => button.textContent === 'Quiz Assessment')")
   await evaluate("[...document.querySelectorAll('.app-navigation button')].find(button => button.textContent === 'Quiz Assessment').click()")
   await until("document.querySelector('.quiz-intro button')?.textContent === 'Start assessment'")
@@ -177,19 +181,28 @@ try {
     await click('.quiz-submit')
     if (number < 10) await until(`document.querySelector('.quiz-progress-label strong')?.textContent === 'Question ${number + 1} of 10'`)
   }
-  await until("document.querySelector('#quiz-completed-title')?.textContent === 'Assessment Completed'")
+  await until("document.querySelector('#quiz-completed-title')?.textContent === 'Assessment Complete'")
+  assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('7 / 10')"), true)
+  assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('Developing')"), true)
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Correct Answers'))?.querySelector('dd')?.textContent"), '7')
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Wrong Answers'))?.querySelector('dd')?.textContent"), '3')
   await click('.quiz-language button:nth-child(2)')
-  assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'ඇගයීම අවසන්')
+  assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'ඇගයීම සම්පූර්ණයි')
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('නිවැරදි පිළිතුරු'))?.querySelector('dd')?.textContent"), '7')
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('වැරදි පිළිතුරු'))?.querySelector('dd')?.textContent"), '3')
   await click('.quiz-language button:nth-child(1)')
-  assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'Assessment Completed')
+  assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'Assessment Complete')
   await click('.quiz-language button:nth-child(3)')
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Correct Answers'))?.querySelector('dt small')?.textContent"), 'නිවැරදි පිළිතුරු')
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Wrong Answers'))?.querySelector('dt small')?.textContent"), 'වැරදි පිළිතුරු')
   const calls = JSON.parse(await evaluate('JSON.stringify(window.__quizMock)'))
   assert.equal(calls.responses.length, 10)
   assert.equal(calls.completions, 1)
+  assert.equal(calls.analyses, 1)
   assert.deepEqual(calls.responses.map(answer => answer.question_order), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
   assert.equal(calls.responses.every(answer => Number.isFinite(answer.response_time_sec) && answer.response_time_sec >= 0), true)
   assert.equal(calls.responses.every(answer => answer.question_id && answer.selected_option_id && answer.confidence_level), true)
-  assert.equal(await evaluate("/\\b(correct|wrong|misconception|pass|fail|hint|try again)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
+  assert.equal(await evaluate("/\\b(misconception|inverse_operation|diagnostic_evidence|pass|fail|hint)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
   console.log('Quiz browser flow PASS: 10 questions, 10 saved requests, one completion, bilingual display, validation, and no feedback.')
 } finally {
   socket?.close()
