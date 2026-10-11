@@ -79,3 +79,47 @@ export function getVariantUsage(
   const query = new URLSearchParams({ student_id: studentId, concept_id: conceptId })
   return gameRequest<VariantUsageResponse>(`variant-usage?${query.toString()}`)
 }
+
+// The calculated Game Analytics result (Milestone 3 Steps 15-19). The
+// frontend never computes any of these rates itself — they always come
+// from here. Mirrors backend/app/modules/game/schemas.py::GameResultResponse.
+export interface GameResultResponse {
+  game_session_id: string
+  student_id: string
+  concept_id: string
+  learning_cycle_id: string | null
+  assessment_phase: AssessmentPhase | null
+  tasks_total: number
+  tasks_attempted: number
+  tasks_completed: number
+  successful_tasks: number
+  game_success_rate: number
+  game_completion_rate: number
+  game_avg_attempts_per_task: number
+  game_hint_rate: number
+  game_difficulty_level: string
+  game_active_time_sec: number
+  wrong_attempt_count: number
+  retry_count: number
+  total_hint_count: number
+  skipped_step_count: number
+  // Prototype heuristic indicators — not a trained model's output (see
+  // model_version, e.g. "game-heuristic-v1").
+  engagement_level: string
+  behavioral_difficulty: string
+  hint_dependency: number
+  game_mastery_score: number
+  game_mastery_level: string | null
+  game_engagement_level: string | null
+  hint_dependency_level: string | null
+  model_version: string | null
+  completed_at: string
+}
+
+// Only meaningful once the backend has decided the assessment is complete
+// (2 Easy + 2 Medium + 2 Hard tasks processed — Milestone 3 Step 16) and
+// created the game_results row as a side effect of completing the session
+// (Step 17). Throws (404) if that hasn't happened yet.
+export function fetchGameResult(gameSessionId: string): Promise<GameResultResponse> {
+  return gameRequest<GameResultResponse>(`results/${gameSessionId}`)
+}

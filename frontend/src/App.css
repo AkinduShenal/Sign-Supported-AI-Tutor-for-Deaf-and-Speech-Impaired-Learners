@@ -137,9 +137,8 @@
 
 .phaser-game-container {
   width: 100%;
-  max-width: 800px;
-  height: 600px;
-  aspect-ratio: 4 / 3;
+  max-width: 1100px;
+  height: clamp(520px, calc(100svh - 150px), 840px);
 }
 
 .phaser-game-container canvas {
@@ -147,10 +146,14 @@
 }
 
 @media (max-width: 619px) {
+  .game-page {
+    padding: 8px;
+    place-items: start center;
+  }
+
   .phaser-game-container {
-    max-width: 420px;
-    height: 640px;
-    aspect-ratio: auto;
+    max-width: 480px;
+    height: max(520px, calc(100svh - 176px));
   }
 }
 

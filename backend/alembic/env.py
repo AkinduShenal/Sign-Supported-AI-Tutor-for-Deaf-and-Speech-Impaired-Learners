@@ -5,6 +5,14 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
+from app.modules.curriculum.models import (  # noqa: F401
+    ConceptContent,
+    CurriculumConcept,
+    CurriculumDocument,
+    CurriculumUnit,
+    CurriculumVersion,
+    MathConcept,
+)
 from app.modules.game.models import (  # noqa: F401
     GameplayEvent,
     GameResult,

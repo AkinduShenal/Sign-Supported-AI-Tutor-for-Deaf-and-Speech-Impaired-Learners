@@ -12,7 +12,7 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     parent,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#eef2ff',
     scale: {
       // RESIZE keeps one game pixel equal to one CSS pixel. This prevents
       // touch buttons from becoming tiny when the screen gets narrower.

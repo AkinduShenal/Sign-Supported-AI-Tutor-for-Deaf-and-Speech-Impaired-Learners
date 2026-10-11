@@ -2,10 +2,11 @@ import type { AssessmentPhase, GameplayEventType } from '../types'
 import {
   completeGameSession,
   createGameSession,
+  fetchGameResult,
   saveTaskAttempt,
   sendGameplayEvent,
 } from './gameApi'
-import type { SaveTaskAttemptInput } from './gameApi'
+import type { GameResultResponse, SaveTaskAttemptInput } from './gameApi'
 
 interface StartSessionInput {
   studentId: string
@@ -34,7 +35,7 @@ export class GameBackendSync {
       assessment_phase: input.assessmentPhase,
     })
       .then((session) => {
-        this.sendEvent(null, 'GAME_STARTED', session.game_session_id)
+        this.sendEvent(null, 'GAME_STARTED', {}, session.game_session_id)
         return session.game_session_id
       })
       .catch((error: unknown) => {
@@ -46,6 +47,9 @@ export class GameBackendSync {
   sendEvent(
     taskId: string | null,
     eventType: GameplayEventType,
+    // Evidence for reconstructing what the learner saw and chose (variant,
+    // step, selected card) — stored as gameplay_events.event_payload.
+    payload: Record<string, unknown> = {},
     // Only passed internally by startSession(), which already has the id
     // before this.sessionIdPromise resolves to it.
     knownSessionId?: string,
@@ -56,6 +60,7 @@ export class GameBackendSync {
         task_id: taskId,
         event_type: eventType,
         event_timestamp: new Date().toISOString(),
+        event_payload: payload,
       }).then(() => undefined),
     )
   }
@@ -66,10 +71,34 @@ export class GameBackendSync {
     )
   }
 
-  completeSession(): void {
-    void this.withSessionId(undefined, (sessionId) =>
+  // Returns a promise (unlike every other method here) because the scene
+  // awaits it specifically: the summary screen it leads to needs the
+  // backend's completion check (Milestone 3 Step 16) and game_results
+  // creation (Step 17) to have actually finished before it asks for the
+  // result — not fire-and-forget like logging an event. Still safe to
+  // call without awaiting; failures are swallowed the same as everywhere
+  // else in this class.
+  completeSession(): Promise<void> {
+    return this.withSessionId(undefined, (sessionId) =>
       completeGameSession(sessionId).then(() => undefined),
     )
+  }
+
+  // Also awaited rather than fire-and-forget, for the same reason as
+  // completeSession() above — the summary screen has real content to show
+  // only once this resolves. Returns null (rather than throwing) on any
+  // failure, including "not complete yet" (404), so the scene can fall
+  // back to its local-only summary instead of breaking.
+  async getGameResult(): Promise<GameResultResponse | null> {
+    const sessionId = await this.sessionIdPromise
+    if (!sessionId) return null
+
+    try {
+      return await fetchGameResult(sessionId)
+    } catch (error) {
+      console.warn('[game-backend] failed to fetch game result', error)
+      return null
+    }
   }
 
   private async withSessionId(
