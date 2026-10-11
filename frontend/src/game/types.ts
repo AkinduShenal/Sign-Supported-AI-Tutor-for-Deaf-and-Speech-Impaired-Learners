@@ -4,6 +4,12 @@ export type AssessmentPhase = 'pre_tutor' | 'post_tutor'
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 
+// The interaction mode the learner chose on the Game Selection screen.
+// Deliberately separate from activityId, concept, difficulty and variantId,
+// which describe the mathematics: every mode plays the same questions.
+// Registry of modes: game/gameModes.ts.
+export type GameType = 'drag_drop' | 'hangman' | 'mystery_reveal'
+
 // Matches the gameplay_events.event_type vocabulary agreed for the backend contract.
 export type GameplayEventType =
   | 'GAME_STARTED'

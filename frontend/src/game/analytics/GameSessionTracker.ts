@@ -1,3 +1,5 @@
+import type { GameType } from '../types.ts'
+
 export interface StepAnalytics {
   stepNumber: number
   expectedOperation: string
@@ -21,6 +23,9 @@ export interface LevelAnalytics {
 }
 
 export interface SessionAnalytics {
+  // The interaction mode played (drag_drop, hangman, mystery_reveal).
+  // Local only for now; see GAME_MODAL_FILE_STRUCTURE.md for backend status.
+  gameType: GameType
   sessionStartedAt: string
   sessionCompletedAt: string | null
   levelsCompleted: number
@@ -35,11 +40,16 @@ export interface SessionAnalytics {
 // the learner plays, and reads getSummary() when it wants the full report.
 // No learner-identifying information is recorded here.
 export class GameSessionTracker {
+  readonly gameType: GameType
   private sessionStartedAtMs = Date.now()
   private sessionCompletedAtMs: number | null = null
   private levels: LevelAnalytics[] = []
   private levelStartedAtMs = 0
   private stepStartedAtMs = 0
+
+  constructor(gameType: GameType) {
+    this.gameType = gameType
+  }
 
   // Starts tracking a level. Safe to call more than once for the same
   // level (e.g. a window-resize rebuilds the Phaser scene) — if the most
@@ -119,6 +129,7 @@ export class GameSessionTracker {
     const totalHintsUsed = this.levels.reduce((sum, level) => sum + level.hintCount, 0)
 
     return {
+      gameType: this.gameType,
       sessionStartedAt: new Date(this.sessionStartedAtMs).toISOString(),
       sessionCompletedAt: this.sessionCompletedAtMs
         ? new Date(this.sessionCompletedAtMs).toISOString()

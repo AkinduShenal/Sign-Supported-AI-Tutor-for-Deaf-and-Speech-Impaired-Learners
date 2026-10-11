@@ -1,9 +1,19 @@
 # Shared curriculum — Milestone 4, Batch 1
 
+Current status, **2026-10-12**: Batch 1 schema and Batch 2 Equations seed are
+complete; Supabase is now verified at revision `20261011_0007`. The model/schema notes
+below describe Batch 1; the separate seed adds 35 records, including 11 draft
+content pieces. PDFs are registered, not uploaded. Batch 3 adds a Game-owned
+bank with 8 draft activities and 18 draft variants; automatic component
+consumption remains pending. See the
+[seed report](../../../scripts/EQUATIONS_CURRICULUM.md) and
+[project status](../../../../STATUS_CHECKLIST.md).
+
 This module contains the six shared curriculum ORM models. It uses the existing
 SQLAlchemy `Base`, UUID handling and constraint naming. Alembic imports these
-models in `backend/alembic/env.py`. No API, Pydantic schemas, ingestion, seed data,
-question bank, game activity bank or ML behavior is introduced in this batch.
+models in `backend/alembic/env.py`. Batch 1 introduced no API, Pydantic schemas,
+ingestion, seed data, question bank, game activity bank or ML behavior. Batch 2
+adds only the separate data seed described above.
 
 Existing Game, Quiz and Tutor `concept_id` columns remain unchanged. The public
 key `math_concepts.concept_id` is `VARCHAR(100)`, compatible with their string
@@ -86,13 +96,20 @@ removes only these six tables in reverse dependency order; it would delete any
 curriculum data subsequently added, so it is not a production recovery shortcut.
 Applied migrations 0001–0005 are unchanged.
 
-Before deploying, follow the shared `MIGRATION_GUIDE.md`: confirm the current
+For a database that has not received 0006, follow the shared `MIGRATION_GUIDE.md`:
+confirm the current
 revision is 0005 and none of the six tables exists, coordinate with the team,
 then apply **0006 with upgrade**, never stamp. If the revision has advanced or
 any curriculum table already exists, stop and inspect the difference instead of
 forcing execution. Fresh databases run the existing migration chain normally.
 
-Verify afterward: revision 0006; all six tables empty; columns, constraints,
+The shared Supabase database has already received 0006 and the Batch 2 seed;
+do not rerun its table creation or downgrade it to repeat this historical step.
+The existing chain builds the curriculum slice; missing newer Quiz migrations
+mean it does not yet recreate the entire live application schema.
+
+Immediately after schema-only installation, before seeding, verify revision
+0006; all six tables empty; columns, constraints,
 foreign keys and indexes match this migration; existing component schemas are
 unchanged. No curriculum records belong in this batch.
 
@@ -114,7 +131,9 @@ For PostgreSQL, explicitly supply disposable **local** databases:
 
 These opt-in tests reject nonlocal database URLs and never use the application's
 `DATABASE_URL`. The full-chain test is skipped when its test URL is not supplied.
-Batch 2 will introduce approved curriculum data and ingestion separately.
+Batch 2 introduces source-traceable draft curriculum data through a separate
+seed utility. See [Equations curriculum seed](../../../scripts/EQUATIONS_CURRICULUM.md)
+for commands, the manifest, source limitations, page conventions and verification.
 
 ## Batch 1 verification — 2026-10-11
 
@@ -136,3 +155,23 @@ Batch 2 will introduce approved curriculum data and ingestion separately.
 The migration is now applied to the shared database. Share/commit the migration
 file and model changes promptly so teammates can resolve the new revision before
 their next migration. No commit or push is performed by this implementation.
+
+## Batch 2 verification — 2026-10-11
+
+The separate Equations seed is now applied and verified twice on Supabase:
+1 version, 1 unit, 10 stable concepts, 10 mappings, 2 document metadata records
+and 11 draft content pieces (8 English, 3 Sinhala). The second execution inserted
+zero records and preserved all IDs and timestamps. Revision remained 0006 at
+that Batch 2 verification; existing
+application schema and data fingerprints were unchanged during Batch 2 seeding. PDFs were
+not uploaded. See the [seed report](../../../scripts/EQUATIONS_CURRICULUM.md)
+for page provenance, source limitations, test isolation findings and full counts.
+
+## Game consumer — Batch 3
+
+Revision 0007 adds Game-owned activity/variant tables referencing the existing
+curriculum mappings and optional document sources. It changes no curriculum
+records or schema. Supabase verification on 2026-10-12 confirmed 8 draft
+activities and 18 draft variants; repeat seed inserted zero. Game still uses
+its local Phaser variants until Batch 4. See
+[the Game bank report](../../../scripts/EQUATIONS_GAME_ACTIVITIES.md).

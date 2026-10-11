@@ -13,6 +13,9 @@ export interface EquationVariant {
   concept: string
   difficulty: DifficultyLevel
   startingEquation: string
+  // The numeric solution, e.g. '4' for x = 4. Explicit so game modes that
+  // need the answer itself (Hangman) never parse it out of display text.
+  finalAnswer: string
   steps: LevelStep[]
 }
 
@@ -26,6 +29,7 @@ export const EASY_VARIANTS: EquationVariant[] = [
     concept: 'one_step_addition',
     difficulty: 'easy',
     startingEquation: 'x + 3 = 7',
+    finalAnswer: '4',
     steps: [
       {
         choices: [
@@ -46,6 +50,7 @@ export const EASY_VARIANTS: EquationVariant[] = [
     concept: 'one_step_subtraction',
     difficulty: 'easy',
     startingEquation: 'x - 5 = 8',
+    finalAnswer: '13',
     steps: [
       {
         choices: [
@@ -66,6 +71,7 @@ export const EASY_VARIANTS: EquationVariant[] = [
     concept: 'one_step_multiplication',
     difficulty: 'easy',
     startingEquation: '3x = 12',
+    finalAnswer: '4',
     steps: [
       {
         choices: [
@@ -86,6 +92,7 @@ export const EASY_VARIANTS: EquationVariant[] = [
     concept: 'one_step_division',
     difficulty: 'easy',
     startingEquation: 'x ÷ 4 = 5',
+    finalAnswer: '20',
     steps: [
       {
         choices: [
@@ -106,6 +113,7 @@ export const EASY_VARIANTS: EquationVariant[] = [
     concept: 'one_step_addition',
     difficulty: 'easy',
     startingEquation: 'x + 8 = 15',
+    finalAnswer: '7',
     steps: [
       {
         choices: [
@@ -126,6 +134,7 @@ export const EASY_VARIANTS: EquationVariant[] = [
     concept: 'one_step_multiplication',
     difficulty: 'easy',
     startingEquation: '5x = 35',
+    finalAnswer: '7',
     steps: [
       {
         choices: [
@@ -150,6 +159,7 @@ export const MEDIUM_VARIANTS: EquationVariant[] = [
     concept: 'two_step_equation',
     difficulty: 'medium',
     startingEquation: '2x + 3 = 11',
+    finalAnswer: '4',
     steps: [
       {
         choices: [
@@ -181,6 +191,7 @@ export const MEDIUM_VARIANTS: EquationVariant[] = [
     concept: 'two_step_equation',
     difficulty: 'medium',
     startingEquation: '3x - 4 = 11',
+    finalAnswer: '5',
     steps: [
       {
         choices: [
@@ -212,6 +223,7 @@ export const MEDIUM_VARIANTS: EquationVariant[] = [
     concept: 'bracket_equation',
     difficulty: 'medium',
     startingEquation: '2(x + 3) = 16',
+    finalAnswer: '5',
     steps: [
       {
         choices: [
@@ -243,6 +255,7 @@ export const MEDIUM_VARIANTS: EquationVariant[] = [
     concept: 'bracket_equation',
     difficulty: 'medium',
     startingEquation: '3(x - 2) = 18',
+    finalAnswer: '8',
     steps: [
       {
         choices: [
@@ -274,6 +287,7 @@ export const MEDIUM_VARIANTS: EquationVariant[] = [
     concept: 'variable_on_both_sides',
     difficulty: 'medium',
     startingEquation: '2x + 3 = x + 7',
+    finalAnswer: '4',
     steps: [
       {
         choices: [
@@ -305,6 +319,7 @@ export const MEDIUM_VARIANTS: EquationVariant[] = [
     concept: 'variable_on_both_sides',
     difficulty: 'medium',
     startingEquation: '3x + 4 = x + 10',
+    finalAnswer: '3',
     steps: [
       {
         choices: [
@@ -353,6 +368,7 @@ export const HARD_VARIANTS: EquationVariant[] = [
     concept: 'fractional_equation',
     difficulty: 'hard',
     startingEquation: 'x ÷ 2 + 3 = 7',
+    finalAnswer: '8',
     steps: [
       {
         choices: [
@@ -384,6 +400,7 @@ export const HARD_VARIANTS: EquationVariant[] = [
     concept: 'fractional_equation',
     difficulty: 'hard',
     startingEquation: 'x ÷ 3 - 2 = 5',
+    finalAnswer: '21',
     steps: [
       {
         choices: [
@@ -415,6 +432,7 @@ export const HARD_VARIANTS: EquationVariant[] = [
     concept: 'algebraic_fraction',
     difficulty: 'hard',
     startingEquation: '(x + 1) ÷ 2 = 5',
+    finalAnswer: '9',
     steps: [
       {
         choices: [
@@ -446,6 +464,7 @@ export const HARD_VARIANTS: EquationVariant[] = [
     concept: 'algebraic_fraction',
     difficulty: 'hard',
     startingEquation: '(x - 3) ÷ 4 = 2',
+    finalAnswer: '11',
     steps: [
       {
         choices: [
@@ -477,6 +496,7 @@ export const HARD_VARIANTS: EquationVariant[] = [
     concept: 'word_problem_one_step',
     difficulty: 'hard',
     startingEquation: 'x + 6 = 20',
+    finalAnswer: '14',
     steps: [
       {
         choices: [
@@ -497,6 +517,7 @@ export const HARD_VARIANTS: EquationVariant[] = [
     concept: 'word_problem_two_step',
     difficulty: 'hard',
     startingEquation: '2x - 5 = 13',
+    finalAnswer: '9',
     steps: [
       {
         choices: [

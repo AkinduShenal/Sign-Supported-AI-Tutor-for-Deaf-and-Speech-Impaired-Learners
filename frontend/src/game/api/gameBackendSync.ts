@@ -1,4 +1,4 @@
-import type { AssessmentPhase, GameplayEventType } from '../types'
+import type { AssessmentPhase, GameType, GameplayEventType } from '../types'
 import {
   completeGameSession,
   createGameSession,
@@ -13,6 +13,7 @@ interface StartSessionInput {
   conceptId: string
   learningCycleId: string
   assessmentPhase: AssessmentPhase
+  gameType?: GameType
 }
 
 // Sends gameplay to the backend alongside the existing local analytics
@@ -23,6 +24,15 @@ interface StartSessionInput {
 // "handle failed requests safely."
 export class GameBackendSync {
   private sessionIdPromise: Promise<string | null> | null = null
+  // Fire-and-forget requests still in flight. completeSession() waits for
+  // these first, so a task attempt sent just before the end of the game
+  // can't arrive after (and be missed by) the backend's completion check.
+  private readonly pending = new Set<Promise<void>>()
+
+  private track(request: Promise<void>): void {
+    this.pending.add(request)
+    void request.finally(() => this.pending.delete(request))
+  }
 
   // Call once, when the game genuinely starts (not on a resize rebuild —
   // see SceneInitData in EquationGameScene.ts, which carries the same
@@ -35,7 +45,14 @@ export class GameBackendSync {
       assessment_phase: input.assessmentPhase,
     })
       .then((session) => {
-        this.sendEvent(null, 'GAME_STARTED', {}, session.game_session_id)
+        // game_type has no session column on the backend yet, so it is
+        // recorded here, in the event payload, which is persisted as JSON.
+        this.sendEvent(
+          null,
+          'GAME_STARTED',
+          input.gameType ? { game_type: input.gameType } : {},
+          session.game_session_id,
+        )
         return session.game_session_id
       })
       .catch((error: unknown) => {
@@ -54,20 +71,24 @@ export class GameBackendSync {
     // before this.sessionIdPromise resolves to it.
     knownSessionId?: string,
   ): void {
-    void this.withSessionId(knownSessionId, (sessionId) =>
-      sendGameplayEvent({
-        game_session_id: sessionId,
-        task_id: taskId,
-        event_type: eventType,
-        event_timestamp: new Date().toISOString(),
-        event_payload: payload,
-      }).then(() => undefined),
+    this.track(
+      this.withSessionId(knownSessionId, (sessionId) =>
+        sendGameplayEvent({
+          game_session_id: sessionId,
+          task_id: taskId,
+          event_type: eventType,
+          event_timestamp: new Date().toISOString(),
+          event_payload: payload,
+        }).then(() => undefined),
+      ),
     )
   }
 
   saveTaskAttempt(input: Omit<SaveTaskAttemptInput, 'game_session_id'>): void {
-    void this.withSessionId(undefined, (sessionId) =>
-      saveTaskAttempt({ ...input, game_session_id: sessionId }).then(() => undefined),
+    this.track(
+      this.withSessionId(undefined, (sessionId) =>
+        saveTaskAttempt({ ...input, game_session_id: sessionId }).then(() => undefined),
+      ),
     )
   }
 
@@ -78,8 +99,10 @@ export class GameBackendSync {
   // result — not fire-and-forget like logging an event. Still safe to
   // call without awaiting; failures are swallowed the same as everywhere
   // else in this class.
-  completeSession(): Promise<void> {
-    return this.withSessionId(undefined, (sessionId) =>
+  async completeSession(): Promise<void> {
+    // Let every event and task attempt already sent finish first.
+    await Promise.allSettled([...this.pending])
+    await this.withSessionId(undefined, (sessionId) =>
       completeGameSession(sessionId).then(() => undefined),
     )
   }

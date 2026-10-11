@@ -1,0 +1,1684 @@
+{
+  "schema_version": 1,
+  "curriculum_version_code": "SL_G10_MATH_CURRENT",
+  "unit_code": "EQUATIONS",
+  "page_numbering": "one_based_pdf_page",
+  "activities": [
+    {
+      "activity_id": "LEQ_BASIC_ADD_SUB",
+      "concept_id": "basic_linear_equation",
+      "difficulty_level": "easy",
+      "activity_type": "equation_choice",
+      "title_en": "Addition and subtraction",
+      "title_si": null,
+      "instruction_en": "Use the inverse operation to find x.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_cards",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_BASIC_MUL_DIV",
+      "concept_id": "basic_linear_equation",
+      "difficulty_level": "easy",
+      "activity_type": "equation_choice",
+      "title_en": "Multiplication and division",
+      "title_si": null,
+      "instruction_en": "Undo multiplication or division to find x.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_cards",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_VARIABLE_BOTH_SIDES",
+      "concept_id": "variable_both_sides",
+      "difficulty_level": "medium",
+      "activity_type": "equation_sequence",
+      "title_en": "Variables on both sides",
+      "title_si": null,
+      "instruction_en": "Collect variable terms, then isolate x.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_sequence",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_BRACKETS",
+      "concept_id": "bracket_equation",
+      "difficulty_level": "medium",
+      "activity_type": "equation_sequence",
+      "title_en": "Equations with brackets",
+      "title_si": null,
+      "instruction_en": "Undo multiplication or expand the brackets, then solve.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_sequence",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_TWO_STEP",
+      "concept_id": "basic_linear_equation",
+      "difficulty_level": "medium",
+      "activity_type": "equation_sequence",
+      "title_en": "Two-step equations",
+      "title_si": null,
+      "instruction_en": "Undo addition or subtraction, then multiplication.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_sequence",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_FRACTIONAL",
+      "concept_id": "fractional_equation",
+      "difficulty_level": "hard",
+      "activity_type": "equation_sequence",
+      "title_en": "Fractional equations",
+      "title_si": null,
+      "instruction_en": "Remove constant denominators using inverse operations.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_sequence",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_ALGEBRAIC_FRACTION",
+      "concept_id": "algebraic_fraction_equation",
+      "difficulty_level": "hard",
+      "activity_type": "equation_sequence",
+      "title_en": "Algebraic fractions",
+      "title_si": null,
+      "instruction_en": "Check excluded values, clear denominators, then solve.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_sequence",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    },
+    {
+      "activity_id": "LEQ_WORD_PROBLEM",
+      "concept_id": "equation_word_problem",
+      "difficulty_level": "hard",
+      "activity_type": "word_problem",
+      "title_en": "Build and solve an equation",
+      "title_si": null,
+      "instruction_en": "Represent the story with an equation, then find x.",
+      "instruction_si": null,
+      "activity_config": {
+        "renderer": "equation_sequence",
+        "supports_hints": true,
+        "supports_retry": true,
+        "essential_audio": false,
+        "interaction_trackable": true
+      },
+      "activity_version": 1,
+      "status": "draft"
+    }
+  ],
+  "variants": [
+    {
+      "variant_id": "LEQ_BANK_E_001",
+      "activity_id": "LEQ_BASIC_ADD_SUB",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: x + 3 = 7",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_cards",
+        "variable": "x",
+        "starting_equation": "x + 3 = 7",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "final_answer",
+            "equation": "x + 3 = 7",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "3"
+              },
+              {
+                "choice_id": "c2",
+                "label": "4"
+              },
+              {
+                "choice_id": "c3",
+                "label": "5"
+              },
+              {
+                "choice_id": "c4",
+                "label": "6"
+              }
+            ],
+            "hint_en": "Use the inverse operation to find x.",
+            "result_equation": "x = 4"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "4",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c2",
+            "answer": "4"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_E_002",
+      "activity_id": "LEQ_BASIC_ADD_SUB",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: x + 5 = 12",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_cards",
+        "variable": "x",
+        "starting_equation": "x + 5 = 12",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "final_answer",
+            "equation": "x + 5 = 12",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "5"
+              },
+              {
+                "choice_id": "c2",
+                "label": "6"
+              },
+              {
+                "choice_id": "c3",
+                "label": "7"
+              },
+              {
+                "choice_id": "c4",
+                "label": "8"
+              }
+            ],
+            "hint_en": "Use the inverse operation to find x.",
+            "result_equation": "x = 7"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "7",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c3",
+            "answer": "7"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_E_003",
+      "activity_id": "LEQ_BASIC_ADD_SUB",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: x - 4 = 6",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_cards",
+        "variable": "x",
+        "starting_equation": "x - 4 = 6",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "final_answer",
+            "equation": "x - 4 = 6",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "8"
+              },
+              {
+                "choice_id": "c2",
+                "label": "9"
+              },
+              {
+                "choice_id": "c3",
+                "label": "10"
+              },
+              {
+                "choice_id": "c4",
+                "label": "11"
+              }
+            ],
+            "hint_en": "Use the inverse operation to find x.",
+            "result_equation": "x = 10"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "10",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c3",
+            "answer": "10"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_E_004",
+      "activity_id": "LEQ_BASIC_ADD_SUB",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: x - 7 = 5",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_cards",
+        "variable": "x",
+        "starting_equation": "x - 7 = 5",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "final_answer",
+            "equation": "x - 7 = 5",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "10"
+              },
+              {
+                "choice_id": "c2",
+                "label": "11"
+              },
+              {
+                "choice_id": "c3",
+                "label": "12"
+              },
+              {
+                "choice_id": "c4",
+                "label": "13"
+              }
+            ],
+            "hint_en": "Use the inverse operation to find x.",
+            "result_equation": "x = 12"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "12",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c3",
+            "answer": "12"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_E_005",
+      "activity_id": "LEQ_BASIC_MUL_DIV",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 3x = 12",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_cards",
+        "variable": "x",
+        "starting_equation": "3x = 12",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "final_answer",
+            "equation": "3x = 12",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "3"
+              },
+              {
+                "choice_id": "c2",
+                "label": "4"
+              },
+              {
+                "choice_id": "c3",
+                "label": "5"
+              },
+              {
+                "choice_id": "c4",
+                "label": "6"
+              }
+            ],
+            "hint_en": "Undo multiplication or division to find x.",
+            "result_equation": "x = 4"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "4",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c2",
+            "answer": "4"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_E_006",
+      "activity_id": "LEQ_BASIC_MUL_DIV",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: x / 4 = 3",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_cards",
+        "variable": "x",
+        "starting_equation": "x / 4 = 3",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "final_answer",
+            "equation": "x / 4 = 3",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "8"
+              },
+              {
+                "choice_id": "c2",
+                "label": "10"
+              },
+              {
+                "choice_id": "c3",
+                "label": "12"
+              },
+              {
+                "choice_id": "c4",
+                "label": "16"
+              }
+            ],
+            "hint_en": "Undo multiplication or division to find x.",
+            "result_equation": "x = 12"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "12",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c3",
+            "answer": "12"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_M_001",
+      "activity_id": "LEQ_VARIABLE_BOTH_SIDES",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 2x + 8 = x + 12",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "2x + 8 = x + 12",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "source_aligned",
+          "note": "English PDF page 1, Review Exercise question 1(a); project choices and steps."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "2x + 8 = x + 12",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Subtract x from both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Add x to both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Multiply both sides by x"
+              }
+            ],
+            "hint_en": "Collect variable terms on one side.",
+            "result_equation": "x + 8 = 12"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "x + 8 = 12",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "2"
+              },
+              {
+                "choice_id": "c2",
+                "label": "3"
+              },
+              {
+                "choice_id": "c3",
+                "label": "4"
+              },
+              {
+                "choice_id": "c4",
+                "label": "5"
+              }
+            ],
+            "hint_en": "Collect variable terms, then isolate x.",
+            "result_equation": "x = 4"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "4",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Subtract x from both sides"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c3",
+            "answer": "4"
+          }
+        ]
+      },
+      "source_language": "en",
+      "source_page_start": 1,
+      "source_page_end": 1,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_M_002",
+      "activity_id": "LEQ_VARIABLE_BOTH_SIDES",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 3x - 5 = x + 9",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "3x - 5 = x + 9",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "3x - 5 = x + 9",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Subtract x from both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Add x to both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Subtract 9 from both sides"
+              }
+            ],
+            "hint_en": "Collect variable terms on one side.",
+            "result_equation": "2x - 5 = 9"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "operation",
+            "equation": "2x - 5 = 9",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Add 5 to both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Subtract 5 from both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Divide both sides by 5"
+              }
+            ],
+            "hint_en": "Undo subtracting 5.",
+            "result_equation": "2x = 14"
+          },
+          {
+            "step_number": 3,
+            "step_kind": "final_answer",
+            "equation": "2x = 14",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "5"
+              },
+              {
+                "choice_id": "c2",
+                "label": "6"
+              },
+              {
+                "choice_id": "c3",
+                "label": "7"
+              },
+              {
+                "choice_id": "c4",
+                "label": "8"
+              }
+            ],
+            "hint_en": "Collect variable terms, then isolate x.",
+            "result_equation": "x = 7"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "7",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Subtract x from both sides"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c1",
+            "answer": "Add 5 to both sides"
+          },
+          {
+            "step_number": 3,
+            "correct_choice_id": "c3",
+            "answer": "7"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_M_003",
+      "activity_id": "LEQ_BRACKETS",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 2(x - 3) = 8",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "2(x - 3) = 8",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "2(x - 3) = 8",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Divide both sides by 2"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Subtract 2 from both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Add 3 to both sides"
+              }
+            ],
+            "hint_en": "Undo multiplying the bracket by 2.",
+            "result_equation": "x - 3 = 4"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "x - 3 = 4",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "5"
+              },
+              {
+                "choice_id": "c2",
+                "label": "6"
+              },
+              {
+                "choice_id": "c3",
+                "label": "7"
+              },
+              {
+                "choice_id": "c4",
+                "label": "8"
+              }
+            ],
+            "hint_en": "Undo multiplication or expand the brackets, then solve.",
+            "result_equation": "x = 7"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "7",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Divide both sides by 2"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c3",
+            "answer": "7"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_M_004",
+      "activity_id": "LEQ_BRACKETS",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 3(x + 2) = 18",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "3(x + 2) = 18",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "3(x + 2) = 18",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Divide both sides by 3"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Subtract 3 from both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Multiply both sides by 3"
+              }
+            ],
+            "hint_en": "Undo multiplying the bracket by 3.",
+            "result_equation": "x + 2 = 6"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "x + 2 = 6",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "3"
+              },
+              {
+                "choice_id": "c2",
+                "label": "4"
+              },
+              {
+                "choice_id": "c3",
+                "label": "5"
+              },
+              {
+                "choice_id": "c4",
+                "label": "6"
+              }
+            ],
+            "hint_en": "Undo multiplication or expand the brackets, then solve.",
+            "result_equation": "x = 4"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "4",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Divide both sides by 3"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c2",
+            "answer": "4"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_M_005",
+      "activity_id": "LEQ_TWO_STEP",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 2x + 5 = 17",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "2x + 5 = 17",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "2x + 5 = 17",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Subtract 5 from both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Add 5 to both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Divide both sides by 5"
+              }
+            ],
+            "hint_en": "Undo adding 5.",
+            "result_equation": "2x = 12"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "2x = 12",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "5"
+              },
+              {
+                "choice_id": "c2",
+                "label": "6"
+              },
+              {
+                "choice_id": "c3",
+                "label": "7"
+              },
+              {
+                "choice_id": "c4",
+                "label": "8"
+              }
+            ],
+            "hint_en": "Undo addition or subtraction, then multiplication.",
+            "result_equation": "x = 6"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "6",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Subtract 5 from both sides"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c2",
+            "answer": "6"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_M_006",
+      "activity_id": "LEQ_TWO_STEP",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 4x - 7 = 13",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "4x - 7 = 13",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "4x - 7 = 13",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Add 7 to both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Subtract 7 from both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Divide both sides by 7"
+              }
+            ],
+            "hint_en": "Undo subtracting 7.",
+            "result_equation": "4x = 20"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "4x = 20",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "4"
+              },
+              {
+                "choice_id": "c2",
+                "label": "5"
+              },
+              {
+                "choice_id": "c3",
+                "label": "6"
+              },
+              {
+                "choice_id": "c4",
+                "label": "7"
+              }
+            ],
+            "hint_en": "Undo addition or subtraction, then multiplication.",
+            "result_equation": "x = 5"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "5",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Add 7 to both sides"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c2",
+            "answer": "5"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_H_001",
+      "activity_id": "LEQ_FRACTIONAL",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: x / 2 + 3 = 7",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "x / 2 + 3 = 7",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "x / 2 + 3 = 7",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Subtract 3 from both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Add 3 to both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Divide both sides by 3"
+              }
+            ],
+            "hint_en": "Undo adding 3.",
+            "result_equation": "x / 2 = 4"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "x / 2 = 4",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "6"
+              },
+              {
+                "choice_id": "c2",
+                "label": "7"
+              },
+              {
+                "choice_id": "c3",
+                "label": "8"
+              },
+              {
+                "choice_id": "c4",
+                "label": "9"
+              }
+            ],
+            "hint_en": "Remove constant denominators using inverse operations.",
+            "result_equation": "x = 8"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "8",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Subtract 3 from both sides"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c3",
+            "answer": "8"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_H_002",
+      "activity_id": "LEQ_FRACTIONAL",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: (x - 2) / 3 = 4",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "(x - 2) / 3 = 4",
+        "excluded_values": [],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "project_authored_equivalent",
+          "note": "Project-authored controlled prototype, aligned through its curriculum concept."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "(x - 2) / 3 = 4",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Multiply both sides by 3"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Divide both sides by 3"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Subtract 3 from both sides"
+              }
+            ],
+            "hint_en": "Remove the constant denominator.",
+            "result_equation": "x - 2 = 12"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "x - 2 = 12",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "12"
+              },
+              {
+                "choice_id": "c2",
+                "label": "13"
+              },
+              {
+                "choice_id": "c3",
+                "label": "14"
+              },
+              {
+                "choice_id": "c4",
+                "label": "15"
+              }
+            ],
+            "hint_en": "Remove constant denominators using inverse operations.",
+            "result_equation": "x = 14"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "14",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Multiply both sides by 3"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c3",
+            "answer": "14"
+          }
+        ]
+      },
+      "source_language": null,
+      "source_page_start": null,
+      "source_page_end": null,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_H_003",
+      "activity_id": "LEQ_ALGEBRAIC_FRACTION",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 12 / x - 12 / (2x) = 2",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "12 / x - 12 / (2x) = 2",
+        "excluded_values": [
+          "0"
+        ],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "source_aligned",
+          "note": "English PDF pages 1-2: divisor example; project choices and steps."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "12 / x - 12 / (2x) = 2",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Multiply both sides by 2x"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Multiply both sides by x + 2"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Divide both sides by 2x"
+              }
+            ],
+            "hint_en": "For x nonzero, multiply every term by 2x.",
+            "result_equation": "24 - 12 = 4x"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "operation",
+            "equation": "24 - 12 = 4x",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Simplify 24 - 12"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Add 12 to both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Divide both sides by x"
+              }
+            ],
+            "hint_en": "Simplify the constants.",
+            "result_equation": "12 = 4x"
+          },
+          {
+            "step_number": 3,
+            "step_kind": "final_answer",
+            "equation": "12 = 4x",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "2"
+              },
+              {
+                "choice_id": "c2",
+                "label": "3"
+              },
+              {
+                "choice_id": "c3",
+                "label": "4"
+              },
+              {
+                "choice_id": "c4",
+                "label": "6"
+              }
+            ],
+            "hint_en": "Check excluded values, clear denominators, then solve.",
+            "result_equation": "x = 3"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "3",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Multiply both sides by 2x"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c1",
+            "answer": "Simplify 24 - 12"
+          },
+          {
+            "step_number": 3,
+            "correct_choice_id": "c2",
+            "answer": "3"
+          }
+        ]
+      },
+      "source_language": "en",
+      "source_page_start": 1,
+      "source_page_end": 2,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_H_004",
+      "activity_id": "LEQ_ALGEBRAIC_FRACTION",
+      "variant_version": 1,
+      "prompt_en": "Solve for x: 3 / (x + 2) = 1 / 2",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "3 / (x + 2) = 1 / 2",
+        "excluded_values": [
+          "-2"
+        ],
+        "positive_integer_required": false,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "source_aligned",
+          "note": "English PDF page 3, Example 3; project choices and steps."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "operation",
+            "equation": "3 / (x + 2) = 1 / 2",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Multiply both sides by 2(x + 2)"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Subtract 2 from both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Multiply both sides by x"
+              }
+            ],
+            "hint_en": "For x different from -2, clear both denominators.",
+            "result_equation": "6 = x + 2"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "final_answer",
+            "equation": "6 = x + 2",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "3"
+              },
+              {
+                "choice_id": "c2",
+                "label": "4"
+              },
+              {
+                "choice_id": "c3",
+                "label": "5"
+              },
+              {
+                "choice_id": "c4",
+                "label": "6"
+              }
+            ],
+            "hint_en": "Check excluded values, clear denominators, then solve.",
+            "result_equation": "x = 4"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "4",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "Multiply both sides by 2(x + 2)"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c2",
+            "answer": "4"
+          }
+        ]
+      },
+      "source_language": "en",
+      "source_page_start": 3,
+      "source_page_end": 3,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_H_005",
+      "activity_id": "LEQ_WORD_PROBLEM",
+      "variant_version": 1,
+      "prompt_en": "60 items are shared equally among x learners. One learner gives away 3 items and has 2 items left. Find x.",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "60 / x - 3 = 2",
+        "excluded_values": [
+          "0"
+        ],
+        "positive_integer_required": true,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "source_aligned",
+          "note": "Adapted from English PDF page 3, Example 1 (mangoes); project wording, choices and steps."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "equation_construction",
+            "equation": "60 / x - 3 = 2",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "60 / x - 3 = 2"
+              },
+              {
+                "choice_id": "c2",
+                "label": "60 / x + 3 = 2"
+              },
+              {
+                "choice_id": "c3",
+                "label": "60 / (x - 3) = 2"
+              }
+            ],
+            "hint_en": "Each learner starts with 60 / x items; giving away 3 leaves 2.",
+            "result_equation": "60 / x - 3 = 2"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "operation",
+            "equation": "60 / x - 3 = 2",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Add 3 to both sides"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Subtract 3 from both sides"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Multiply both sides by 3"
+              }
+            ],
+            "hint_en": "Undo subtracting 3.",
+            "result_equation": "60 / x = 5"
+          },
+          {
+            "step_number": 3,
+            "step_kind": "final_answer",
+            "equation": "60 / x = 5",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "10"
+              },
+              {
+                "choice_id": "c2",
+                "label": "12"
+              },
+              {
+                "choice_id": "c3",
+                "label": "15"
+              },
+              {
+                "choice_id": "c4",
+                "label": "20"
+              }
+            ],
+            "hint_en": "Represent the story with an equation, then find x.",
+            "result_equation": "x = 12"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "12",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "60 / x - 3 = 2"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c1",
+            "answer": "Add 3 to both sides"
+          },
+          {
+            "step_number": 3,
+            "correct_choice_id": "c2",
+            "answer": "12"
+          }
+        ]
+      },
+      "source_language": "en",
+      "source_page_start": 3,
+      "source_page_end": 3,
+      "status": "draft"
+    },
+    {
+      "variant_id": "LEQ_BANK_H_006",
+      "activity_id": "LEQ_WORD_PROBLEM",
+      "variant_version": 1,
+      "prompt_en": "A father and x children share Rs. 270 equally. Each person receives Rs. 45. Find the number of children.",
+      "prompt_si": null,
+      "question_config": {
+        "schema_version": 1,
+        "render_type": "equation_sequence",
+        "variable": "x",
+        "starting_equation": "270 / (x + 1) = 45",
+        "excluded_values": [
+          "-1"
+        ],
+        "positive_integer_required": true,
+        "essential_audio": false,
+        "provenance": {
+          "relation": "source_aligned",
+          "note": "Adapted from English PDF page 4, Exercise 15.1 question 1; project wording, choices and steps."
+        },
+        "steps": [
+          {
+            "step_number": 1,
+            "step_kind": "equation_construction",
+            "equation": "270 / (x + 1) = 45",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "270 / (x + 1) = 45"
+              },
+              {
+                "choice_id": "c2",
+                "label": "270 / x = 45"
+              },
+              {
+                "choice_id": "c3",
+                "label": "270 / (x - 1) = 45"
+              }
+            ],
+            "hint_en": "Count the father as one person in addition to x children.",
+            "result_equation": "270 / (x + 1) = 45"
+          },
+          {
+            "step_number": 2,
+            "step_kind": "operation",
+            "equation": "270 / (x + 1) = 45",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "Multiply both sides by x + 1"
+              },
+              {
+                "choice_id": "c2",
+                "label": "Divide both sides by x + 1"
+              },
+              {
+                "choice_id": "c3",
+                "label": "Subtract 1 from both sides"
+              }
+            ],
+            "hint_en": "Each of the x + 1 people receives 45 rupees.",
+            "result_equation": "270 = 45(x + 1)"
+          },
+          {
+            "step_number": 3,
+            "step_kind": "final_answer",
+            "equation": "270 = 45(x + 1)",
+            "choices": [
+              {
+                "choice_id": "c1",
+                "label": "4"
+              },
+              {
+                "choice_id": "c2",
+                "label": "5"
+              },
+              {
+                "choice_id": "c3",
+                "label": "6"
+              },
+              {
+                "choice_id": "c4",
+                "label": "7"
+              }
+            ],
+            "hint_en": "Represent the story with an equation, then find x.",
+            "result_equation": "x = 5"
+          }
+        ]
+      },
+      "answer_key": {
+        "final_answer": "5",
+        "step_answers": [
+          {
+            "step_number": 1,
+            "correct_choice_id": "c1",
+            "answer": "270 / (x + 1) = 45"
+          },
+          {
+            "step_number": 2,
+            "correct_choice_id": "c1",
+            "answer": "Multiply both sides by x + 1"
+          },
+          {
+            "step_number": 3,
+            "correct_choice_id": "c2",
+            "answer": "5"
+          }
+        ]
+      },
+      "source_language": "en",
+      "source_page_start": 4,
+      "source_page_end": 4,
+      "status": "draft"
+    }
+  ]
+}
