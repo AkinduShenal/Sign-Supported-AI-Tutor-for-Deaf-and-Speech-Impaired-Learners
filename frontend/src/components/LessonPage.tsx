@@ -157,9 +157,7 @@ export function LessonPage({ conceptId }: LessonPageProps) {
   return (
     <main className="lesson-page">
       <header className="lesson-header">
-        <div className="brand-mark" aria-hidden="true">
-          S
-        </div>
+        <img className="brand-mark" src="/connected-learning-emblem.png" alt="Sign & Learn" width="54" height="54" />
         <div className="header-copy">
           <span className="eyebrow">Sign-Supported AI Tutor</span>
           <h1>{lesson.title}</h1>
