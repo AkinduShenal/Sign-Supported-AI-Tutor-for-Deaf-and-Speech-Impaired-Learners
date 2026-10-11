@@ -7,6 +7,9 @@ import { GameBackendSync } from '../../api/gameBackendSync'
 import { getVariantUsage } from '../../api/gameApi'
 import type { GameResultResponse } from '../../api/gameApi'
 import { getOrCreateStudentId } from '../../identity'
+import { BalanceScale } from '../BalanceScale'
+import { MAX_STARS_PER_TASK, formatStars, starsForTask } from '../stars'
+import { GAME_TEXT, bilingualHint, difficultyText, inline, stacked } from '../gameText'
 
 // Every task in an assessment is one of the 18 Easy/Medium/Hard variants
 // (Milestone 3 Steps 10-13) under this same overall concept.
@@ -21,9 +24,40 @@ const COLORS = {
   incorrectText: '#b3261e',
 }
 
+const DESIGN = {
+  wide: { width: 800, height: 640 },
+  compact: { width: 420, height: 770 },
+}
+
+// Vertical positions for the two layouts (wide desktop / compact phone).
+// The balance scale sits between the progress path and the drop zone.
+const LAYOUTS = {
+  wide: {
+    titleY: 18, titleSize: '24px', subtitleY: 55, indicatorY: 91, pathY: 117,
+    scaleY: 151, equationY: 262, equationSize: 30, dropY: 306, dropH: 56,
+    cardsY: 377, cardH: 70, hintY: 439, hintTextY: 507, feedbackY: 507,
+    doneFeedbackY: 439, rewardY: 479, nextY: 527, nextH: 44,
+  },
+  compact: {
+    titleY: 20, titleSize: '26px', subtitleY: 78, indicatorY: 152, pathY: 186,
+    scaleY: 230, equationY: 348, equationSize: 26, dropY: 392, dropH: 64,
+    cardsY: 464, cardH: 72, hintY: 622, hintTextY: 700, feedbackY: 688,
+    doneFeedbackY: 622, rewardY: 664, nextY: 712, nextH: 56,
+  },
+}
+
 // Phaser's default text font is "Courier" if you don't set one — this
 // matches the rest of the site instead of looking like a typewriter.
-const FONT_FAMILY = 'system-ui, "Segoe UI", Roboto, sans-serif'
+// Extra room for Sinhala glyphs (tall marks above and below the line).
+const SINHALA_TEXT = {
+  lineSpacing: 8,
+  padding: { top: 4, bottom: 4 },
+}
+
+// The Sinhala fonts come before the generic fallback so canvas text that
+// mixes English and Sinhala renders on Windows, Android and macOS.
+const FONT_FAMILY =
+  'system-ui, "Segoe UI", Roboto, "Nirmala UI", "Noto Sans Sinhala", "Iskoola Pota", "Sinhala MN", sans-serif'
 
 // Data carried through scene.restart() so a window-resize (or finishing the
 // session) can rebuild the scene without losing progress or analytics.
@@ -40,6 +74,9 @@ interface SceneInitData {
   levelIndex?: number
   stepIndex?: number
   showSummary?: boolean
+  // Stars earned per finished task (index = task position). Local reward
+  // only — never sent to the backend.
+  stars?: number[]
 }
 
 // A Phaser "Scene" is one self-contained screen of the game: it has its own
@@ -76,6 +113,34 @@ export class EquationGameScene extends Phaser.Scene {
   private currentStepIndex = 0
   private showSummary = false
   private isCompactLayout = false
+  private reducedMotion = false
+  private stars: number[] = []
+  private balanceScale!: BalanceScale
+  private progressItems: Phaser.GameObjects.GameObject[] = []
+  private rewardText!: Phaser.GameObjects.Text
+
+  // The layout is drawn in a fixed design space (800x600 wide, 420x760
+  // compact) and the camera zooms to fit whatever size the canvas is, so
+  // the whole game — including the Next button and stars — is always
+  // visible and grows on large screens.
+  private get viewWidth(): number {
+    return this.isCompactLayout ? DESIGN.compact.width : DESIGN.wide.width
+  }
+
+  private get viewHeight(): number {
+    return this.isCompactLayout ? DESIGN.compact.height : DESIGN.wide.height
+  }
+
+  private fitCamera(): void {
+    const zoom = Math.min(this.scale.width / this.viewWidth, this.scale.height / this.viewHeight)
+    const camera = this.cameras.main
+    camera.setZoom(this.isCompactLayout ? Math.min(zoom, 1.3) : zoom)
+    camera.centerOn(this.viewWidth / 2, this.viewHeight / 2)
+  }
+
+  private get layout() {
+    return this.isCompactLayout ? LAYOUTS.compact : LAYOUTS.wide
+  }
 
   private equationText!: Phaser.GameObjects.Text
   private levelIndicatorText!: Phaser.GameObjects.Text
@@ -124,10 +189,15 @@ export class EquationGameScene extends Phaser.Scene {
     this.currentLevelIndex = data.levelIndex ?? 0
     this.currentStepIndex = data.stepIndex ?? 0
     this.showSummary = data.showSummary ?? false
+    this.stars = data.stars ?? []
   }
 
   create(): void {
     this.isCompactLayout = this.scale.width < 620
+    this.fitCamera()
+    this.reducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
 
     if (this.showSummary) {
       this.createSessionSummaryScreen()
@@ -181,6 +251,7 @@ export class EquationGameScene extends Phaser.Scene {
       levelIndex: this.currentLevelIndex,
       stepIndex: this.currentStepIndex,
       showSummary: this.showSummary,
+      stars: this.stars,
     } satisfies SceneInitData)
   }
 
@@ -191,10 +262,12 @@ export class EquationGameScene extends Phaser.Scene {
   // wait on the network, because it decides what content to show next.
   private createLoadingScreen(): void {
     this.loadingText = this.add
-      .text(this.scale.width / 2, this.scale.height / 2, 'Preparing your assessment…', {
+      .text(this.viewWidth / 2, this.viewHeight / 2, stacked(GAME_TEXT.preparing), {
         fontFamily: FONT_FAMILY,
         fontSize: '20px',
         color: COLORS.text,
+        align: 'center',
+        ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
   }
@@ -242,9 +315,11 @@ export class EquationGameScene extends Phaser.Scene {
 
     this.createTitleAndInstructions()
     this.createLevelIndicator()
+    this.createBalanceScale()
     this.createEquation()
     this.createDropZone()
     this.createFeedbackText()
+    this.createRewardText()
     this.createHintArea()
     this.createNextButton()
     this.createDragListeners()
@@ -253,73 +328,156 @@ export class EquationGameScene extends Phaser.Scene {
   }
 
   private createTitleAndInstructions(): void {
-    const centerX = this.scale.width / 2
+    const centerX = this.viewWidth / 2
+    const layout = this.layout
 
     this.add
-      .text(centerX, this.isCompactLayout ? 28 : 30, 'Balance the Equation', {
+      .text(centerX, layout.titleY, 'Balance the Equation', {
         fontFamily: FONT_FAMILY,
-        fontSize: this.isCompactLayout ? '26px' : '30px',
+        fontSize: layout.titleSize,
         fontStyle: 'bold',
         color: COLORS.text,
       })
       .setOrigin(0.5)
 
     this.add
-      .text(
-        centerX,
-        this.isCompactLayout ? 62 : 64,
-        'Choose the operation that keeps the equation balanced.',
-        {
-          fontFamily: FONT_FAMILY,
-          fontSize: '16px',
-          color: COLORS.text,
-          align: 'center',
-          wordWrap: { width: Math.max(260, this.scale.width - 40) },
-        },
-      )
+      .text(centerX, layout.subtitleY, stacked(GAME_TEXT.instruction), {
+        fontFamily: FONT_FAMILY,
+        fontSize: this.isCompactLayout ? '14px' : '15px',
+        color: COLORS.text,
+        align: 'center',
+        wordWrap: { width: Math.max(260, this.viewWidth - 40) },
+        ...SINHALA_TEXT,
+      })
       .setOrigin(0.5)
   }
 
   private createLevelIndicator(): void {
     this.levelIndicatorText = this.add
-      .text(this.scale.width / 2, this.isCompactLayout ? 100 : 98, '', {
+      .text(this.viewWidth / 2, this.layout.indicatorY, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: '16px',
-        fontStyle: 'bold',
+        fontSize: '14px',
         color: COLORS.text,
+        align: 'center',
+        wordWrap: { width: this.viewWidth - 24 },
+        ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
   }
 
   private updateLevelIndicator(): void {
-    let text = `Level ${this.currentLevelIndex + 1} of ${this.levels.length}`
-    if (this.currentLevel.steps.length > 1) {
-      text += ` · Step ${this.currentStepIndex + 1} of ${this.currentLevel.steps.length}`
+    const difficulty = difficultyText(this.currentLevel.difficulty)
+    const levelNumber = `${this.currentLevelIndex + 1}`
+    const total = `${this.levels.length}`
+    const stepCount = this.currentLevel.steps.length
+    const stepNumber = `${this.currentStepIndex + 1}`
+
+    let english = `${GAME_TEXT.level.en} ${levelNumber} of ${total} · ${difficulty.en}`
+    let sinhala = `${GAME_TEXT.level.si} ${levelNumber} / ${total} · ${difficulty.si}`
+    if (stepCount > 1) {
+      english += ` · ${GAME_TEXT.step.en} ${stepNumber} of ${stepCount}`
+      sinhala += ` · ${GAME_TEXT.step.si} ${stepNumber} / ${stepCount}`
     }
-    this.levelIndicatorText.setText(text)
+    // Wide screens have room for one line; phones stack the two languages.
+    this.levelIndicatorText.setText(
+      this.isCompactLayout ? `${english}\n${sinhala}` : `${english}   |   ${sinhala}`,
+    )
+  }
+
+  // The row of six task nodes: filled gold when finished (with its stars
+  // under it), outlined purple for the current task, grey for upcoming.
+  // Numbers and stars carry the meaning, not colour alone.
+  private updateProgressPath(): void {
+    this.progressItems.forEach((item) => item.destroy())
+    this.progressItems = []
+
+    const count = this.levels.length
+    const spacing = Math.min(64, (this.viewWidth - 48) / Math.max(1, count - 1))
+    const startX = this.viewWidth / 2 - (spacing * (count - 1)) / 2
+    const y = this.layout.pathY
+
+    for (let i = 0; i < count; i += 1) {
+      const x = startX + i * spacing
+      const done = this.stars[i] !== undefined
+      const current = i === this.currentLevelIndex && !done
+
+      if (i > 0) {
+        this.progressItems.push(
+          this.add.rectangle(x - spacing / 2, y, spacing - 22, 4, done ? 0xf5b301 : 0xd0ccd6),
+        )
+      }
+      const node = this.add
+        .circle(x, y, 13, done ? 0xf5b301 : 0xf4f3ec)
+        .setStrokeStyle(current ? 4 : 2, current ? COLORS.buttonBorderHover : COLORS.buttonBorder)
+      const label = this.add
+        .text(x, y, String(i + 1), {
+          fontFamily: FONT_FAMILY,
+          fontSize: '14px',
+          fontStyle: 'bold',
+          color: COLORS.text,
+        })
+        .setOrigin(0.5)
+      this.progressItems.push(node, label)
+      if (done) {
+        this.progressItems.push(
+          this.add
+            .text(x, y + 20, formatStars(this.stars[i]), {
+              fontFamily: FONT_FAMILY,
+              fontSize: '10px',
+              color: '#b07d00',
+            })
+            .setOrigin(0.5),
+        )
+      }
+    }
+  }
+
+  private createBalanceScale(): void {
+    this.balanceScale = new BalanceScale(this, {
+      x: this.viewWidth / 2,
+      y: this.layout.scaleY,
+      width: this.viewWidth,
+      fontFamily: FONT_FAMILY,
+      reducedMotion: this.reducedMotion,
+    })
   }
 
   private createEquation(): void {
     this.equationText = this.add
-      .text(this.scale.width / 2, this.isCompactLayout ? 150 : 155, '', {
+      .text(this.viewWidth / 2, this.layout.equationY, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: this.isCompactLayout ? '42px' : '48px',
+        fontSize: `${this.layout.equationSize}px`,
         fontStyle: 'bold',
         color: COLORS.text,
       })
       .setOrigin(0.5)
+  }
+
+  private createRewardText(): void {
+    this.rewardText = this.add
+      .text(this.viewWidth / 2, this.layout.rewardY, '', {
+        fontFamily: FONT_FAMILY,
+        fontSize: this.isCompactLayout ? '20px' : '24px',
+        color: '#b07d00',
+        align: 'center',
+        wordWrap: { width: this.viewWidth - 20 },
+        ...SINHALA_TEXT,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
   }
 
   // Keep equations on one readable line. The balancing step text is much
   // longer than the equation itself, so compact screens need a smaller
   // font for that step. Short equations still use the normal large font.
   private setEquationDisplay(value: string): void {
-    const preferredFontSize = this.isCompactLayout ? 42 : 48
-    const minimumFontSize = 20
-    const availableWidth = this.scale.width - 32
+    const preferredFontSize = this.layout.equationSize
+    const minimumFontSize = 16
+    const availableWidth = this.viewWidth - 32
 
     this.equationText.setFontSize(preferredFontSize)
     this.equationText.setText(value)
+    this.balanceScale.setSides(value)
 
     if (this.equationText.width > availableWidth) {
       const fittedFontSize = Math.max(
@@ -334,22 +492,24 @@ export class EquationGameScene extends Phaser.Scene {
   // "Zone" is an invisible interactive area — we draw the outline and label
   // ourselves so it has something to look at.
   private createDropZone(): void {
-    const width = Math.min(240, this.scale.width - 48)
-    const height = this.isCompactLayout ? 60 : 64
-    this.dropZoneX = this.scale.width / 2
-    this.dropZoneY = this.isCompactLayout ? 218 : 225
+    const width = Math.min(240, this.viewWidth - 48)
+    const height = this.layout.dropH
+    this.dropZoneX = this.viewWidth / 2
+    this.dropZoneY = this.layout.dropY
 
     this.dropZoneOutline = this.add
       .rectangle(this.dropZoneX, this.dropZoneY, width, height, 0xffffff, 0)
       .setStrokeStyle(3, COLORS.buttonBorder)
 
     this.dropZoneLabel = this.add
-      .text(this.dropZoneX, this.dropZoneY, 'Drop operation here', {
+      .text(this.dropZoneX, this.dropZoneY, stacked(GAME_TEXT.dropHere), {
         fontFamily: FONT_FAMILY,
-        fontSize: '16px',
+        fontSize: '13px',
         color: COLORS.text,
         align: 'center',
         wordWrap: { width: width - 20 },
+        lineSpacing: 6,
+        padding: { top: 3, bottom: 3 },
       })
       .setOrigin(0.5)
 
@@ -366,16 +526,16 @@ export class EquationGameScene extends Phaser.Scene {
     this.operationButtons = []
 
     const choices = this.currentStep.choices
-    const centerX = this.scale.width / 2
+    const centerX = this.viewWidth / 2
 
     if (this.isCompactLayout) {
       const gap = 16
       const sidePadding = 20
-      const buttonWidth = Math.min(180, (this.scale.width - sidePadding * 2 - gap) / 2)
-      const buttonHeight = 72
+      const buttonWidth = Math.min(180, (this.viewWidth - sidePadding * 2 - gap) / 2)
+      const buttonHeight = this.layout.cardH
       const leftX = centerX - buttonWidth / 2 - gap / 2
       const rightX = centerX + buttonWidth / 2 + gap / 2
-      const row1Y = 300
+      const row1Y = this.layout.cardsY
       const row2Y = row1Y + buttonHeight + 14
       const positions = [
         { x: leftX, y: row1Y },
@@ -393,6 +553,7 @@ export class EquationGameScene extends Phaser.Scene {
           buttonHeight,
           choice.label,
           () => this.handleOperationSelection(choice, button),
+          operationFill(choice.label),
         )
         this.makeCardDraggable(button, choice)
         this.operationButtons.push(button)
@@ -401,9 +562,9 @@ export class EquationGameScene extends Phaser.Scene {
     }
 
     const buttonWidth = 140
-    const buttonHeight = 70
+    const buttonHeight = this.layout.cardH
     const gap = 24
-    const rowY = 305
+    const rowY = this.layout.cardsY
 
     // Wide screens have enough room to show all four choices in one row.
     const totalWidth = choices.length * buttonWidth + (choices.length - 1) * gap
@@ -411,8 +572,14 @@ export class EquationGameScene extends Phaser.Scene {
 
     choices.forEach((choice, index) => {
       const x = startX + index * (buttonWidth + gap)
-      const button = this.createButton(x, rowY, buttonWidth, buttonHeight, choice.label, () =>
-        this.handleOperationSelection(choice, button),
+      const button = this.createButton(
+        x,
+        rowY,
+        buttonWidth,
+        buttonHeight,
+        choice.label,
+        () => this.handleOperationSelection(choice, button),
+        operationFill(choice.label),
       )
       this.makeCardDraggable(button, choice)
       this.operationButtons.push(button)
@@ -536,21 +703,38 @@ export class EquationGameScene extends Phaser.Scene {
     height: number,
     label: string,
     onClick: () => void,
+    fill: number = COLORS.buttonFill,
+    // Optional second line under the label (the Sinhala wording).
+    subLabel?: string,
   ): Phaser.GameObjects.Container {
     const background = this.add
-      .rectangle(0, 0, width, height, COLORS.buttonFill)
+      .rectangle(0, 0, width, height, fill)
       .setStrokeStyle(3, COLORS.buttonBorder)
 
     const text = this.add
-      .text(0, 0, label, {
+      .text(0, subLabel ? -9 : 0, label, {
         fontFamily: FONT_FAMILY,
-        fontSize: '26px',
+        fontSize: subLabel ? '20px' : '26px',
         fontStyle: 'bold',
         color: COLORS.text,
       })
       .setOrigin(0.5)
 
-    const container = this.add.container(x, y, [background, text])
+    const children: Phaser.GameObjects.GameObject[] = [background, text]
+    if (subLabel) {
+      children.push(
+        this.add
+          .text(0, 14, subLabel, {
+            fontFamily: FONT_FAMILY,
+            fontSize: '14px',
+            color: COLORS.text,
+            padding: { top: 3, bottom: 3 },
+          })
+          .setOrigin(0.5),
+      )
+    }
+
+    const container = this.add.container(x, y, children)
 
     // The hit area has to be centered on the container's own (0, 0), the
     // same way the rectangle and text above are, otherwise clicks land on
@@ -581,11 +765,13 @@ export class EquationGameScene extends Phaser.Scene {
 
   private createFeedbackText(): void {
     this.feedbackText = this.add
-      .text(this.scale.width / 2, this.isCompactLayout ? 530 : 455, '', {
+      .text(this.viewWidth / 2, this.layout.feedbackY, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: '22px',
-        fontStyle: 'bold',
+        fontSize: this.isCompactLayout ? '18px' : '22px',
         color: COLORS.text,
+        align: 'center',
+        wordWrap: { width: this.viewWidth - 24 },
+        ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
       .setAlpha(0)
@@ -593,21 +779,24 @@ export class EquationGameScene extends Phaser.Scene {
 
   private createHintArea(): void {
     this.hintButton = this.createButton(
-      this.scale.width / 2,
-      this.isCompactLayout ? 460 : 380,
+      this.viewWidth / 2,
+      this.layout.hintY,
       this.isCompactLayout ? 150 : 140,
       44,
-      '💡 Hint',
+      `💡 ${GAME_TEXT.hint.en}`,
       () => this.handleHintClick(),
+      COLORS.buttonFill,
+      GAME_TEXT.hint.si,
     )
 
     this.hintText = this.add
-      .text(this.scale.width / 2, this.isCompactLayout ? 498 : 420, '', {
+      .text(this.viewWidth / 2, this.layout.hintTextY, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: '15px',
+        fontSize: this.isCompactLayout ? '14px' : '15px',
         color: COLORS.text,
         align: 'center',
-        wordWrap: { width: Math.max(240, this.scale.width - 60) },
+        wordWrap: { width: this.viewWidth - 32 },
+        ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
       .setAlpha(0)
@@ -615,12 +804,14 @@ export class EquationGameScene extends Phaser.Scene {
 
   private createNextButton(): void {
     this.nextButton = this.createButton(
-      this.scale.width / 2,
-      this.isCompactLayout ? 585 : 515,
+      this.viewWidth / 2,
+      this.layout.nextY,
       180,
-      56,
-      'Next ▶',
+      this.layout.nextH,
+      `${GAME_TEXT.next.en} ▶`,
       () => this.advanceToNextLevel(),
+      COLORS.buttonFill,
+      GAME_TEXT.next.si,
     )
     this.nextButton.setAlpha(0)
     this.nextButton.disableInteractive()
@@ -642,6 +833,9 @@ export class EquationGameScene extends Phaser.Scene {
 
     this.hasAnsweredStepCorrectly = false
     this.hasAttemptedCurrentStep = false
+    this.balanceScale.setTaskComplete(false)
+    this.rewardText.setAlpha(0)
+    this.updateProgressPath()
     const equationBeforeThisStep =
       this.currentStepIndex === 0
         ? this.currentLevel.startingEquation
@@ -658,6 +852,7 @@ export class EquationGameScene extends Phaser.Scene {
 
     this.feedbackText.setText('')
     this.feedbackText.setAlpha(0)
+    this.feedbackText.setY(this.layout.feedbackY)
 
     this.hintText.setText('')
     this.hintText.setAlpha(0)
@@ -695,7 +890,7 @@ export class EquationGameScene extends Phaser.Scene {
 
     if (choice.isCorrect) {
       this.backendSync.sendEvent(taskId, 'ANSWER_CORRECT', answerEvidence)
-      this.showCorrectFeedback(button)
+      this.showCorrectFeedback(button, choice)
     } else {
       // This is where wrong attempts are recorded — only for a genuine
       // click or a card actually dropped on the zone, never for just
@@ -721,14 +916,26 @@ export class EquationGameScene extends Phaser.Scene {
     // Hints can be requested more than once; every request is recorded.
     this.tracker.recordHintUsed(this.currentStepIndex)
     this.backendSync.sendEvent(this.currentLevel.variantId, 'HINT_REQUESTED', this.stepEvidence())
-    this.hintText.setText(this.currentStep.hint)
+    // The hint shares its slot with the feedback line, so show one at a
+    // time: a later answer's feedback replaces the hint (press Hint again
+    // to see it).
+    this.feedbackText.setAlpha(0)
+    this.hintText.setText(bilingualHint(this.currentStep.hint))
     this.tweens.add({ targets: this.hintText, alpha: 1, duration: 200 })
   }
 
-  private showCorrectFeedback(button: Phaser.GameObjects.Container): void {
+  private showCorrectFeedback(
+    button: Phaser.GameObjects.Container,
+    choice: OperationChoice,
+  ): void {
     this.hasAnsweredStepCorrectly = true
     this.disableAllOperationButtons()
     this.hintButton.disableInteractive()
+    // The hint isn't needed once the step is solved: hide it and use its
+    // slot for the result, so the Correct line, stars and Next button sit
+    // higher and stay on screen on phones.
+    this.hintButton.setAlpha(0)
+    this.feedbackText.setY(this.layout.doneFeedbackY)
 
     const step = this.currentStep
     const isLastStepOfLevel = this.currentStepIndex === this.currentLevel.steps.length - 1
@@ -740,17 +947,22 @@ export class EquationGameScene extends Phaser.Scene {
       targets: button,
       x: this.dropZoneX,
       y: this.dropZoneY,
+      // Slightly smaller once snapped in, so it doesn't cover the equation
+      // caption above the drop zone.
+      scale: 0.8,
       duration: 250,
       ease: 'Quad.easeOut',
     })
     this.tweens.add({ targets: this.dropZoneLabel, alpha: 0, duration: 150 })
 
-    this.feedbackText.setText('✓ Correct!')
+    this.hintText.setAlpha(0)
+    this.feedbackText.setText(inline(GAME_TEXT.correct))
     this.feedbackText.setColor(COLORS.correctText)
     this.tweens.add({ targets: this.feedbackText, alpha: 1, duration: 300 })
 
     // Step 1: show the same operation applied to both sides...
     this.time.delayedCall(600, () => {
+      this.balanceScale.applyOperation(choice.label, button.x, button.y)
       this.setEquationDisplay(step.stepText)
     })
 
@@ -801,10 +1013,12 @@ export class EquationGameScene extends Phaser.Scene {
       }
 
       this.tracker.completeLevel()
+      this.awardStars()
 
       if (isLastLevel) {
         this.backendSync.sendEvent(taskId, 'GAME_COMPLETED')
-        this.finishSession()
+        // Let the learner see the last celebration before the summary.
+        this.time.delayedCall(this.reducedMotion ? 800 : 1800, () => void this.finishSession())
         return
       }
 
@@ -813,8 +1027,32 @@ export class EquationGameScene extends Phaser.Scene {
     })
   }
 
+  // Stars reward correctness only (see stars.ts): wrong attempts across the
+  // task's steps decide the count; hints and time never do.
+  private awardStars(): void {
+    const totals = this.tracker.getCurrentLevelTotals()
+    const earned = starsForTask(totals?.wrongAttempts ?? 0)
+    this.stars[this.currentLevelIndex] = earned
+
+    this.balanceScale.celebrate()
+    this.updateProgressPath()
+    const praise = inline(earned === MAX_STARS_PER_TASK ? GAME_TEXT.perfect : GAME_TEXT.wellDone)
+    this.rewardText.setText(`${formatStars(earned)}  ${praise}`)
+    this.rewardText.setScale(this.reducedMotion ? 1 : 0.6)
+    this.tweens.add({
+      targets: this.rewardText,
+      alpha: 1,
+      scale: 1,
+      duration: this.reducedMotion ? 0 : 350,
+      ease: 'Back.easeOut',
+    })
+  }
+
   private showWrongFeedback(button: Phaser.GameObjects.Container): void {
-    this.feedbackText.setText('✕ Try again')
+    this.balanceScale.tipWrong()
+    this.hintText.setAlpha(0)
+    this.feedbackText.setY(this.layout.feedbackY)
+    this.feedbackText.setText(inline(GAME_TEXT.tryAgain))
     this.feedbackText.setColor(COLORS.incorrectText)
     this.tweens.add({ targets: this.feedbackText, alpha: 1, duration: 200 })
 
@@ -869,6 +1107,7 @@ export class EquationGameScene extends Phaser.Scene {
       levelIndex: this.currentLevelIndex,
       stepIndex: this.currentStepIndex,
       showSummary: true,
+      stars: this.stars,
     } satisfies SceneInitData)
   }
 
@@ -882,7 +1121,7 @@ export class EquationGameScene extends Phaser.Scene {
   // in loadAssessmentVariants().
   private createSessionSummaryScreen(): void {
     this.createLoadingScreen()
-    this.loadingText?.setText('Calculating your results…')
+    this.loadingText?.setText(stacked(GAME_TEXT.calculating))
     void this.loadAndShowResult()
   }
 
@@ -913,12 +1152,130 @@ export class EquationGameScene extends Phaser.Scene {
     }
   }
 
-  private renderResultSummary(result: GameResultResponse): void {
-    const centerX = this.scale.width / 2
+  // The learner-facing part of the summary: a trophy, stars per task and a
+  // pointer to the next step. Returns the y just below it. The calculated
+  // rates are analytics, so they sit behind a "Show details" toggle.
+  private renderStarBoard(title: { en: string; si: string }): number {
+    const centerX = this.viewWidth / 2
+    const compact = this.isCompactLayout
+    let y = compact ? 50 : 28
 
-    const lines = [
-      'Linear Equations',
-      'Pre-Tutor Assessment Complete',
+    this.add
+      .text(centerX, y, '🏆', { fontFamily: FONT_FAMILY, fontSize: compact ? '48px' : '34px' })
+      .setOrigin(0.5)
+    y += compact ? 56 : 40
+
+    this.add
+      .text(centerX, y, title.en, {
+        fontFamily: FONT_FAMILY,
+        fontSize: compact ? '24px' : '28px',
+        fontStyle: 'bold',
+        color: COLORS.text,
+        align: 'center',
+        wordWrap: { width: this.viewWidth - 32 },
+      })
+      .setOrigin(0.5)
+    y += compact ? 30 : 26
+    this.add
+      .text(centerX, y, title.si, {
+        fontFamily: FONT_FAMILY,
+        fontSize: '16px',
+        color: COLORS.text,
+        align: 'center',
+        wordWrap: { width: this.viewWidth - 32 },
+        ...SINHALA_TEXT,
+      })
+      .setOrigin(0.5)
+    y += compact ? 40 : 36
+
+    const earned = this.stars.reduce((sum, value) => sum + value, 0)
+    const possible = this.levels.length * MAX_STARS_PER_TASK
+    const total = this.add
+      .text(centerX, y, `★ ${earned} / ${possible}`, {
+        fontFamily: FONT_FAMILY,
+        fontSize: compact ? '34px' : '38px',
+        fontStyle: 'bold',
+        color: '#b07d00',
+      })
+      .setOrigin(0.5)
+    if (!this.reducedMotion) {
+      total.setScale(0.5)
+      this.tweens.add({ targets: total, scale: 1, duration: 500, ease: 'Back.easeOut' })
+    }
+    y += compact ? 44 : 38
+
+    // One row per task: its number, difficulty and stars.
+    this.levels.forEach((level, index) => {
+      const difficulty = difficultyText(level.difficulty)
+      this.add
+        .text(
+          centerX,
+          y,
+          `${index + 1}. ${difficulty.en} · ${difficulty.si}   ${formatStars(this.stars[index] ?? 0)}`,
+          { fontFamily: FONT_FAMILY, fontSize: '17px', color: COLORS.text, padding: { top: 3, bottom: 3 } },
+        )
+        .setOrigin(0.5)
+      y += compact ? 28 : 22
+    })
+    y += compact ? 10 : 8
+
+    this.add
+      .text(centerX, y + 14, stacked(GAME_TEXT.nextTutor), {
+        fontFamily: FONT_FAMILY,
+        fontSize: '16px',
+        color: COLORS.correctText,
+        align: 'center',
+        wordWrap: { width: this.viewWidth - 24 },
+        ...SINHALA_TEXT,
+      })
+      .setOrigin(0.5)
+    return y + (compact ? 60 : 52)
+  }
+
+  private renderDetailsToggle(top: number, lines: string[]): void {
+    const centerX = this.viewWidth / 2
+    const lineHeight = this.isCompactLayout ? 24 : 17
+    const detailsTexts = lines.map((line, index) =>
+      this.add
+        .text(centerX, top + 52 + index * lineHeight, line, {
+          fontFamily: FONT_FAMILY,
+          fontSize: '16px',
+          color: COLORS.text,
+        })
+        .setOrigin(0.5)
+        .setVisible(false),
+    )
+
+    let open = false
+    const toggleLabel = this.add
+      .text(0, 0, stacked(GAME_TEXT.showDetails), {
+        fontFamily: FONT_FAMILY,
+        fontSize: '14px',
+        color: COLORS.text,
+        align: 'center',
+        lineSpacing: 4,
+        padding: { top: 3, bottom: 3 },
+      })
+      .setOrigin(0.5)
+    const toggle = this.add.container(centerX, top + 14, [
+      this.add.rectangle(0, 0, 210, 46, COLORS.buttonFill).setStrokeStyle(2, COLORS.buttonBorder),
+      toggleLabel,
+    ])
+    toggle.setInteractive({
+      hitArea: new Phaser.Geom.Rectangle(-105, -23, 210, 46),
+      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+      useHandCursor: true,
+    })
+    toggle.on('pointerup', () => {
+      open = !open
+      toggleLabel.setText(stacked(open ? GAME_TEXT.hideDetails : GAME_TEXT.showDetails))
+      detailsTexts.forEach((text) => text.setVisible(open))
+    })
+  }
+
+  private renderResultSummary(result: GameResultResponse): void {
+    const top = this.renderStarBoard(GAME_TEXT.assessmentComplete)
+    this.renderDetailsToggle(top, [
       `Tasks: ${result.tasks_total}`,
       `Successful: ${result.successful_tasks}`,
       `Success Rate: ${formatPercent(result.game_success_rate)}`,
@@ -929,53 +1286,38 @@ export class EquationGameScene extends Phaser.Scene {
       `Retries: ${result.retry_count}`,
       `Hints Used: ${result.total_hint_count}`,
       `Active Time: ${formatActiveTime(result.game_active_time_sec)}`,
-    ]
-
-    let y = this.isCompactLayout ? 90 : 110
-    lines.forEach((line, index) => {
-      const isHeading = index < 2
-      this.add
-        .text(centerX, y, line, {
-          fontFamily: FONT_FAMILY,
-          fontSize: isHeading
-            ? this.isCompactLayout
-              ? '22px'
-              : '26px'
-            : '18px',
-          fontStyle: isHeading ? 'bold' : 'normal',
-          color: COLORS.text,
-        })
-        .setOrigin(0.5)
-      y += isHeading ? 36 : 32
-    })
+    ])
   }
 
   private renderFallbackSummary(): void {
-    const centerX = this.scale.width / 2
     const summary = this.tracker.getSummary()
     const totalTime = summary.totalTimeSec !== null ? `${summary.totalTimeSec}s` : '—'
 
-    const lines = [
-      'Session Complete',
+    const top = this.renderStarBoard(GAME_TEXT.sessionComplete)
+    this.renderDetailsToggle(top, [
       `Levels Completed: ${summary.levelsCompleted} / ${this.levels.length}`,
       `Wrong Attempts: ${summary.totalWrongAttempts}`,
       `Hints Used: ${summary.totalHintsUsed}`,
       `Total Time: ${totalTime}`,
-    ]
+    ])
+  }
+}
 
-    let y = this.isCompactLayout ? 160 : 200
-    lines.forEach((line, index) => {
-      const isHeading = index === 0
-      this.add
-        .text(centerX, y, line, {
-          fontFamily: FONT_FAMILY,
-          fontSize: isHeading ? (this.isCompactLayout ? '28px' : '32px') : '20px',
-          fontStyle: isHeading ? 'bold' : 'normal',
-          color: COLORS.text,
-        })
-        .setOrigin(0.5)
-      y += isHeading ? 64 : 40
-    })
+// A soft tint per operation type. Colour only supplements the symbol on the
+// card, which always stays visible.
+function operationFill(label: string): number {
+  switch (label.trim().charAt(0)) {
+    case '+':
+      return 0xdff5e6
+    case '-':
+    case '−':
+      return 0xffe8d1
+    case '×':
+      return 0xdbeafe
+    case '÷':
+      return 0xfce1f0
+    default:
+      return COLORS.buttonFill
   }
 }
 
