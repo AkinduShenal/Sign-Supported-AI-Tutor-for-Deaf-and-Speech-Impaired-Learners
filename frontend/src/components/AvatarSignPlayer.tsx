@@ -380,7 +380,6 @@ export function AvatarSignPlayer({
 
       {compact && !allowPrototype && prototypeSignIds.length > 0 && playableSigns.length === 0 && modelState === 'ready' && (
         <div className="avatar-preview-prompt">
-          <p>These demo gestures are not yet validated sign language.</p>
           <button type="button" className="primary-button" onClick={onEnablePrototype}>Preview gestures</button>
         </div>
       )}
