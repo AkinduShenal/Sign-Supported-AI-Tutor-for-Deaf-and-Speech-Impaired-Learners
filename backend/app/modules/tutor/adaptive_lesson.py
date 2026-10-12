@@ -24,10 +24,12 @@ from app.modules.tutor.content_schemas import (
 from app.modules.tutor.schemas import TutorStrategyRequest, TutoringStrategy
 from app.modules.tutor.sign_planner import MathSignPlanner
 from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
+from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_hint, explain_step, segments_from_lines
+from app.modules.tutor.knowledge import lesson_notes
 
 Level = Literal["foundation", "one_step", "two_step", "extended"]
 LEVELS: tuple[Level, ...] = ("foundation", "one_step", "two_step", "extended")
-CONTENT_VERSION = "grade10-linear-v1-draft"
+CONTENT_VERSION = "grade10-linear-v5-small-explanation-cues-draft"
 SUPPORTED_CONCEPTS = {"linear_equations", "linear_equation_balancing"}
 PLANNER = MathSignPlanner()
 
@@ -43,12 +45,14 @@ class PlanMetadata(BaseModel):
     misconception_support: str
     preferred_mode: str = "mixed"
     sign_support_required: bool = True
+    avatar_playback_speed: float = Field(default=1.0, ge=0.5, le=1)
     content_review_status: str = "teacher_review_required"
     reassessment_note: str = "Return practice evidence to Quiz/Game for reassessment; this is not a new mastery diagnosis."
 
 
 class AdaptivePractice(PracticeQuestion):
     progressive_hints: list[SignSupportedText]
+    worked_solution: WorkedExample
 
 
 class AdaptiveLesson(TutorLessonResponse):
@@ -232,6 +236,7 @@ def _practice(level: Level) -> list[AdaptivePractice]:
                 prompt=f"Solve {worked.problem}.",
                 hint=_text(operation),
                 expected_answer=worked.answer,
+                worked_solution=worked,
                 progressive_hints=[
                     _text("Keep both sides equal. Aim to leave x by itself."),
                     _text(operation),
@@ -258,12 +263,40 @@ MISCONCEPTION_SUPPORT = {
 }
 
 
+STRATEGY_EXPLANATIONS = {
+    TutoringStrategy.STEP_BY_STEP: "An equation is like a balance. We will isolate x one small step at a time, applying the same operation to both sides, then check the answer.",
+    TutoringStrategy.CONCEPTUAL_EXPLANATION: "The equals sign means the left and right sides have the same value. Think of a balanced scale: changing only one side breaks the balance. Explain why each operation keeps both sides equal.",
+    TutoringStrategy.WORKED_EXAMPLE_BASED: "Follow the solved example from the original equation to the checked answer. Notice the operation used in each step, then apply the same method to a similar practice question.",
+    TutoringStrategy.PROGRESSIVE_HINTS: "Try the practice question first. If you get stuck, reveal one hint at a time: the goal, the next operation, then a more detailed clue. Use the worked solution after trying the hints.",
+    TutoringStrategy.ADVANCED_CHALLENGE: "Choose a method and solve the challenge independently. Keep every transformation equivalent, explain your reasoning, and verify the result in the original equation. Examples and hints are available when you need them.",
+}
+
+
 def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     examples = _examples(level)
     questions = _practice(level)
-    simple = _text(
-        "An equation is like a balance. Perform the SAME operation on BOTH sides to keep them equal."
+    simple = _text(STRATEGY_EXPLANATIONS[metadata.primary_strategy])
+    simple.knowledge_notes = lesson_notes(simple.text, level, metadata.primary_strategy.value)
+    simple.avatar_segments = segments_from_lines(
+        STRATEGY_OPENINGS[metadata.primary_strategy], _actions
     )
+    simple.sign_actions = [action for segment in simple.avatar_segments for action in segment.sign_actions]
+    metadata.avatar_playback_speed = 1.0
+    for worked in examples + [question.worked_solution for question in questions]:
+        for step in worked.steps:
+            step.knowledge_notes = lesson_notes(step.instruction, level, metadata.primary_strategy.value)
+            step.avatar_segments = explain_step(step, metadata.primary_strategy, _actions)
+            step.sign_actions = [action for segment in step.avatar_segments for action in segment.sign_actions]
+    for question in questions:
+        for index, hint in enumerate(question.progressive_hints):
+            # Keep hint stages separate: never include later hints or a solution
+            # in an earlier cue. Only hint three introduces its collected line.
+            hint.avatar_segments = explain_hint(
+                hint.text, index, question.worked_solution.problem, _actions
+            )
+            hint.sign_actions = [action for segment in hint.avatar_segments for action in segment.sign_actions]
+        question.hint.avatar_segments = list(question.progressive_hints[1].avatar_segments)
+        question.hint.sign_actions = list(question.progressive_hints[1].sign_actions)
     sign_ids = set(simple.sign_actions)
     for example in examples:
         for step in example.steps:
@@ -271,8 +304,11 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     for question in questions:
         for hint in question.progressive_hints:
             sign_ids.update(hint.sign_actions)
-    # Expose the newly composed gestures to the reviewer preview without
-    # inserting them into the lesson's semantic sign sequences.
+        for step in question.worked_solution.steps:
+            sign_ids.update(step.sign_actions)
+    # Keep all existing composites available to the review picker. Actual
+    # teaching cues request only key terms present in their own explanations;
+    # the frontend still enforces the validated/prototype playback policy.
     review_entries = [
         entry
         for entry in PLANNER.manifest_entries()
@@ -316,15 +352,17 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     )
 
 
-def preview_lesson(level: Level) -> AdaptiveLesson:
+def preview_lesson(
+    level: Level, strategy: TutoringStrategy = TutoringStrategy.STEP_BY_STEP
+) -> AdaptiveLesson:
     return build_lesson(
         level,
         PlanMetadata(
             level=level,
             source="preview",
             model_version="preview-no-inference",
-            primary_strategy=TutoringStrategy.STEP_BY_STEP,
-            rationale="Manually selected preview; no student performance was assessed.",
+            primary_strategy=strategy,
+            rationale=f"Manually selected {strategy.value} preview; no student performance was assessed.",
             misconception_support=MISCONCEPTION_SUPPORT["none"],
         ),
     )

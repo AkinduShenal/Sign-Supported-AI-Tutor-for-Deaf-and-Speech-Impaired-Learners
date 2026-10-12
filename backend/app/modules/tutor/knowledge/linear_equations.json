@@ -1,0 +1,756 @@
+{
+  "version": "linear-equations-kb-v2-small-cues-draft",
+  "review_status": "teacher_review_required",
+  "chunks": [
+    {
+      "id": "equality-balance",
+      "title_en": "Equality and balance",
+      "title_si": "සමානතාව සහ සමබරතාව",
+      "text_en": "An equation states that both sides have the same value. Adding or subtracting the same amount on both sides preserves equality. Multiplying or dividing both sides by the same nonzero number also preserves equality. Changing only one side can break the balance.",
+      "text_si": "සමීකරණයක දෙපසෙහි අගයන් සමානයි. දෙපසටම එකම ප්‍රමාණය එකතු කිරීමෙන් හෝ දෙපසින්ම එකම ප්‍රමාණය අඩු කිරීමෙන් සමානතාව රැකෙනවා. දෙපසම එකම ශුන්‍ය නොවන සංඛ්‍යාවකින් ගුණ කිරීමෙන් හෝ බෙදීමෙන්ද සමානතාව රැකෙනවා. එක් පසක් පමණක් වෙනස් කළොත් සමබරතාව නැති විය හැකියි.",
+      "search_terms": [
+        "equal",
+        "equality",
+        "balance",
+        "both sides",
+        "same operation",
+        "left",
+        "right",
+        "සමාන",
+        "සමානතාව",
+        "සමබර",
+        "තුලාව",
+        "දෙපස",
+        "දෙපැත්ත",
+        "දෙපැත්තෙන්ම",
+        "දෙපසටම"
+      ],
+      "levels": [
+        "foundation",
+        "one_step",
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "conceptual_explanation",
+        "step_by_step"
+      ],
+      "sign_actions": [
+        "EXPLAIN_EQUALITY"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:build_lesson",
+      "avatar_parts": [
+        {
+          "text": "Both sides of an equation have the same value.",
+          "text_si": "සමීකරණයක දෙපසෙහි අගයන් සමානයි.",
+          "sign_actions": [
+            "CUE_EQUAL_SIDES"
+          ]
+        },
+        {
+          "text": "Add the same amount to both sides.",
+          "text_si": "දෙපසටම එකම ප්‍රමාණය එකතු කරන්න.",
+          "sign_actions": [
+            "CUE_ADD_BOTH"
+          ]
+        },
+        {
+          "text": "Subtract the same amount from both sides.",
+          "text_si": "දෙපසින්ම එකම ප්‍රමාණය අඩු කරන්න.",
+          "sign_actions": [
+            "CUE_SUBTRACT_BOTH"
+          ]
+        },
+        {
+          "text": "Multiply both sides by the same nonzero number.",
+          "text_si": "දෙපසම එකම ශුන්‍ය නොවන සංඛ්‍යාවකින් ගුණ කරන්න.",
+          "sign_actions": [
+            "CUE_MULTIPLY_BOTH"
+          ]
+        },
+        {
+          "text": "Divide both sides by the same nonzero number.",
+          "text_si": "දෙපසම එකම ශුන්‍ය නොවන සංඛ්‍යාවකින් බෙදන්න.",
+          "sign_actions": [
+            "CUE_DIVIDE_BOTH"
+          ]
+        },
+        {
+          "text": "These operations preserve equality.",
+          "text_si": "මේ ගණිත ක්‍රියාවලින් සමානතාව රැකෙනවා.",
+          "sign_actions": [
+            "CUE_EQUAL_SIDES"
+          ]
+        },
+        {
+          "text": "Changing only one side can break the balance.",
+          "text_si": "එක් පසක් පමණක් වෙනස් කළොත් සමබරතාව නැති විය හැකියි.",
+          "sign_actions": [
+            "BALANCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unknown-variable",
+      "title_en": "What x means",
+      "title_si": "x යන්නෙන් අදහස් කරන්නේ කුමක්ද?",
+      "text_en": "The variable x represents an unknown number. It is not the multiplication sign. Solving an equation means finding a value of x that makes the original equality true. Aim to leave x by itself on one side.",
+      "text_si": "විචල්‍යය වන x නොදන්නා සංඛ්‍යාවක් නියෝජනය කරනවා. එය ගුණ කිරීමේ ලකුණ නොවේ. සමීකරණයක් විසඳීම යනු මුල් සමානතාව සත්‍ය කරන x අගය සෙවීමයි. x එක් පසක තනි කිරීම අරමුණ කරගන්න.",
+      "search_terms": [
+        "x",
+        "unknown",
+        "variable",
+        "isolate",
+        "alone",
+        "විචල්‍යය",
+        "විචල්‍ය",
+        "නොදන්නා",
+        "තනි",
+        "තනියම"
+      ],
+      "levels": [
+        "foundation",
+        "one_step",
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "conceptual_explanation",
+        "step_by_step"
+      ],
+      "sign_actions": [
+        "EXPLAIN_UNKNOWN_VARIABLE"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_example",
+      "avatar_parts": [
+        {
+          "text": "x represents an unknown number.",
+          "text_si": "x නියෝජනය කරන්නේ නොදන්නා සංඛ්‍යාවක්.",
+          "sign_actions": [
+            "VARIABLE"
+          ]
+        },
+        {
+          "text": "Here, x is a variable, not the multiplication sign.",
+          "text_si": "මෙහි x විචල්‍යයක්. එය ගුණ කිරීමේ ලකුණ නොවේ.",
+          "sign_actions": [
+            "VARIABLE"
+          ]
+        },
+        {
+          "text": "Find a value of x that makes the original equation true.",
+          "text_si": "මුල් සමීකරණය සත්‍ය කරන x අගය සොයන්න.",
+          "sign_actions": [
+            "VARIABLE",
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Leave x by itself on one side.",
+          "text_si": "x එක් පසක තනි කරන්න.",
+          "sign_actions": [
+            "CUE_ISOLATE_VARIABLE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inverse-add-subtract",
+      "title_en": "Undo addition and subtraction",
+      "title_si": "එකතු කිරීම සහ අඩු කිරීම ඉවත් කිරීම",
+      "text_en": "Subtraction undoes addition, and addition undoes subtraction. To remove an added constant, subtract that constant from both sides. To remove a subtracted constant, add it to both sides. Simplify after applying the operation; do not change a sign just by moving a term across the equals sign.",
+      "text_si": "අඩු කිරීමෙන් එකතු කිරීමත්, එකතු කිරීමෙන් අඩු කිරීමත් ඉවත් කළ හැකියි. එකතු කළ නියතයක් ඉවත් කිරීමට එම නියතය දෙපසින්ම අඩු කරන්න. අඩු කළ නියතයක් ඉවත් කිරීමට එය දෙපසටම එකතු කරන්න. ගණිත ක්‍රියාව සිදු කළ පසු සරල කරන්න. පදයක් සමාන ලකුණ හරහා ගෙන යන බව කියමින් ලකුණ පමණක් වෙනස් නොකරන්න.",
+      "search_terms": [
+        "subtract",
+        "subtraction",
+        "minus",
+        "add",
+        "addition",
+        "plus",
+        "inverse",
+        "undo",
+        "constant",
+        "අඩු",
+        "අඩුකරන්නේ",
+        "අඩුකරන්න",
+        "අඩුකරන",
+        "අඩුකිරීම",
+        "අඩු කිරීම",
+        "අඩු කරන",
+        "අඩු කරන්නේ",
+        "එකතු",
+        "ප්‍රතිලෝම",
+        "නියතය",
+        "නියත",
+        "ඉවත්"
+      ],
+      "levels": [
+        "foundation",
+        "one_step",
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "step_by_step",
+        "worked_example_based",
+        "progressive_hints"
+      ],
+      "sign_actions": [
+        "EXPLAIN_UNDO_ADDITION",
+        "EXPLAIN_UNDO_SUBTRACTION"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_example",
+      "avatar_parts": [
+        {
+          "text": "Subtraction undoes addition.",
+          "text_si": "අඩු කිරීමෙන් එකතු කිරීම ඉවත් කළ හැකියි.",
+          "sign_actions": [
+            "CUE_INVERSE_ADDITION"
+          ]
+        },
+        {
+          "text": "Addition undoes subtraction.",
+          "text_si": "එකතු කිරීමෙන් අඩු කිරීම ඉවත් කළ හැකියි.",
+          "sign_actions": [
+            "SUBTRACTION",
+            "ADDITION"
+          ]
+        },
+        {
+          "text": "Remove an added constant by subtracting it from both sides.",
+          "text_si": "එකතු කළ නියතයක් ඉවත් කිරීමට එය දෙපසින්ම අඩු කරන්න.",
+          "sign_actions": [
+            "CUE_SUBTRACT_BOTH"
+          ]
+        },
+        {
+          "text": "Remove a subtracted constant by adding it to both sides.",
+          "text_si": "අඩු කළ නියතයක් ඉවත් කිරීමට එය දෙපසටම එකතු කරන්න.",
+          "sign_actions": [
+            "CUE_ADD_BOTH"
+          ]
+        },
+        {
+          "text": "Simplify after applying the operation.",
+          "text_si": "ගණිත ක්‍රියාව සිදු කළ පසු සරල කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Do not change a sign just by moving a term across the equals sign.",
+          "text_si": "පදයක් සමාන ලකුණ හරහා ගෙන යන බව කියමින් ලකුණ පමණක් වෙනස් නොකරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inverse-multiply-divide",
+      "title_en": "Undo multiplication and division",
+      "title_si": "ගුණ කිරීම සහ බෙදීම ඉවත් කිරීම",
+      "text_en": "A coefficient multiplying x can be removed by dividing both sides by that nonzero coefficient. Division by a nonzero number can be undone by multiplying every term on both sides by that number. Never divide by zero.",
+      "text_si": "x ගුණ කරන සංගුණකය ඉවත් කිරීමට දෙපසම එම ශුන්‍ය නොවන සංගුණකයෙන් බෙදන්න. ශුන්‍ය නොවන සංඛ්‍යාවකින් බෙදීම ඉවත් කිරීමට දෙපසෙහි ඇති සෑම පදයක්ම එම සංඛ්‍යාවෙන් ගුණ කරන්න. ශුන්‍යයෙන් බෙදන්න එපා.",
+      "search_terms": [
+        "multiply",
+        "multiplication",
+        "times",
+        "divide",
+        "division",
+        "coefficient",
+        "zero",
+        "ගුණ",
+        "බෙදන්න",
+        "බෙදන",
+        "බෙදන්නේ",
+        "බෙදීම",
+        "සංගුණකය",
+        "සංගුණක",
+        "ශුන්‍ය"
+      ],
+      "levels": [
+        "one_step",
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "step_by_step",
+        "worked_example_based",
+        "progressive_hints"
+      ],
+      "sign_actions": [
+        "EXPLAIN_DIVIDE_COEFFICIENT"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_example",
+      "avatar_parts": [
+        {
+          "text": "A coefficient multiplies x.",
+          "text_si": "සංගුණකයක් x ගුණ කරනවා.",
+          "sign_actions": [
+            "MULTIPLICATION",
+            "VARIABLE"
+          ]
+        },
+        {
+          "text": "Divide both sides by the nonzero coefficient to leave x alone.",
+          "text_si": "x තනි කිරීමට දෙපසම ශුන්‍ය නොවන සංගුණකයෙන් බෙදන්න.",
+          "sign_actions": [
+            "CUE_DIVIDE_BOTH"
+          ]
+        },
+        {
+          "text": "Multiplication undoes division by a nonzero number.",
+          "text_si": "ගුණ කිරීමෙන් ශුන්‍ය නොවන සංඛ්‍යාවකින් බෙදීම ඉවත් කළ හැකියි.",
+          "sign_actions": [
+            "DIVISION",
+            "MULTIPLICATION"
+          ]
+        },
+        {
+          "text": "Multiply every term on both sides by that number.",
+          "text_si": "දෙපසෙහි ඇති සෑම පදයක්ම එම සංඛ්‍යාවෙන් ගුණ කරන්න.",
+          "sign_actions": [
+            "CUE_MULTIPLY_BOTH"
+          ]
+        },
+        {
+          "text": "Never divide by zero.",
+          "text_si": "ශුන්‍යයෙන් බෙදන්න එපා.",
+          "sign_actions": [
+            "DIVISION"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "two-step-order",
+      "title_en": "Order in a two-step equation",
+      "title_si": "පියවර දෙකක සමීකරණයක පිළිවෙළ",
+      "text_en": "For an equation with a multiplied x term and an added or subtracted constant, first undo the constant using addition or subtraction on both sides. Simplify, then divide both sides by the nonzero coefficient. Finally check in the original equation.",
+      "text_si": "x ගුණ කරන පදයක් සහ එකතු කළ හෝ අඩු කළ නියතයක් ඇති සමීකරණයක, මුලින් දෙපසටම එකතු කිරීම හෝ අඩු කිරීම යොදා නියතය ඉවත් කරන්න. සරල කර, ඉන්පසු දෙපසම ශුන්‍ය නොවන සංගුණකයෙන් බෙදන්න. අවසානයේ මුල් සමීකරණයට ආදේශ කර පරීක්ෂා කරන්න.",
+      "search_terms": [
+        "two step",
+        "first",
+        "next",
+        "order",
+        "steps",
+        "පියවර",
+        "මුලින්",
+        "පළමුව",
+        "ඊළඟ",
+        "පිළිවෙළ"
+      ],
+      "levels": [
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "step_by_step",
+        "progressive_hints",
+        "worked_example_based"
+      ],
+      "sign_actions": [
+        "TEACH_STEP_BY_STEP"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_examples",
+      "avatar_parts": [
+        {
+          "text": "First undo the added or subtracted constant.",
+          "text_si": "මුලින් එකතු කළ හෝ අඩු කළ නියතය ඉවත් කරන්න.",
+          "sign_actions": [
+            "ADDITION",
+            "SUBTRACTION"
+          ]
+        },
+        {
+          "text": "Apply that operation to both sides.",
+          "text_si": "එම ගණිත ක්‍රියාව දෙපසටම සිදු කරන්න.",
+          "sign_actions": [
+            "BOTH_SIDES"
+          ]
+        },
+        {
+          "text": "Simplify the equation.",
+          "text_si": "සමීකරණය සරල කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Next divide both sides by the nonzero coefficient.",
+          "text_si": "ඊළඟට දෙපසම ශුන්‍ය නොවන සංගුණකයෙන් බෙදන්න.",
+          "sign_actions": [
+            "CUE_DIVIDE_BOTH"
+          ]
+        },
+        {
+          "text": "Check in the original equation.",
+          "text_si": "මුල් සමීකරණයෙන් පරීක්ෂා කරන්න.",
+          "sign_actions": [
+            "CUE_VERIFY_EQUALITY"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-signs",
+      "title_en": "Keep negative signs attached",
+      "title_si": "ඍණ ලකුණු නිවැරදිව තබාගැනීම",
+      "text_en": "Keep the negative sign attached to its number or term. Adding a positive amount undoes subtracting that amount. If the coefficient of x is negative, divide both sides by the full negative coefficient. Recheck the arithmetic and verify the result by substitution.",
+      "text_si": "ඍණ ලකුණ එයට අදාළ සංඛ්‍යාව හෝ පදය සමඟ තබාගන්න. ධන ප්‍රමාණයක් එකතු කිරීමෙන් එම ප්‍රමාණය අඩු කිරීම ඉවත් වෙනවා. x හි සංගුණකය ඍණ නම්, ඍණ ලකුණ සහිත සම්පූර්ණ සංගුණකයෙන් දෙපසම බෙදන්න. ගණනය නැවත පරීක්ෂා කර පිළිතුර ආදේශ කරන්න.",
+      "search_terms": [
+        "negative",
+        "sign error",
+        "arithmetic",
+        "signs",
+        "ඍණ",
+        "ලකුණ",
+        "ලකුණු",
+        "වැරදි",
+        "වැරැද්ද"
+      ],
+      "levels": [
+        "foundation",
+        "one_step",
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "worked_example_based",
+        "step_by_step"
+      ],
+      "sign_actions": [
+        "EXPLAIN_UNDO_SUBTRACTION"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:MISCONCEPTION_SUPPORT",
+      "avatar_parts": [
+        {
+          "text": "Keep the negative sign with its number or term.",
+          "text_si": "ඍණ ලකුණ එයට අදාළ සංඛ්‍යාව හෝ පදය සමඟ තබාගන්න.",
+          "sign_actions": [
+            "NEGATIVE"
+          ]
+        },
+        {
+          "text": "Adding a positive amount undoes subtracting that amount.",
+          "text_si": "ධන ප්‍රමාණයක් එකතු කිරීමෙන් එම ප්‍රමාණය අඩු කිරීම ඉවත් වෙනවා.",
+          "sign_actions": [
+            "SUBTRACTION",
+            "ADDITION"
+          ]
+        },
+        {
+          "text": "If the coefficient is negative, use the full negative coefficient when dividing both sides.",
+          "text_si": "සංගුණකය ඍණ නම් දෙපසම බෙදීමට ඍණ ලකුණ සහිත සම්පූර්ණ සංගුණකය භාවිත කරන්න.",
+          "sign_actions": [
+            "NEGATIVE",
+            "CUE_DIVIDE_BOTH"
+          ]
+        },
+        {
+          "text": "Recheck the arithmetic.",
+          "text_si": "ගණනය නැවත පරීක්ෂා කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Verify the answer by substitution.",
+          "text_si": "පිළිතුර ආදේශ කර පරීක්ෂා කරන්න.",
+          "sign_actions": [
+            "CUE_SUBSTITUTE_ANSWER",
+            "CUE_VERIFY_EQUALITY"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "variables-both-sides",
+      "title_en": "Collect variable terms",
+      "title_si": "විචල්‍ය පද එක් පසකට ගැනීම",
+      "text_en": "When x appears on both sides, add or subtract the same variable term on both sides to collect the x terms on one side. Simplify the coefficients, then remove the constant and isolate x. Do not simply delete a variable term from one side.",
+      "text_si": "x දෙපසෙහිම ඇති විට, විචල්‍ය පද එක් පසකට ගැනීමට දෙපසටම එකම විචල්‍ය පදය එකතු කරන්න හෝ දෙපසින්ම අඩු කරන්න. සංගුණක සරල කර, ඉන්පසු නියතය ඉවත් කර x තනි කරන්න. එක් පසකින් පමණක් විචල්‍ය පදයක් මකා දමන්න එපා.",
+      "search_terms": [
+        "collect",
+        "variable terms",
+        "both sides variables",
+        "විචල්‍ය පද",
+        "පද",
+        "දෙපසෙහිම",
+        "එක් පසකට"
+      ],
+      "levels": [
+        "extended"
+      ],
+      "strategies": [
+        "advanced_challenge",
+        "worked_example_based"
+      ],
+      "sign_actions": [
+        "EXPLAIN_COLLECT_VARIABLES"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_example",
+      "avatar_parts": [
+        {
+          "text": "x appears on both sides of this kind of equation.",
+          "text_si": "මේ ආකාරයේ සමීකරණයක x දෙපසෙහිම තිබෙනවා.",
+          "sign_actions": [
+            "CUE_COLLECT_VARIABLE"
+          ]
+        },
+        {
+          "text": "Add or subtract the same variable term on both sides.",
+          "text_si": "දෙපසටම එකම විචල්‍ය පදය එකතු කරන්න හෝ දෙපසින්ම අඩු කරන්න.",
+          "sign_actions": [
+            "VARIABLE",
+            "BOTH_SIDES"
+          ]
+        },
+        {
+          "text": "Collect the remaining x terms on one side.",
+          "text_si": "ඉතිරි x පද එක් පසකට ගන්න.",
+          "sign_actions": [
+            "CUE_COLLECT_VARIABLE"
+          ]
+        },
+        {
+          "text": "Simplify the coefficients and remove the constant.",
+          "text_si": "සංගුණක සරල කර නියතය ඉවත් කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Then leave x by itself.",
+          "text_si": "ඉන්පසු x තනි කරන්න.",
+          "sign_actions": [
+            "CUE_ISOLATE_VARIABLE"
+          ]
+        },
+        {
+          "text": "Do not delete a variable term from only one side.",
+          "text_si": "එක් පසකින් පමණක් විචල්‍ය පදයක් මකා දමන්න එපා.",
+          "sign_actions": [
+            "VARIABLE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "expand-brackets",
+      "title_en": "Expand every term in a bracket",
+      "title_si": "වරහනක ඇති සෑම පදයක්ම විහිදුවීම",
+      "text_en": "Use the distributive property: multiply every term inside the bracket by the outside factor. Include both the variable and constant terms. Expanding changes the written form of the expression while preserving its value.",
+      "text_si": "විභාජ්‍ය ගුණය යොදන්න: වරහන තුළ ඇති සෑම පදයක්ම පිටත ගුණකයෙන් ගුණ කරන්න. විචල්‍ය සහ නියත පද දෙකම ඇතුළත් කරන්න. විහිදුවීමෙන් ප්‍රකාශනයේ ලියන ආකාරය වෙනස් වුවත් අගය රැකෙනවා.",
+      "search_terms": [
+        "bracket",
+        "brackets",
+        "expand",
+        "distributive",
+        "parentheses",
+        "වරහන",
+        "වරහන්",
+        "විහිදුවන්න",
+        "විහිදුවීම",
+        "විභාජ්‍ය"
+      ],
+      "levels": [
+        "extended"
+      ],
+      "strategies": [
+        "advanced_challenge",
+        "worked_example_based"
+      ],
+      "sign_actions": [
+        "EXPLAIN_EXPAND_BRACKETS"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_bracket_example",
+      "avatar_parts": [
+        {
+          "text": "Look at the factor outside the bracket.",
+          "text_si": "වරහනට පිටත ඇති ගුණකය බලන්න.",
+          "sign_actions": [
+            "BRACKET"
+          ]
+        },
+        {
+          "text": "Multiply every term inside the bracket by that factor.",
+          "text_si": "වරහන තුළ ඇති සෑම පදයක්ම එම ගුණකයෙන් ගුණ කරන්න.",
+          "sign_actions": [
+            "MULTIPLICATION",
+            "BRACKET"
+          ]
+        },
+        {
+          "text": "Include the variable term.",
+          "text_si": "විචල්‍ය පදය ඇතුළත් කරන්න.",
+          "sign_actions": [
+            "VARIABLE"
+          ]
+        },
+        {
+          "text": "Include the constant term too.",
+          "text_si": "නියත පදයත් ඇතුළත් කරන්න.",
+          "sign_actions": [
+            "TERM"
+          ]
+        },
+        {
+          "text": "The written form changes but the value stays the same.",
+          "text_si": "ලියන ආකාරය වෙනස් වුවත් අගය සමානව පවතිනවා.",
+          "sign_actions": [
+            "CUE_EQUAL_SIDES"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clear-denominator",
+      "title_en": "Remove a denominator",
+      "title_si": "හරයක් ඉවත් කිරීම",
+      "text_en": "To clear division by a known nonzero denominator, multiply every term on both sides by that denominator. Include constant terms as well as the fraction. Multiplying only the fraction would change the equality.",
+      "text_si": "දන්නා ශුන්‍ය නොවන හරයකින් බෙදීම ඉවත් කිරීමට දෙපසෙහි ඇති සෑම පදයක්ම එම හරයෙන් ගුණ කරන්න. භාගය මෙන්ම නියත පදත් ඇතුළත් කරන්න. භාගය පමණක් ගුණ කළොත් සමානතාව වෙනස් වෙනවා.",
+      "search_terms": [
+        "fraction",
+        "denominator",
+        "clear denominator",
+        "භාගය",
+        "භාග",
+        "හරය",
+        "හර",
+        "හරයක්"
+      ],
+      "levels": [
+        "extended"
+      ],
+      "strategies": [
+        "advanced_challenge",
+        "step_by_step"
+      ],
+      "sign_actions": [
+        "EXPLAIN_CLEAR_DENOMINATOR"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_fraction_example",
+      "avatar_parts": [
+        {
+          "text": "Identify the known nonzero denominator.",
+          "text_si": "දන්නා ශුන්‍ය නොවන හරය හඳුනාගන්න.",
+          "sign_actions": [
+            "DIVISION"
+          ]
+        },
+        {
+          "text": "Multiply every term on both sides by that denominator.",
+          "text_si": "දෙපසෙහි ඇති සෑම පදයක්ම එම හරයෙන් ගුණ කරන්න.",
+          "sign_actions": [
+            "CUE_MULTIPLY_BOTH"
+          ]
+        },
+        {
+          "text": "Include the fraction and the constant terms.",
+          "text_si": "භාගය සහ නියත පද ඇතුළත් කරන්න.",
+          "sign_actions": [
+            "DIVISION",
+            "TERM"
+          ]
+        },
+        {
+          "text": "Multiplying only the fraction would change equality.",
+          "text_si": "භාගය පමණක් ගුණ කළොත් සමානතාව වෙනස් වෙනවා.",
+          "sign_actions": [
+            "MULTIPLICATION",
+            "BALANCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-by-substitution",
+      "title_en": "Check in the original equation",
+      "title_si": "මුල් සමීකරණයෙන් පිළිතුර පරීක්ෂා කිරීම",
+      "text_en": "Replace every x in the original equation with your proposed answer. Calculate the left and right sides separately. If both values are equal, the answer satisfies the equation. Use the original equation rather than only the final simplified line.",
+      "text_si": "මුල් සමීකරණයේ ඇති සෑම x වෙනුවටම ඔබේ පිළිතුර ආදේශ කරන්න. වම් සහ දකුණු දෙපස වෙන වෙනම ගණනය කරන්න. අගයන් දෙක සමාන නම් පිළිතුර සමීකරණය සපුරාලනවා. අවසාන සරල කළ පේළිය පමණක් නොව මුල් සමීකරණය භාවිත කරන්න.",
+      "search_terms": [
+        "check",
+        "verify",
+        "substitution",
+        "substitute",
+        "answer",
+        "correct",
+        "පරීක්ෂා",
+        "පරීක්ෂාව",
+        "ආදේශ",
+        "පිළිතුර",
+        "නිවැරදි"
+      ],
+      "levels": [
+        "foundation",
+        "one_step",
+        "two_step",
+        "extended"
+      ],
+      "strategies": [
+        "step_by_step",
+        "worked_example_based",
+        "advanced_challenge"
+      ],
+      "sign_actions": [
+        "EXPLAIN_CHECK_SOLUTION"
+      ],
+      "source_ref": "backend/app/modules/tutor/adaptive_lesson.py:_example",
+      "avatar_parts": [
+        {
+          "text": "Start with the original equation.",
+          "text_si": "මුල් සමීකරණයෙන් පටන් ගන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Replace every x with your proposed answer.",
+          "text_si": "සෑම x වෙනුවටම ඔබේ පිළිතුර ආදේශ කරන්න.",
+          "sign_actions": [
+            "CUE_SUBSTITUTE_ANSWER"
+          ]
+        },
+        {
+          "text": "Calculate the left side.",
+          "text_si": "වම් පස ගණනය කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Calculate the right side separately.",
+          "text_si": "දකුණු පස වෙනම ගණනය කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        },
+        {
+          "text": "Compare the two values.",
+          "text_si": "අගයන් දෙක සසඳන්න.",
+          "sign_actions": [
+            "BOTH_SIDES"
+          ]
+        },
+        {
+          "text": "Equal values confirm that the answer satisfies the equation.",
+          "text_si": "අගයන් සමාන නම් පිළිතුර සමීකරණය සපුරාලනවා.",
+          "sign_actions": [
+            "CUE_VERIFY_EQUALITY"
+          ]
+        },
+        {
+          "text": "Use the original equation, not only the final simplified line.",
+          "text_si": "අවසාන සරල කළ පේළිය පමණක් නොව මුල් සමීකරණය භාවිත කරන්න.",
+          "sign_actions": [
+            "EQUATION"
+          ]
+        }
+      ]
+    }
+  ]
+}
