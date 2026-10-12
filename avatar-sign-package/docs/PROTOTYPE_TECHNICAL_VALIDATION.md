@@ -88,6 +88,11 @@ appends review-only combinations of their neutral-to-neutral motion. See
 `COMPOSITE_PROTOTYPE_ACTIONS.md`. The same mechanical audit applies, but the
 expansion adds no linguistic validation.
 
+The 2026-10-12 teaching expansion appends another 15 composites, preserving
+all 56 previous actions. The runtime now has 71 actions. Builder preservation
+checks passed; the user is handling visual/signing verification. See
+`TEACHING_DEMO_ACTIONS.md` for recipes, hashes, backup and review instructions.
+
 ## What this does NOT solve
 
 - No lexical action has been human-validated as SLSL. Finger articulation,

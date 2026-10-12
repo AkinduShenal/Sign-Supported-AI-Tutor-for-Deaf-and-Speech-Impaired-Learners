@@ -5,7 +5,7 @@ import { SinhalaText } from './SinhalaText'
 import type { AvatarTeachingSegment } from '../types/tutor'
 
 const MASTER_AVATAR_URL =
-  '/models/louise_signs_master.glb?v=prototype-expansion-v3'
+  '/models/louise_signs_master.glb?v=teaching-expansion-v4'
 const BETWEEN_CLIP_DELAY_MS = 120
 const EMPTY_SIGNS: string[] = []
 const EMPTY_SEGMENTS: AvatarTeachingSegment[] = []

@@ -18,8 +18,9 @@ This canonical package contains:
 
 ## Current prototype asset
 
-The runtime file `frontend/public/models/louise_signs_master.glb` contains 56 named educational
-gesture actions: 22 repaired core actions plus 34 review-only composites. The manifest
+The runtime file `frontend/public/models/louise_signs_master.glb` contains 71 named educational
+gesture actions: 22 repaired core actions, 34 review-only composites and 15 longer
+teaching-demo composites. The manifest
 marks them with `prototype_ready: true`, while their lexical
 `validation_status` remains `needs_validation`. The application may play these
 actions for research-prototype demonstrations, but must not describe them as
@@ -35,6 +36,11 @@ The 34 added actions concatenate the repaired core motions and preserve their
 neutral endpoints and joint limits. See
 [the composite recipes and review references](docs/COMPOSITE_PROTOTYPE_ACTIONS.md).
 They are placeholders for reviewer testing, not claims of lexical equivalence.
+
+The 15 teaching demos preserve all original 56 actions and reuse their repaired
+rotations at the original speed or slower. Backend explanation segments request
+these longer actions by teaching topic/strategy. No new hand shapes, signs or
+facial movements are authored. See [the teaching demo review catalogue](docs/TEACHING_DEMO_ACTIONS.md).
 
 ## Recommended validation workflow
 
@@ -70,6 +76,7 @@ Then add tutor/remedial support signs.
 - `tools/validate_sign_package.py` — manifest/master-GLB validator
 - `tools/build_linear_equation_glb_reference.py` — prototype master-GLB build reference
 - `tools/append_composite_prototype_actions.py` — guarded 34-action review expansion
+- `tools/append_teaching_prototype_actions.py` — guarded 15-action teaching expansion with source preservation checks and a backup before promotion
 
 Runtime integration lives in:
 

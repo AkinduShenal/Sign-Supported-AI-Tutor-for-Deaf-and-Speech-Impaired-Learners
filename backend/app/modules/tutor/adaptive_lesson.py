@@ -25,11 +25,11 @@ from app.modules.tutor.content_schemas import (
 from app.modules.tutor.schemas import TutorStrategyRequest, TutoringStrategy
 from app.modules.tutor.sign_planner import MathSignPlanner
 from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
-from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_step, segments_from_lines
+from app.modules.tutor.teaching_explanations import STRATEGY_DEMO_ACTIONS, STRATEGY_OPENINGS, explain_step, segments_from_lines
 
 Level = Literal["foundation", "one_step", "two_step", "extended"]
 LEVELS: tuple[Level, ...] = ("foundation", "one_step", "two_step", "extended")
-CONTENT_VERSION = "grade10-linear-v3-avatar-explanations-draft"
+CONTENT_VERSION = "grade10-linear-v4-teaching-demo-clips-draft"
 SUPPORTED_CONCEPTS = {"linear_equations", "linear_equation_balancing"}
 PLANNER = MathSignPlanner()
 
@@ -279,6 +279,7 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     simple.avatar_segments = segments_from_lines(
         STRATEGY_OPENINGS[metadata.primary_strategy], _actions
     )
+    simple.avatar_segments[1].sign_actions = [STRATEGY_DEMO_ACTIONS[metadata.primary_strategy]]
     simple.sign_actions = [action for segment in simple.avatar_segments for action in segment.sign_actions]
     metadata.avatar_playback_speed = {
         TutoringStrategy.STEP_BY_STEP: 0.5,

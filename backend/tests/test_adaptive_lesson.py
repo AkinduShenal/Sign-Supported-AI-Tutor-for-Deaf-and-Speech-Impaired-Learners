@@ -44,7 +44,7 @@ def test_level_has_distinct_content_complete_glossary_and_hints(level):
         if sign["animation_type"]
         == "composite_prototype_educational_gesture"
     ]
-    assert len(review_animations) == 34
+    assert len(review_animations) == 49
     assert all(sign["prototype_ready"] for sign in review_animations)
     assert {"ALGEBRA", "BRACKET", "COEFFICIENT", "HINT", "CORRECT"} <= {
         sign["sign_id"] for sign in review_animations

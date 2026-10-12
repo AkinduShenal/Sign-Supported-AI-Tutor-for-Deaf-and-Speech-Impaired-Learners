@@ -12,6 +12,14 @@ from app.modules.tutor.schemas import TutoringStrategy
 
 TeachingLine = tuple[str, str]
 
+STRATEGY_DEMO_ACTIONS = {
+    TutoringStrategy.STEP_BY_STEP: "TEACH_STEP_BY_STEP",
+    TutoringStrategy.CONCEPTUAL_EXPLANATION: "TEACH_CONCEPTUAL",
+    TutoringStrategy.WORKED_EXAMPLE_BASED: "TEACH_WORKED_EXAMPLE",
+    TutoringStrategy.PROGRESSIVE_HINTS: "TEACH_PROGRESSIVE_HINTS",
+    TutoringStrategy.ADVANCED_CHALLENGE: "TEACH_INDEPENDENT_CHALLENGE",
+}
+
 STRATEGY_OPENINGS: dict[TutoringStrategy, list[TeachingLine]] = {
     TutoringStrategy.STEP_BY_STEP: [
         ("Start with the equation. x stands for a number we do not know yet.", "සමීකරණයෙන් පටන් ගමු. x නියෝජනය කරන්නේ අපි තවම නොදන්නා සංඛ්‍යාවක්."),
@@ -90,12 +98,37 @@ def _reason(instruction: str) -> TeachingLine:
     return ("The variable is now isolated. Check this answer in the original equation before finishing.", "දැන් විචල්‍යය තනිව තිබෙනවා. අවසන් කිරීමට පෙර මේ පිළිතුර මුල් සමීකරණයට ආදේශ කර පරීක්ෂා කරන්න.")
 
 
+def _teaching_demo(instruction: str) -> str:
+    if "collect the variable terms" in instruction:
+        return "EXPLAIN_COLLECT_VARIABLES"
+    if instruction.startswith("Subtract"):
+        return "EXPLAIN_UNDO_ADDITION"
+    if instruction.startswith("Add"):
+        return "EXPLAIN_UNDO_SUBTRACTION"
+    if instruction.startswith("Divide"):
+        return "EXPLAIN_DIVIDE_COEFFICIENT"
+    if "inside the bracket" in instruction:
+        return "EXPLAIN_EXPAND_BRACKETS"
+    if "remove the denominator" in instruction:
+        return "EXPLAIN_CLEAR_DENOMINATOR"
+    if instruction.startswith("Identify"):
+        return "EXPLAIN_UNKNOWN_VARIABLE"
+    if instruction.startswith(("Substitute", "Check")):
+        return "EXPLAIN_CHECK_SOLUTION"
+    if instruction.startswith("Simplify"):
+        return "EXPLAIN_EQUALITY"
+    return "EXPLAIN_SOLUTION_FOUND"
+
+
 def explain_step(
     step: LessonStep, strategy: TutoringStrategy, actions: Callable[[str], list[str]],
 ) -> list[AvatarTeachingSegment]:
     core = AvatarTeachingSegment(text=step.instruction, expression=step.expression,
                                  sign_actions=list(step.sign_actions))
     reasoning = segments_from_lines([_reason(step.instruction)], actions, step.expression)
+    # Use a longer, same-rig demonstration for reasoning; keep the original
+    # exact operation/number cues in core. Playback remains reviewer opt-in.
+    reasoning[0].sign_actions = [_teaching_demo(step.instruction)]
     if strategy == TutoringStrategy.CONCEPTUAL_EXPLANATION:
         return reasoning + [core] + segments_from_lines([
             ("Why is the equation still balanced? Describe what happened to both sides.", "සමීකරණය තවම සමබර වන්නේ ඇයි? දෙපසට සිදු වූ දේ පැහැදිලි කරන්න."),

@@ -45,8 +45,10 @@ for API integration, tests, model status and remaining validation requirements.
 
 ## Avatar research status
 
-The master GLB contains 56 technically checked prototype educational gesture
-actions: 22 repaired core actions plus 34 review-only composites. They are not
+The master GLB contains 71 prototype educational gesture actions: 22 repaired
+core actions, 34 earlier review-only composites and 15 longer teaching demos.
+The new demos preserve the previous 56 actions and reuse their unchanged poses;
+builder preservation checks passed, with visual/signing review still pending. They are not
 validated Sri Lankan Sign Language. Missing or unavailable actions fall back to
 written and visual mathematics support rather than being fabricated at runtime.
 
