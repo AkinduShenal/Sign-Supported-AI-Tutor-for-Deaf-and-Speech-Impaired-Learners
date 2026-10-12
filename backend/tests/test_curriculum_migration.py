@@ -42,7 +42,8 @@ def _scripts():
 
 def test_curriculum_revision_follows_existing_head():
     scripts = _scripts()
-    assert scripts.get_heads() == ["20261011_0006"]
+    assert scripts.get_heads() == ["20261011_0007"]
+    assert scripts.get_revision("20261011_0007").down_revision == "20261011_0006"
     assert scripts.get_revision("20261011_0006").down_revision == "20261009_0005"
 
 
@@ -187,7 +188,7 @@ def test_postgres_full_chain_preserves_existing_game_data():
             )
             database.commit()
         before_schema, before_rows = existing_schema(), game_rows()
-        migrate("upgrade", "head")
+        migrate("upgrade", "20261011_0006")
         assert TABLE_NAMES.issubset(inspect(engine).get_table_names())
         assert existing_schema() == before_schema and game_rows() == before_rows
         with engine.connect() as connection:
@@ -211,7 +212,7 @@ def test_postgres_full_chain_preserves_existing_game_data():
         migrate("downgrade", "20261009_0005")
         assert not TABLE_NAMES.intersection(inspect(engine).get_table_names())
         assert existing_schema() == before_schema and game_rows() == before_rows
-        migrate("upgrade", "head")
+        migrate("upgrade", "20261011_0006")
         assert existing_schema() == before_schema and game_rows() == before_rows
     finally:
         engine.dispose()

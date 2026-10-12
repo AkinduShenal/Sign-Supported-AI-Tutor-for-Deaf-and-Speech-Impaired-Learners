@@ -1,5 +1,14 @@
 # Database Migration Guide — Read This Before Touching Alembic
 
+Status reviewed **2026-10-12**: the repository head and last verified Supabase
+revision are `20261011_0007` (verified 2026-10-12). Curriculum Batches 1–2 and
+Game Activity/Variant Bank Batch 3 are complete, but the full
+live schema is not yet reproducible from this chain: newer Quiz tables/fields
+and ownership of two legacy Tutor tables still need reconciliation. See
+[DATABASE_CHECKLIST.md](DATABASE_CHECKLIST.md) for the dated inventory.
+Preserve already-applied revisions. Existing table names alone do not justify
+stamping, and successful curriculum tests do not prove whole-schema equivalence.
+
 This repository's Postgres database is **one shared Supabase instance**,
 used by all four components (Quiz, Game, AI Tutor, Remedial). Every
 developer's migrations land in the same `alembic_version` history and the
@@ -104,6 +113,11 @@ Do this for every table your migration will touch, **every time**, even
 if you're sure you remember what's there. The whole point of this
 database is that it can drift from what any one person remembers.
 
+The sample query is only a starting point. Before proving equivalence, also
+capture defaults, complete constraint definitions and validation/delete/update
+actions, index definitions, and relevant triggers/policies/grants. Constraint
+names alone cannot establish that two schemas have the same behavior.
+
 ---
 
 ## 4. Deciding between `alembic stamp` and `alembic upgrade`
@@ -114,14 +128,14 @@ how the history drift in §7.2 happened.
 | | What it does | When to use it here |
 | --- | --- | --- |
 | `alembic upgrade head` | **Actually runs the SQL** in `upgrade()` — creates tables, adds columns, adds constraints, for real, against the live database. | The objects in your migration **do not yet exist live**. This is the normal case for new work. |
-| `alembic stamp <revision>` | Only rewrites the one bookmark row in the `alembic_version` table. Runs **no SQL** against your schema at all. | The objects in your migration **already exist live** — e.g. someone built them by hand on Supabase, or ran a raw SQL `ALTER TABLE` themselves, and you just need Alembic's history to catch up to reality. |
+| `alembic stamp <revision>` | Changes Alembic's version-table bookkeeping; does not apply the revision's schema/data effects. | Only after every approved effect of the target revision is verified present and compatible, including names, types/lengths, nullability, defaults, constraints/actions/validation, indexes and required data transformations. Ownership, backups, local tests and team access to the exact revision must also be settled. |
 
 **If you're not sure which applies: go back to §3 and check the live
-schema before deciding.** If the columns/tables are already there,
-`upgrade` would error out (duplicate table/column) — which is actually a
-useful safety check: if `upgrade` fails with "already exists," that's
-your sign you should have used `stamp` instead, not a sign to force it
-through.
+schema before deciding.** A duplicate-table/column error proves only that an
+object with that name exists. Stop and compare its full definition; it is not
+proof that stamping is safe. A partially matching database may need approved
+forward corrective migrations before any bookmark adjustment is appropriate.
+Never use a production upgrade attempt as the schema discovery method.
 
 ---
 
@@ -145,10 +159,13 @@ through.
    - Write both `upgrade()` **and** a correct, working `downgrade()` —
      don't leave it as `pass`. If you never intend to roll this back,
      write the downgrade anyway; someone else may need to.
-5. **If your models.py already matches the live schema** (the objects
-   already exist, built outside Alembic): run
-   `alembic stamp <your revision>`. Then verify directly against
-   `information_schema` (§3) that nothing changed — it shouldn't have.
+5. **Test before shared-database execution.** Use disposable local PostgreSQL
+   for both fresh migration builds and populated upgrade/reconciliation cases.
+   Include historical orphaned results where relevant; 0004's immediate Game
+   result FK can reject those rows. Compare full catalog definitions and data.
+   Model agreement alone does not prove every migration effect has occurred.
+   If considering stamping, satisfy all §4 prerequisites first and document
+   the evidence. Preserve already-applied files and obtain a recoverable backup.
 6. **If the objects genuinely don't exist yet:** run
    `alembic upgrade head`. This is a real, if additive, change to a
    database shared by the whole team — **say so out loud to the team
@@ -160,10 +177,11 @@ through.
    - Re-query `information_schema`/`pg_constraint`/`pg_indexes` directly
      and confirm the live schema matches your migration exactly.
    - Confirm `alembic_version` now shows your new revision.
-8. **Run the full test suite** (`pytest -q` from `backend/`) — it runs
-   against an in-memory SQLite built from `models.py` via
-   `Base.metadata.create_all`, completely independent of Supabase, and
-   confirms your models still work for every other developer's tests too.
+8. **Run tests with explicit local-only configuration.** Existing Quiz fixtures
+   can remove Tutor's module-level DB override, so a combined run can fall
+   through to the application's configured database. Until fixed, use the two
+   commands below. Opt-in PostgreSQL fixtures require separate disposable local
+   `curriculum_test_*` databases and never the shared Supabase URL.
 9. **Commit and push the migration file promptly.** Every other developer
    now has a local `alembic_version` that's one revision behind reality
    the moment you run `stamp`/`upgrade` against the shared database. If
@@ -175,6 +193,19 @@ through.
 ---
 
 ## 6. Rules, restated plainly
+
+Safe backend test invocation from `backend/` on PowerShell:
+
+```powershell
+$env:DATABASE_URL = 'sqlite+pysqlite:///:memory:'
+python -m pytest -q -p no:cacheprovider --ignore=tests/test_tutor_strategy.py
+python -m pytest -q -p no:cacheprovider tests/test_tutor_strategy.py
+```
+
+The isolated commands run all tests, with optional PostgreSQL cases enabled only
+by their dedicated URLs. Migration fixtures require a new empty database for
+each execution. See [the seed report](backend/scripts/EQUATIONS_CURRICULUM.md)
+for the same-day verification and initial test-isolation incident.
 
 1. Never run `alembic revision --autogenerate` against this database.
    Hand-author every migration.
@@ -196,10 +227,17 @@ through.
 10. If the live schema and `alembic_version` ever disagree (see §7.2 for
     how to notice), fix the history — don't just work around it by
     hand-editing `alembic_version` directly in SQL.
+11. Preserve applied migration files. Restore an accidentally missing file from
+    its exact reviewed version; correct schema drift in new forward revisions.
+    Do not rewrite an applied migration to make current drift look historical.
 
 ---
 
 ## 7. Incidents that happened here (read these — they're not hypothetical)
+
+These older incident notes record earlier work and assumptions. They do not
+establish today's full-schema equivalence or authorize repeating a stamp.
+The 2026-10-11 status/inventory above takes precedence for current state.
 
 ### 7.1 — The autogenerate near-disaster
 
@@ -246,13 +284,26 @@ you expect (a revision file referenced that doesn't exist, or
 1. **Don't guess, and don't run `upgrade` to "force it forward."**
 2. Query the live schema directly (§3) for the tables involved. This is
    the only source of truth that can't have drifted from itself.
-3. Compare that against every component's `models.py`. Whichever model
-   matches the live schema is correct; Alembic's version table is just a
-   bookmark and can be wrong.
-4. If a migration file is missing or wrong, rewrite it to match the
-   **verified live schema** exactly (not what you assume it should be),
-   then `stamp` (if the objects already exist) or `upgrade` (if they
-   genuinely don't) accordingly.
+3. Compare the catalog, models, applied migration files and approved component
+   contracts. Live state is evidence of what exists, not automatic proof of
+   intended ownership or correctness. Resolve discrepancies with the owners.
+4. Restore missing applied files from version control in their exact reviewed
+   form. Preserve applied history; write new forward corrections for drift or
+   approved missing effects. Test fresh and populated databases. Consider stamp
+   only after every §4 prerequisite is satisfied, not merely because names exist.
 5. Re-verify directly against `information_schema` afterward. Don't move
    on until the live schema, the migration file, and `alembic_version`
    all agree with each other.
+
+## Batch 3 verification — 2026-10-12
+
+Revision 0007 added only `game_activity_bank` and `game_activity_variants`. The
+seed inserted 8 activities and 18 variants; the second run inserted zero. Old public table schemas, counts, policies, triggers and grants were preserved.
+Across the upgrade window, the only old-data difference was the team-confirmed
+Sinhala curriculum label correction. All old data was preserved during seeding. No stamp or old-table alteration was used. Preserve revisions
+0001–0007; Quiz/legacy reconciliation remains separate. See the
+[Game bank report](backend/scripts/EQUATIONS_GAME_ACTIVITIES.md).
+
+While verification was paused, separate Game activity changed counts: `game_sessions` 212 → 213, `gameplay_events` 811 → 824, `game_task_attempts` 52 → 53.
+Those records were preserved. Count/data preservation during the bank seed was
+checked against the fresh pre-seed baseline, not the earlier migration snapshot.
