@@ -1,5 +1,9 @@
 # Game module (backend)
 
+Offline next-task hint prediction foundations are documented in
+[`ml/README.md`](ml/README.md). This development-only package is separate from
+the existing heuristic analytics and has no database or API integration.
+
 **Owner:** RehanOP007 (Game component). Other components: please don't edit
 files here. Open an issue or ask the owner instead.
 
