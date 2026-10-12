@@ -1,4 +1,4 @@
-import type { AdaptiveLesson, LearningLevel, TutorLesson } from '../types/tutor'
+import type { AdaptiveLesson, LearningLevel, TeachingStrategy, TutorLesson } from '../types/tutor'
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000/api/v1'
 const API_BASE_URL = (
@@ -18,8 +18,8 @@ async function tutorRequest<T>(path: string, body?: unknown, signal?: AbortSigna
   return response.json() as Promise<T>
 }
 
-export function getGrade10Preview(level: LearningLevel, signal?: AbortSignal) {
-  return tutorRequest<AdaptiveLesson>(`grade10/${level}`, undefined, signal)
+export function getGrade10Preview(level: LearningLevel, signal?: AbortSignal, strategy: TeachingStrategy = 'step_by_step') {
+  return tutorRequest<AdaptiveLesson>(`grade10/${level}?strategy=${encodeURIComponent(strategy)}`, undefined, signal)
 }
 
 export function getAdaptiveLesson(payload: unknown, signal?: AbortSignal) {

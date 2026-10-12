@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ModelViewerElement } from '@google/model-viewer'
 import { selectPlayback } from './playbackPolicy'
 import { SinhalaText } from './SinhalaText'
+import type { AvatarTeachingSegment } from '../types/tutor'
 
 const MASTER_AVATAR_URL =
   '/models/louise_signs_master.glb?v=prototype-expansion-v3'
 const BETWEEN_CLIP_DELAY_MS = 120
 const EMPTY_SIGNS: string[] = []
+const EMPTY_SEGMENTS: AvatarTeachingSegment[] = []
 
 export interface AvatarSignPlayerProps {
   signActions: string[]
@@ -19,6 +21,10 @@ export interface AvatarSignPlayerProps {
   compact?: boolean
   onEnablePrototype?: () => void
   onInteraction?: (action: string) => void
+  teachingSegments?: AvatarTeachingSegment[]
+  teachingKey?: string
+  teachingApproach?: string
+  initialPlaybackSpeed?: number
 }
 
 interface QueuedSign {
@@ -32,16 +38,31 @@ export function AvatarSignPlayer({
   prototypeSignIds = EMPTY_SIGNS,
   reviewSignIds = EMPTY_SIGNS,
   allowPrototype = false,
-  caption,
-  expression,
+  caption: fallbackCaption,
+  expression: fallbackExpression,
   compact = false,
   onEnablePrototype,
   onInteraction,
+  teachingSegments = EMPTY_SEGMENTS,
+  teachingKey = '',
+  teachingApproach,
+  initialPlaybackSpeed = 0.75,
 }: AvatarSignPlayerProps) {
+  // Derive part zero immediately when the lesson/step/hint changes, so an old
+  // caption or solution cannot leak into the new context for a render.
+  const contextKey = teachingKey || teachingSegments.map(segment => `${segment.text}:${segment.expression ?? ''}`).join('\0')
+  const [teachingPosition, setTeachingPosition] = useState({ key: contextKey, index: 0 })
+  const teachingIndex = teachingPosition.key === contextKey ? teachingPosition.index : 0
+  const currentSegment = teachingSegments[teachingIndex]
+  const caption = currentSegment?.text ?? fallbackCaption
+  const captionSi = currentSegment?.text_si
+  const expression = currentSegment?.expression ?? fallbackExpression
+  const lessonSignActions = currentSegment?.sign_actions ?? signActions
   const modelViewerRef = useRef<ModelViewerElement>(null)
   const playbackQueueRef = useRef<QueuedSign[]>([])
   const playbackIndexRef = useRef(0)
   const advanceSequenceRef = useRef<() => void>(() => undefined)
+  const finishTeachingPartRef = useRef<() => void>(() => undefined)
   const transitionTimerRef = useRef<number | null>(null)
   const playbackRevision = useRef(0)
   const clipStarted = useRef(false)
@@ -53,15 +74,32 @@ export function AvatarSignPlayer({
   const [paused, setPaused] = useState(false)
   const pausedRef = useRef(false)
   const pendingAdvance = useRef(false)
-  const [speed, setSpeed] = useState(0.75)
+  const [speed, setSpeed] = useState(initialPlaybackSpeed)
   const speedRef = useRef(speed)
   const [autoPlay, setAutoPlay] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [reviewSign, setReviewSign] = useState('')
-  const signActionsKey = signActions.join('\0')
+  const signActionsKey = `${contextKey}:${teachingIndex}:${lessonSignActions.join('\0')}`
   const effectiveSignActions = useMemo(
-    () => (reviewSign ? [reviewSign] : signActions),
-    [reviewSign, signActions],
+    () => (reviewSign ? [reviewSign] : lessonSignActions),
+    [reviewSign, lessonSignActions],
   )
+
+  const selectTeachingPart = useCallback((index: number) => {
+    setTeachingPosition({ key: contextKey, index })
+    onInteraction?.(`avatar_explanation_part_${index + 1}`)
+  }, [contextKey, onInteraction])
+
+  useEffect(() => {
+    setTeachingPosition({ key: contextKey, index: 0 })
+  }, [contextKey])
+
+  useEffect(() => {
+    finishTeachingPartRef.current = () => {
+      if (autoPlay && !reviewSign && teachingIndex + 1 < teachingSegments.length) {
+        selectTeachingPart(teachingIndex + 1)
+      }
+    }
+  }, [autoPlay, reviewSign, teachingIndex, teachingSegments.length, selectTeachingPart])
 
   useEffect(() => {
     setReviewSign('')
@@ -155,6 +193,9 @@ export function AvatarSignPlayer({
     const nextIndex = playbackIndexRef.current + 1
     if (nextIndex >= playbackQueueRef.current.length) {
       returnToIdle()
+      // Advance only after actual clip completion, never a guessed duration.
+      // Empty/missing/unvalidated sequences remain on their written explanation.
+      finishTeachingPartRef.current()
       return
     }
 
@@ -276,7 +317,7 @@ export function AvatarSignPlayer({
       }
     }
     return () => { cancelPendingPlayback(); clearTransitionTimer() }
-  }, [modelState, playSequence, autoPlay, clearTransitionTimer, availableAnimations, cancelPendingPlayback])
+  }, [modelState, playSequence, autoPlay, clearTransitionTimer, availableAnimations, cancelPendingPlayback, signActionsKey])
 
   function togglePause() {
     const next = !pausedRef.current
@@ -328,9 +369,20 @@ export function AvatarSignPlayer({
         </div>
       </div>
 
-      {!compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
-      {!compact && caption && <SinhalaText text={caption} />}
-      {!compact && expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>{expression}</p>}
+      {teachingSegments.length > 0 && !reviewSign && <div className="avatar-teaching" aria-live="polite">
+        <div className="avatar-teaching-heading"><strong>{teachingApproach ?? 'Explanation'}</strong><span>{teachingIndex + 1} / {teachingSegments.length}</span></div>
+        {caption && <p className="avatar-caption" lang="en">{caption}</p>}
+        {captionSi ? <p className="sinhala-text" lang="si">{captionSi}</p> : caption && <SinhalaText text={caption} />}
+        {expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>{expression}</p>}
+        <div className="avatar-part-controls">
+          <button type="button" className="secondary-button" disabled={teachingIndex === 0} onClick={() => selectTeachingPart(teachingIndex - 1)}>Previous part / පෙර කොටස</button>
+          <button type="button" className="secondary-button" disabled={teachingIndex + 1 >= teachingSegments.length} onClick={() => selectTeachingPart(teachingIndex + 1)}>Next part / ඊළඟ කොටස</button>
+        </div>
+      </div>}
+
+      {!compact && teachingSegments.length === 0 && caption && <p className="avatar-caption" lang="en">{caption}</p>}
+      {!compact && teachingSegments.length === 0 && caption && <SinhalaText text={caption} />}
+      {!compact && teachingSegments.length === 0 && expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>{expression}</p>}
 
       <div className="avatar-stage">
         <div className="avatar-glow" aria-hidden="true" />
@@ -434,13 +486,13 @@ export function AvatarSignPlayer({
           </div>
         ) : (
           <>
-            {compact && caption && <p className="avatar-caption" lang="en">{caption}</p>}
-            {compact && caption && <SinhalaText text={caption} />}
-            {compact && expression && <p className="avatar-expression">{expression}</p>}
+            {compact && teachingSegments.length === 0 && caption && <p className="avatar-caption" lang="en">{caption}</p>}
+            {compact && teachingSegments.length === 0 && caption && <SinhalaText text={caption} />}
+            {compact && teachingSegments.length === 0 && expression && <p className="avatar-expression">{expression}</p>}
           </>
         )}
       <div className="sign-status" aria-live="polite">
-        <span>{reviewSign ? 'Selected animation example' : 'Signs for this step'}</span>
+        <span>{reviewSign ? 'Selected animation example' : teachingSegments.length > 0 ? `Gestures for explanation part ${teachingIndex + 1}` : 'Signs for this step'}</span>
         <div className="sign-list">
           {effectiveSignActions.map((sign, index) => {
             const isPlayable =
@@ -485,7 +537,9 @@ export function AvatarSignPlayer({
         {activeSign
           ? `Playing ${activeSign.replaceAll('_', ' ')} educational gesture.`
           : playableSigns.length > 0
-            ? 'The gesture sequence is complete. Use replay to watch it again.'
+            ? teachingSegments.length > 0 && teachingIndex + 1 < teachingSegments.length
+              ? 'Replay this part or continue to the next explanation part.'
+              : 'The gesture sequence is complete. Use replay to watch it again.'
             : 'No animation is available for this step. The lesson remains available as text and visual mathematics support.'}
       </p>
       <p className="avatar-language-notice">

@@ -10,7 +10,7 @@ from app.modules.tutor.content_schemas import (
     TutorLessonResponse,
 )
 from app.modules.tutor.lesson_content import get_lesson
-from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse
+from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse, TutoringStrategy
 from app.modules.tutor.service import (
     DuplicateSessionConflictError,
     TutorStrategyService,
@@ -33,8 +33,10 @@ sign_planner = MathSignPlanner()
 
 
 @router.get("/grade10/{level}", response_model=AdaptiveLesson)
-def preview_grade10(level: Level) -> AdaptiveLesson:
-    return preview_lesson(level)
+def preview_grade10(
+    level: Level, strategy: TutoringStrategy = TutoringStrategy.STEP_BY_STEP
+) -> AdaptiveLesson:
+    return preview_lesson(level, strategy)
 
 
 @router.post("/adaptive-lesson", response_model=AdaptiveLesson)
