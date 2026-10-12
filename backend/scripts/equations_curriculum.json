@@ -1,0 +1,166 @@
+{
+  "page_numbering": "one_based_pdf_page",
+  "version": {
+    "version_code": "SL_G10_MATH_CURRENT",
+    "version_name": "Sri Lanka Grade 10 Mathematics — imported source set",
+    "grade_level": 10,
+    "subject_code": "mathematics",
+    "description": "Currently imported Grade 10 Mathematics source set: the supplied English and Sinhala Lesson 15 Equations PDFs. This code does not assert an official syllabus year. Only Equations is populated in Batch 2.",
+    "start_year": null,
+    "end_year": null,
+    "status": "active"
+  },
+  "unit": {
+    "unit_code": "EQUATIONS",
+    "unit_name_en": "Equations",
+    "unit_name_si": "සමීකරණ",
+    "description": "Lesson 15. Unit sequence_order is the textbook lesson number. Official sections: 15.1 Simple Equations, 15.2 Simultaneous Equations, 15.3 Quadratic Equations. The current Game prototype remains scoped to 15.1.",
+    "sequence_order": 15,
+    "status": "active"
+  },
+  "concepts": [
+    {
+      "concept_id": "equations",
+      "name_en": "Equations",
+      "name_si": "සමීකරණ",
+      "description_en": "Official Lesson 15 topic; English and Sinhala PDF page 1.",
+      "description_si": null,
+      "concept_type": "topic",
+      "status": "active",
+      "mapping": {"sequence_order": 1, "learning_objective": "Construct and solve simple and simultaneous equations, and solve quadratic equations using factors.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "simple_equations",
+      "name_en": "Simple Equations",
+      "name_si": "සරල සමීකරණ",
+      "description_en": "Official section 15.1: Solving simple equations described further. Both source PDFs begin this section on PDF page 1. Includes algebraic fractions and problem situations.",
+      "description_si": null,
+      "concept_type": "subtopic",
+      "status": "active",
+      "mapping": {"sequence_order": 2, "learning_objective": "Develop the ability to construct and solve simple equations, including equations involving algebraic fractions and problem situations.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "basic_linear_equation",
+      "name_en": "Basic linear equation",
+      "name_si": null,
+      "description_en": "Project instructional skill derived from the Simple Equations review on English PDF page 1; not a separate official numbered heading.",
+      "description_si": null,
+      "concept_type": "skill",
+      "status": "active",
+      "mapping": {"sequence_order": 3, "learning_objective": "Solve simple linear equations.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "variable_both_sides",
+      "name_en": "Variable on both sides",
+      "name_si": null,
+      "description_en": "Project instructional skill derived from review equations with the unknown on both sides, English PDF page 1; not an official numbered heading.",
+      "description_si": null,
+      "concept_type": "skill",
+      "status": "active",
+      "mapping": {"sequence_order": 4, "learning_objective": "Solve simple equations with the unknown on both sides.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "bracket_equation",
+      "name_en": "Equation involving brackets",
+      "name_si": null,
+      "description_en": "Project instructional skill derived from bracket equations in the review, English PDF page 1; not an official numbered heading.",
+      "description_si": null,
+      "concept_type": "skill",
+      "status": "active",
+      "mapping": {"sequence_order": 5, "learning_objective": "Solve equations involving brackets.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "fractional_equation",
+      "name_en": "Equation involving fractional terms",
+      "name_si": null,
+      "description_en": "Project instructional skill derived from review equations with numerical denominators, English PDF page 1; not an official numbered heading.",
+      "description_si": null,
+      "concept_type": "skill",
+      "status": "active",
+      "mapping": {"sequence_order": 6, "learning_objective": "Solve equations containing fractional terms with numerical denominators.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "algebraic_fraction_equation",
+      "name_en": "Equation involving algebraic fractions",
+      "name_si": null,
+      "description_en": "Project instructional skill derived from section 15.1 equations with an unknown in the denominator, English PDF pages 1–3; not an official numbered heading.",
+      "description_si": null,
+      "concept_type": "skill",
+      "status": "active",
+      "mapping": {"sequence_order": 7, "learning_objective": "Construct and solve simple equations with algebraic fractions.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "equation_word_problem",
+      "name_en": "Equation word problem",
+      "name_si": null,
+      "description_en": "Project instructional skill derived from the divisor and mango-sharing problems, English PDF pages 1–3; not an official numbered heading.",
+      "description_si": null,
+      "concept_type": "skill",
+      "status": "active",
+      "mapping": {"sequence_order": 8, "learning_objective": "Construct and solve simple equations from problem situations.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "simultaneous_equations",
+      "name_en": "Simultaneous Equations",
+      "name_si": "සමගාමී සමීකරණ",
+      "description_en": "Official section 15.2. Begins on PDF page 5 in both source documents.",
+      "description_si": null,
+      "concept_type": "subtopic",
+      "status": "active",
+      "mapping": {"sequence_order": 9, "learning_objective": "Construct and solve simultaneous equations.", "is_mandatory": true, "status": "active"}
+    },
+    {
+      "concept_id": "quadratic_equations",
+      "name_en": "Quadratic Equations",
+      "name_si": "වර්ගජ සමීකරණ",
+      "description_en": "Official section 15.3. Begins on English PDF page 8 and Sinhala PDF page 9. Develops factorization and zero-product reasoning, not the quadratic formula.",
+      "description_si": null,
+      "concept_type": "subtopic",
+      "status": "active",
+      "mapping": {"sequence_order": 10, "learning_objective": "Solve quadratic equations using factors.", "is_mandatory": true, "status": "active"}
+    }
+  ],
+  "documents": [
+    {
+      "record": {
+        "document_code": "SL_G10_MATH_LESSON_15",
+        "title": "Lesson 15 — Equations",
+        "language_code": "en",
+        "document_type": "lesson_pdf",
+        "file_path": "curriculum/grade10/mathematics/equations_en.pdf",
+        "publisher": null,
+        "publication_year": null,
+        "description": "Source: 15 Equations eng medium.pdf; 10 PDF pages, printed pages 150–159. SHA-256 f81fa7c7776ee0e640b20922dd1613994dd43ccd5225a81ae3e510f77f340f12. Image-based source: selected content manually checked against rendered pages; no OCR approval. Logical storage path reserved; binary not uploaded. Formal syllabus year/publisher not established by this excerpt.",
+        "status": "active"
+      },
+      "source": {"filename": "15 Equations eng medium.pdf", "sha256": "f81fa7c7776ee0e640b20922dd1613994dd43ccd5225a81ae3e510f77f340f12", "page_count": 10, "extraction": "image_based_manual_page_review"}
+    },
+    {
+      "record": {
+        "document_code": "SL_G10_MATH_LESSON_15",
+        "title": "15 — සමීකරණ",
+        "language_code": "si",
+        "document_type": "lesson_pdf",
+        "file_path": "curriculum/grade10/mathematics/equations_si.pdf",
+        "publisher": null,
+        "publication_year": null,
+        "description": "Source: 15 Equations sin medium.pdf; 10 PDF pages, printed pages 150–159. SHA-256 b47f3ffd6dd82a4dd34fcc198c0772536d675bd642941b1b0a7f2a4c4aaa6f41. Extracted text is legacy-encoded and excluded. Only headings and three short objective fragments were manually transcribed from rendered pages; full Sinhala content ingestion and teacher/Unicode review remain pending. Logical storage path reserved; binary not uploaded. Formal syllabus year/publisher not established by this excerpt.",
+        "status": "active"
+      },
+      "source": {"filename": "15 Equations sin medium.pdf", "sha256": "b47f3ffd6dd82a4dd34fcc198c0772536d675bd642941b1b0a7f2a4c4aaa6f41", "page_count": 10, "extraction": "legacy_text_excluded_manual_heading_and_objective_review"}
+    }
+  ],
+  "content": [
+    {"key": "simple-objective-en", "concept_id": "simple_equations", "language_code": "en", "content_type": "learning_objective", "title": "15.1 — Learning objective", "content": "Construct and solve simple equations with algebraic fractions.", "source_page_start": 1, "source_page_end": 1, "content_version": 1, "status": "draft"},
+    {"key": "simple-summary-en", "concept_id": "simple_equations", "language_code": "en", "content_type": "summary", "title": "15.1 — Scope summary", "content": "Review simple equations with brackets, variables on both sides and fractional terms. Extend this work to equations with an unknown in the denominator and to constructing equations from problem situations.", "source_page_start": 1, "source_page_end": 3, "content_version": 1, "status": "draft"},
+    {"key": "simple-explanation-en", "concept_id": "simple_equations", "language_code": "en", "content_type": "explanation", "title": "15.1 — Constructing the divisor equation", "content": "Represent the two divisors by x and 2x. Write their quotients as 12/x and 12/(2x), and express the given difference as an equation. Use equivalent fractions with a common denominator, then multiply both sides by that denominator to solve.", "source_page_start": 1, "source_page_end": 2, "content_version": 1, "status": "draft"},
+    {"key": "simple-example-en", "concept_id": "simple_equations", "language_code": "en", "content_type": "worked_example", "title": "15.1 — Two divisors of twelve (opening worked problem)", "content": "Twelve is divided by two numbers, one double the other; the quotients differ by 2. Let the numbers be x and 2x. Then 12/x - 12/(2x) = 2. Rewriting with denominator 2x gives 24/(2x) - 12/(2x) = 2, hence 12/(2x) = 2. Multiplying by 2x gives 12 = 4x, so x = 3. The two numbers are 3 and 6.", "source_page_start": 1, "source_page_end": 2, "content_version": 1, "status": "draft"},
+    {"key": "simultaneous-objective-en", "concept_id": "simultaneous_equations", "language_code": "en", "content_type": "learning_objective", "title": "15.2 — Learning objective", "content": "Construct and solve simultaneous equations.", "source_page_start": 1, "source_page_end": 1, "content_version": 1, "status": "draft"},
+    {"key": "simultaneous-summary-en", "concept_id": "simultaneous_equations", "language_code": "en", "content_type": "summary", "title": "15.2 — Elimination summary", "content": "Construct a pair of equations from the problem. When coefficients differ, multiply an equation to make the coefficients of one unknown equal. Subtract the equations to eliminate that unknown, then substitute the result into an original equation to find the other value.", "source_page_start": 5, "source_page_end": 5, "content_version": 1, "status": "draft"},
+    {"key": "quadratic-objective-en", "concept_id": "quadratic_equations", "language_code": "en", "content_type": "learning_objective", "title": "15.3 — Learning objective", "content": "Solve quadratic equations using factors.", "source_page_start": 1, "source_page_end": 1, "content_version": 1, "status": "draft"},
+    {"key": "quadratic-summary-en", "concept_id": "quadratic_equations", "language_code": "en", "content_type": "summary", "title": "15.3 — Factorization and zero-product summary", "content": "A quadratic equation has the form ax² + bx + c = 0, with a ≠ 0. Factorize the expression and use the fact that a zero product has at least one zero factor. Solve the resulting simple equations and check the roots in the original equation.", "source_page_start": 8, "source_page_end": 9, "content_version": 1, "status": "draft"},
+    {"key": "simple-objective-si", "concept_id": "simple_equations", "language_code": "si", "content_type": "learning_objective", "title": "15.1 — Source objective fragment (Sinhala)", "content": "වීජීය භාග සහිත ඒකජ සමීකරණ ගොඩ නැගීමට හා විසඳීමට", "source_page_start": 1, "source_page_end": 1, "content_version": 1, "status": "draft"},
+    {"key": "simultaneous-objective-si", "concept_id": "simultaneous_equations", "language_code": "si", "content_type": "learning_objective", "title": "15.2 — Source objective fragment (Sinhala)", "content": "සමගාමී සමීකරණ ගොඩ නැගීමට හා විසඳීමට", "source_page_start": 1, "source_page_end": 1, "content_version": 1, "status": "draft"},
+    {"key": "quadratic-objective-si", "concept_id": "quadratic_equations", "language_code": "si", "content_type": "learning_objective", "title": "15.3 — Source objective fragment (Sinhala)", "content": "වර්ගජ සමීකරණ සාධක භාවිතයෙන් විසඳීමට", "source_page_start": 1, "source_page_end": 1, "content_version": 1, "status": "draft"}
+  ]
+}

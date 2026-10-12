@@ -2,9 +2,19 @@
 
 ## What runs now
 
-The main frontend now opens an adaptive linear-equation workspace. It uses the
+Select **AI Tutor** in the frontend navigation to open the adaptive linear-equation
+workspace; the current working-tree default tab is Game. It uses the
 existing Louise master GLB, not any procedural IK script. The old static lesson
 endpoint and other component/database contracts remain intact.
+
+Status clarification, **2026-10-11**: Quiz and Game have their own UI/API/result
+persistence. The intended integration is for Tutor to retrieve their results and
+persist only its predictions. Current `service.py` still inserts missing result
+records in `/strategy`; that fallback is an unresolved ownership defect and can
+fail Game's parent-session FK. `/adaptive-lesson` remains read-only and consumes
+the supplied diagnostic payload. Automatic shared-cycle handoff and consumption
+of the newly seeded curriculum knowledge base are not implemented. See the
+[current project status](../STATUS_CHECKLIST.md).
 
 1. Open **Lesson settings** below the learning workspace.
 2. Import a JSON payload matching `POST /api/v1/tutor/strategy`, containing

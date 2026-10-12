@@ -13,6 +13,7 @@ from app.modules.curriculum.models import (  # noqa: F401
     CurriculumVersion,
     MathConcept,
 )
+from app.modules.game.content_models import GameActivity, GameActivityVariant  # noqa: F401
 from app.modules.game.models import (  # noqa: F401
     GameplayEvent,
     GameResult,

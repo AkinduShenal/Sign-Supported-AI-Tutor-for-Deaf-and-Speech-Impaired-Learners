@@ -1,19 +1,26 @@
 import Phaser from 'phaser'
 import type { LevelStep, OperationChoice } from '../../data/equationLevels'
 import type { EquationVariant } from '../../data/equationVariants'
-import { selectAssessmentVariants } from '../../data/variantSelection'
-import { GameSessionTracker } from '../../analytics/GameSessionTracker'
+import { equationBeforeStep, expectedOperationOf } from '../../data/variantAccess'
+import type { GameSessionTracker } from '../../analytics/GameSessionTracker'
 import { GameBackendSync } from '../../api/gameBackendSync'
 import { getVariantUsage } from '../../api/gameApi'
 import type { GameResultResponse } from '../../api/gameApi'
 import { getOrCreateStudentId } from '../../identity'
+import { GameSession } from '../../session/GameSession'
+import type { GameType } from '../../types'
 import { BalanceScale } from '../BalanceScale'
 import { MAX_STARS_PER_TASK, formatStars, starsForTask } from '../stars'
-import { GAME_TEXT, bilingualHint, difficultyText, inline, stacked } from '../gameText'
-
-// Every task in an assessment is one of the 18 Easy/Medium/Hard variants
-// (Milestone 3 Steps 10-13) under this same overall concept.
-const CONCEPT_ID = 'linear_equations'
+import {
+  FONT_FAMILY,
+  GAME_TEXT,
+  SINHALA_TEXT,
+  bilingualHint,
+  difficultyText,
+  inline,
+  stacked,
+} from '../gameText'
+import { designSize, fitCameraToDesign, isCompactScreen, prefersReducedMotion } from '../viewport'
 
 const COLORS = {
   text: '#1a1a1a',
@@ -22,11 +29,6 @@ const COLORS = {
   buttonBorderHover: 0xaa3bff,
   correctText: '#0a7a3d',
   incorrectText: '#b3261e',
-}
-
-const DESIGN = {
-  wide: { width: 800, height: 640 },
-  compact: { width: 420, height: 770 },
 }
 
 // Vertical positions for the two layouts (wide desktop / compact phone).
@@ -46,37 +48,16 @@ const LAYOUTS = {
   },
 }
 
-// Phaser's default text font is "Courier" if you don't set one — this
-// matches the rest of the site instead of looking like a typewriter.
-// Extra room for Sinhala glyphs (tall marks above and below the line).
-const SINHALA_TEXT = {
-  lineSpacing: 8,
-  padding: { top: 4, bottom: 4 },
-}
-
-// The Sinhala fonts come before the generic fallback so canvas text that
-// mixes English and Sinhala renders on Windows, Android and macOS.
-const FONT_FAMILY =
-  'system-ui, "Segoe UI", Roboto, "Nirmala UI", "Noto Sans Sinhala", "Iskoola Pota", "Sinhala MN", sans-serif'
-
-// Data carried through scene.restart() so a window-resize (or finishing the
-// session) can rebuild the scene without losing progress or analytics.
+// Data passed when this scene starts or restarts. From the Game Selection
+// screen only `gameType` is given, so a brand-new GameSession is created.
+// Resizes and the move to the summary pass the existing `session` back in,
+// so progress, analytics and the chosen tasks survive (the task list is
+// never re-rolled mid-assessment).
 interface SceneInitData {
-  tracker?: GameSessionTracker
-  backendSync?: GameBackendSync
-  studentId?: string
-  learningCycleId?: string
-  // The 6 Easy/Medium/Hard tasks chosen for this assessment (Milestone 3
-  // Steps 10-13). Only a genuine fresh start leaves this undefined — a
-  // resize or the move to the summary screen always carries it through, so
-  // the task list never gets re-rolled mid-assessment.
-  levels?: EquationVariant[]
-  levelIndex?: number
+  gameType?: GameType
+  session?: GameSession
   stepIndex?: number
   showSummary?: boolean
-  // Stars earned per finished task (index = task position). Local reward
-  // only — never sent to the backend.
-  stars?: number[]
 }
 
 // A Phaser "Scene" is one self-contained screen of the game: it has its own
@@ -85,13 +66,31 @@ interface SceneInitData {
 // level progression and analytics are plain data/logic layered on top of
 // the same rendering and drag-and-drop built for Milestone 1/1.5.
 export class EquationGameScene extends Phaser.Scene {
-  private tracker!: GameSessionTracker
-  private backendSync!: GameBackendSync
-  private studentId = ''
-  private learningCycleId = ''
-  private isFreshStart = false
+  // The assessment state shared by every game mode. These accessors keep
+  // the rest of this scene reading as before.
+  private session!: GameSession
+  private get tracker(): GameSessionTracker {
+    return this.session.tracker
+  }
+  private get backendSync(): GameBackendSync {
+    return this.session.backendSync
+  }
+  private get levels(): EquationVariant[] {
+    return this.session.levels
+  }
+  private set levels(value: EquationVariant[]) {
+    this.session.levels = value
+  }
+  private get currentLevelIndex(): number {
+    return this.session.levelIndex
+  }
+  private set currentLevelIndex(value: number) {
+    this.session.levelIndex = value
+  }
+  private get stars(): number[] {
+    return this.session.stars
+  }
   private hasAttemptedCurrentStep = false
-  private levels: EquationVariant[] = []
   // Bumped on every init() (every create() cycle, including a resize
   // restart). loadAssessmentVariants() captures this before its one await
   // and checks it again after — Phaser reuses this same scene instance
@@ -109,33 +108,22 @@ export class EquationGameScene extends Phaser.Scene {
   // catch this, since nothing calls init() again afterwards to bump it.
   private isDestroyed = false
   private loadingText: Phaser.GameObjects.Text | null = null
-  private currentLevelIndex = 0
   private currentStepIndex = 0
   private showSummary = false
   private isCompactLayout = false
   private reducedMotion = false
-  private stars: number[] = []
   private balanceScale!: BalanceScale
   private progressItems: Phaser.GameObjects.GameObject[] = []
   private rewardText!: Phaser.GameObjects.Text
 
-  // The layout is drawn in a fixed design space (800x600 wide, 420x760
-  // compact) and the camera zooms to fit whatever size the canvas is, so
-  // the whole game — including the Next button and stars — is always
-  // visible and grows on large screens.
+  // The layout is drawn in a fixed design space and the camera zooms to
+  // fit the canvas (see viewport.ts), so the whole game is always visible.
   private get viewWidth(): number {
-    return this.isCompactLayout ? DESIGN.compact.width : DESIGN.wide.width
+    return designSize(this.isCompactLayout).width
   }
 
   private get viewHeight(): number {
-    return this.isCompactLayout ? DESIGN.compact.height : DESIGN.wide.height
-  }
-
-  private fitCamera(): void {
-    const zoom = Math.min(this.scale.width / this.viewWidth, this.scale.height / this.viewHeight)
-    const camera = this.cameras.main
-    camera.setZoom(this.isCompactLayout ? Math.min(zoom, 1.3) : zoom)
-    camera.centerOn(this.viewWidth / 2, this.viewHeight / 2)
+    return designSize(this.isCompactLayout).height
   }
 
   private get layout() {
@@ -177,27 +165,24 @@ export class EquationGameScene extends Phaser.Scene {
   // instead of a fresh EquationGameScene starting from level 1 every time.
   init(data: SceneInitData): void {
     this.sceneGeneration += 1
-    this.tracker = data.tracker ?? new GameSessionTracker()
-    // A resize rebuild always passes backendSync through; only a genuine
-    // first load leaves it undefined, which is how we know not to start a
-    // second backend session or re-send GAME_STARTED on every resize.
-    this.isFreshStart = data.backendSync === undefined
-    this.backendSync = data.backendSync ?? new GameBackendSync()
-    this.studentId = data.studentId ?? getOrCreateStudentId()
-    this.learningCycleId = data.learningCycleId ?? crypto.randomUUID()
-    this.levels = data.levels ?? []
-    this.currentLevelIndex = data.levelIndex ?? 0
+    // Started from Game Selection: no session yet, so create a clean one
+    // (new identifiers, tracker and backend sync). A resize or the summary
+    // hand the existing one back.
+    this.session =
+      data.session ??
+      new GameSession({
+        gameType: data.gameType ?? 'drag_drop',
+        studentId: getOrCreateStudentId(),
+        backendSync: new GameBackendSync(),
+      })
     this.currentStepIndex = data.stepIndex ?? 0
     this.showSummary = data.showSummary ?? false
-    this.stars = data.stars ?? []
   }
 
   create(): void {
-    this.isCompactLayout = this.scale.width < 620
-    this.fitCamera()
-    this.reducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
+    this.isCompactLayout = isCompactScreen(this)
+    fitCameraToDesign(this, this.isCompactLayout)
+    this.reducedMotion = prefersReducedMotion()
 
     if (this.showSummary) {
       this.createSessionSummaryScreen()
@@ -212,19 +197,13 @@ export class EquationGameScene extends Phaser.Scene {
       // after boot, before that fetch resolves — more likely the slower
       // the environment starts up, e.g. a cold Docker container). Only
       // call startSession() on a genuine fresh start, so a mid-load resize
-      // can't create a second backend session. The display list was just
+      // can't create a second backend session (GameSession.start() only acts
+      // once, so calling it from every restart is safe). The display list was just
       // cleared by this restart, so always repaint the loading screen and
       // start a fresh load for *this* cycle — loadAssessmentVariants()
       // checks sceneGeneration before acting, so an earlier cycle's load
       // that resolves late is a safe no-op rather than a second render.
-      if (this.isFreshStart) {
-        this.backendSync.startSession({
-          studentId: this.studentId,
-          conceptId: CONCEPT_ID,
-          learningCycleId: this.learningCycleId,
-          assessmentPhase: 'pre_tutor',
-        })
-      }
+      this.session.start()
       this.createLoadingScreen()
       void this.loadAssessmentVariants()
     }
@@ -243,15 +222,9 @@ export class EquationGameScene extends Phaser.Scene {
 
   private handleResize(): void {
     this.scene.restart({
-      tracker: this.tracker,
-      backendSync: this.backendSync,
-      studentId: this.studentId,
-      learningCycleId: this.learningCycleId,
-      levels: this.levels,
-      levelIndex: this.currentLevelIndex,
+      session: this.session,
       stepIndex: this.currentStepIndex,
       showSummary: this.showSummary,
-      stars: this.stars,
     } satisfies SceneInitData)
   }
 
@@ -280,13 +253,9 @@ export class EquationGameScene extends Phaser.Scene {
   private async loadAssessmentVariants(): Promise<void> {
     const generation = this.sceneGeneration
 
-    let usageCounts: Record<string, number> = {}
-    try {
-      const usage = await getVariantUsage(this.studentId, CONCEPT_ID)
-      usageCounts = usage.usage_counts
-    } catch (error) {
-      console.warn('[game] failed to load variant usage, assuming none yet', error)
-    }
+    const selected = await this.session.selectVariants((studentId, conceptId) =>
+      getVariantUsage(studentId, conceptId).then((usage) => usage.usage_counts),
+    )
 
     // A restart (init() bumps sceneGeneration) may have superseded this
     // call while the request above was in flight. If so, a newer create()
@@ -299,7 +268,7 @@ export class EquationGameScene extends Phaser.Scene {
     // render into.
     if (generation !== this.sceneGeneration || this.isDestroyed) return
 
-    this.levels = selectAssessmentVariants(usageCounts)
+    this.levels = selected
     this.createGameplayScreen()
   }
 
@@ -826,7 +795,7 @@ export class EquationGameScene extends Phaser.Scene {
       this.currentLevel.variantId,
       this.currentLevel.concept,
       this.currentLevel.steps.map(
-        (step: LevelStep) => step.choices.find((choice) => choice.isCorrect)?.label ?? '',
+        (step: LevelStep) => expectedOperationOf(step),
       ),
     )
     this.tracker.beginStep()
@@ -836,10 +805,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.balanceScale.setTaskComplete(false)
     this.rewardText.setAlpha(0)
     this.updateProgressPath()
-    const equationBeforeThisStep =
-      this.currentStepIndex === 0
-        ? this.currentLevel.startingEquation
-        : this.currentLevel.steps[this.currentStepIndex - 1].resultText
+    const equationBeforeThisStep = equationBeforeStep(this.currentLevel, this.currentStepIndex)
     this.backendSync.sendEvent(this.currentLevel.variantId, 'QUESTION_SHOWN', {
       ...this.stepEvidence(),
       equation_shown: equationBeforeThisStep,
@@ -909,6 +875,7 @@ export class EquationGameScene extends Phaser.Scene {
       difficulty_level: this.currentLevel.difficulty,
       step_index: this.currentStepIndex,
       step_count: this.currentLevel.steps.length,
+      game_type: this.session.gameType,
     }
   }
 
@@ -1089,25 +1056,19 @@ export class EquationGameScene extends Phaser.Scene {
   // (Step 17) to have actually finished first — unlike every other
   // backend call in this scene, this one is deliberately awaited.
   private async finishSession(): Promise<void> {
-    this.tracker.completeSession()
-    const summary = this.tracker.getSummary()
+    const summary = await this.session.finish()
     // Still logged locally for development visibility — the backend now
     // also has the same session via gameplay_events/game_task_attempts.
     console.log('Game session summary:', summary)
 
-    this.backendSync.sendEvent(null, 'SESSION_ENDED')
-    await this.backendSync.completeSession()
+    // The scene may have been torn down (tab switch) while completion was
+    // in flight; there is nothing left to draw into.
+    if (this.isDestroyed) return
 
     this.scene.restart({
-      tracker: this.tracker,
-      backendSync: this.backendSync,
-      studentId: this.studentId,
-      learningCycleId: this.learningCycleId,
-      levels: this.levels,
-      levelIndex: this.currentLevelIndex,
+      session: this.session,
       stepIndex: this.currentStepIndex,
       showSummary: true,
-      stars: this.stars,
     } satisfies SceneInitData)
   }
 
@@ -1234,7 +1195,7 @@ export class EquationGameScene extends Phaser.Scene {
 
   private renderDetailsToggle(top: number, lines: string[]): void {
     const centerX = this.viewWidth / 2
-    const lineHeight = this.isCompactLayout ? 24 : 17
+    const lineHeight = this.isCompactLayout ? 21 : 17
     const detailsTexts = lines.map((line, index) =>
       this.add
         .text(centerX, top + 52 + index * lineHeight, line, {
@@ -1273,6 +1234,21 @@ export class EquationGameScene extends Phaser.Scene {
     })
   }
 
+  // Returns to the Game Selection screen. Nothing is carried over: the
+  // next game creates a new session.
+  private renderChooseAnotherButton(): void {
+    this.createButton(
+      this.viewWidth / 2,
+      this.viewHeight - 40,
+      this.isCompactLayout ? 300 : 280,
+      52,
+      GAME_TEXT.chooseAnother.en,
+      () => this.scene.start('GameSelectionScene'),
+      COLORS.buttonFill,
+      GAME_TEXT.chooseAnother.si,
+    )
+  }
+
   private renderResultSummary(result: GameResultResponse): void {
     const top = this.renderStarBoard(GAME_TEXT.assessmentComplete)
     this.renderDetailsToggle(top, [
@@ -1287,6 +1263,7 @@ export class EquationGameScene extends Phaser.Scene {
       `Hints Used: ${result.total_hint_count}`,
       `Active Time: ${formatActiveTime(result.game_active_time_sec)}`,
     ])
+    this.renderChooseAnotherButton()
   }
 
   private renderFallbackSummary(): void {
@@ -1300,6 +1277,7 @@ export class EquationGameScene extends Phaser.Scene {
       `Hints Used: ${summary.totalHintsUsed}`,
       `Total Time: ${totalTime}`,
     ])
+    this.renderChooseAnotherButton()
   }
 }
 

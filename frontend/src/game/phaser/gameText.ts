@@ -10,6 +10,18 @@
 // visible and nothing depends on finding a switch first. The analytics
 // detail lines and the per-step hint sentences are still English-only.
 
+// Extra room for Sinhala glyphs (tall marks above and below the line), and
+// never bold: synthetic bold smears the marks together.
+export const SINHALA_TEXT = {
+  lineSpacing: 8,
+  padding: { top: 4, bottom: 4 },
+}
+
+// The Sinhala fonts come before the generic fallback so canvas text that
+// mixes English and Sinhala renders on Windows, Android and macOS.
+export const FONT_FAMILY =
+  'system-ui, "Segoe UI", Roboto, "Nirmala UI", "Noto Sans Sinhala", "Iskoola Pota", "Sinhala MN", sans-serif'
+
 export interface Bilingual {
   en: string
   si: string
@@ -39,7 +51,40 @@ export const GAME_TEXT = {
   nextTutor: { en: 'Next: meet your Tutor!', si: 'ඊළඟට: ඔබේ ගුරුවරයා හමුවන්න!' },
   showDetails: { en: 'Show details ▾', si: 'විස්තර පෙන්වන්න' },
   hideDetails: { en: 'Hide details ▴', si: 'විස්තර සඟවන්න' },
+  chooseGame: { en: 'Choose Your Game', si: 'ඔබේ ක්‍රීඩාව තෝරන්න' },
+  play: { en: 'Play', si: 'ක්‍රීඩා කරන්න' },
+  comingNext: { en: 'Coming next', si: 'ඉක්මනින්' },
+  chooseAnother: { en: 'Choose Another Game', si: 'වෙනත් ක්‍රීඩාවක් තෝරන්න' },
 } satisfies Record<string, Bilingual>
+
+// Game Selection card text, keyed by GameType (draft Sinhala, same review
+// caveat as above).
+export const GAME_TYPE_TEXT: Record<
+  'drag_drop' | 'hangman' | 'mystery_reveal',
+  { name: Bilingual; description: Bilingual }
+> = {
+  drag_drop: {
+    name: { en: 'Drag & Drop', si: 'ඇදගෙන දමන්න' },
+    description: {
+      en: 'Move operations. Balance the equation.',
+      si: 'ක්‍රියා ගෙන යන්න. සමීකරණය තුලනය කරන්න.',
+    },
+  },
+  hangman: {
+    name: { en: 'Hangman', si: 'හෑන්ග්මන්' },
+    description: {
+      en: 'Solve the equation before the figure is complete.',
+      si: 'රූපය සම්පූර්ණ වීමට පෙර සමීකරණය විසඳන්න.',
+    },
+  },
+  mystery_reveal: {
+    name: { en: 'Mystery Reveal', si: 'රහස් හෙළිදරව්ව' },
+    description: {
+      en: 'Solve the steps. Uncover the mystery.',
+      si: 'පියවර විසඳන්න. රහස හෙළි කරන්න.',
+    },
+  },
+}
 
 type Difficulty = 'easy' | 'medium' | 'hard'
 
