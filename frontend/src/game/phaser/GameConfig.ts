@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { EquationGameScene } from './scenes/EquationGameScene'
 import { GameSelectionScene } from './scenes/GameSelectionScene'
+import { HangmanGameScene } from './scenes/HangmanGameScene'
 
 // These values are fallbacks while Phaser reads the real container size.
 const GAME_WIDTH = 800
@@ -21,6 +22,6 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     // The first scene listed starts automatically: the Game Selection screen.
-    scene: [GameSelectionScene, EquationGameScene],
+    scene: [GameSelectionScene, EquationGameScene, HangmanGameScene],
   }
 }

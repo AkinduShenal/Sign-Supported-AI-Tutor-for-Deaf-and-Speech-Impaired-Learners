@@ -1,5 +1,15 @@
 # Milestone 3 — Persistent Pre-Tutor Assessment Pipeline
 
+> **Historical implementation plan, status updated 2026-10-11.** The steps and
+> unchecked definition of done below are the original acceptance requirements,
+> not a statement that Game persistence is still missing. Sessions, events,
+> attempts, 2+2+2 selection and backend results now exist. Current progress and
+> remaining browser verification are tracked in
+> [the Game continuation guide](../../../GAME_MODAL_FILE_STRUCTURE.md) and
+> [project status](../../../STATUS_CHECKLIST.md). Milestone 4 curriculum Batches
+> 1–3 are complete, including the database Activity/Variant Bank. Phaser still
+> uses local variants; database content integration belongs to Batch 4.
+
 ## Final Goal
 
 Build one complete working flow:

@@ -19,7 +19,7 @@ export interface GameModeDefinition {
 
 export const GAME_MODES: readonly GameModeDefinition[] = [
   { type: 'drag_drop', sceneKey: 'EquationGameScene', available: true },
-  { type: 'hangman', sceneKey: null, available: false },
+  { type: 'hangman', sceneKey: 'HangmanGameScene', available: true },
   { type: 'mystery_reveal', sceneKey: null, available: false },
 ]
 
