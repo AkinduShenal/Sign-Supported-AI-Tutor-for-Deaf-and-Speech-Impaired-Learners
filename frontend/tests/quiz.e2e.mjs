@@ -120,7 +120,7 @@ try {
       if (path.endsWith('/complete') && method === 'POST') { calls.completions++; session.status = 'completed'; session.completed_at = new Date().toISOString(); return reply(session); }
       if (path.endsWith('/analyze') && method === 'POST') {
         calls.analyses++;
-        return reply({ quiz_session_id: session.quiz_session_id, questions_total: 10, questions_attempted: 10, correct_answers: 7, mastery_level: 'medium', weak_subconcept: 'two_step_equations', recommended_focus: 'Two-step Equations', recommended_support_level: 'medium', misconception_code: 'inverse_operation', diagnostic_evidence: { private: true } });
+        return reply({ quiz_session_id: session.quiz_session_id, questions_total: 10, questions_attempted: 10, correct_answers: 7, mastery_level: 'medium', weak_subconcept: 'two_step_equations', recommended_focus: 'Two-step Equations', recommended_support_level: 'medium', confidence_insight: { kind: 'high_incorrect', high_confidence_incorrect_count: 2, low_confidence_correct_count: 0 }, misconception_code: 'inverse_operation', confidence_pattern: 'high_confidence_incorrect', diagnostic_evidence: { question_evidence: [{ question_order: 1, response_time_sec: 19.3 }] } });
       }
       if (path.includes('/sessions/') && method === 'GET') return reply({ ...session, responses_saved: calls.responses.length });
       return reply({ detail: 'Unexpected request' }, 404);
@@ -184,15 +184,20 @@ try {
   await until("document.querySelector('#quiz-completed-title')?.textContent === 'Assessment Complete'")
   assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('7 / 10')"), true)
   assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('Developing')"), true)
+  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight h3')?.textContent"), 'Confidence Insight')
+  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight')?.textContent.includes('2 incorrect answers')"), true)
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Correct Answers'))?.querySelector('dd')?.textContent"), '7')
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Wrong Answers'))?.querySelector('dd')?.textContent"), '3')
   await click('.quiz-language button:nth-child(2)')
   assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'ඇගයීම සම්පූර්ණයි')
-  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('නිවැරදි පිළිතුරු'))?.querySelector('dd')?.textContent"), '7')
-  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('වැරදි පිළිතුරු'))?.querySelector('dd')?.textContent"), '3')
+  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight h3')?.textContent"), 'විශ්වාස මට්ටම පිළිබඳ සාරාංශය')
+  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight')?.textContent.includes('වැරදි පිළිතුරු 2කට')"), true)
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.trim() === 'නිවැරදි පිළිතුරු')?.querySelector('dd')?.textContent"), '7')
+  assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.trim() === 'වැරදි පිළිතුරු')?.querySelector('dd')?.textContent"), '3')
   await click('.quiz-language button:nth-child(1)')
   assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'Assessment Complete')
   await click('.quiz-language button:nth-child(3)')
+  assert.equal(await evaluate("document.querySelectorAll('.quiz-confidence-insight p[lang=si]').length"), 2)
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Correct Answers'))?.querySelector('dt small')?.textContent"), 'නිවැරදි පිළිතුරු')
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Wrong Answers'))?.querySelector('dt small')?.textContent"), 'වැරදි පිළිතුරු')
   const calls = JSON.parse(await evaluate('JSON.stringify(window.__quizMock)'))
@@ -202,7 +207,9 @@ try {
   assert.deepEqual(calls.responses.map(answer => answer.question_order), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
   assert.equal(calls.responses.every(answer => Number.isFinite(answer.response_time_sec) && answer.response_time_sec >= 0), true)
   assert.equal(calls.responses.every(answer => answer.question_id && answer.selected_option_id && answer.confidence_level), true)
-  assert.equal(await evaluate("/\\b(misconception|inverse_operation|diagnostic_evidence|pass|fail|hint)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
+  assert.equal(await evaluate("document.querySelector('.quiz-page').textContent.includes('Question 1 of 10')"), false)
+  assert.equal(await evaluate("document.querySelector('.quiz-page').textContent.includes('Solve x + 5 = 12')"), false)
+  assert.equal(await evaluate("/\\b(misconception|inverse_operation|high_confidence_incorrect|diagnostic_evidence|19\\.3|pass|fail|hint)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
   console.log('Quiz browser flow PASS: 10 questions, 10 saved requests, one completion, bilingual display, validation, and no feedback.')
 } finally {
   socket?.close()

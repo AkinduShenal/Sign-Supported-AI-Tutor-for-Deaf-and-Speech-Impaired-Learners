@@ -1,4 +1,4 @@
-import { presentResult } from './resultPresentation'
+import { presentConfidenceInsight, presentResult } from './resultPresentation'
 import type { QuizDiagnosticResult as Diagnostic, QuizLanguage } from './types'
 
 export function QuizDiagnosticResult({ result, language }: { result: Diagnostic; language: QuizLanguage }) {
@@ -19,6 +19,12 @@ export function QuizDiagnosticResult({ result, language }: { result: Diagnostic;
         <div><dt>{showEnglish ? 'Recommended Focus' : 'නිර්දේශිත අවධානය'}{language === 'bilingual' && <small lang="si">නිර්දේශිත අවධානය</small>}</dt><dd>{values.focus}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').focus}</small>}</dd></div>
         <div><dt>{showEnglish ? 'Recommended Support' : 'නිර්දේශිත සහාය'}{language === 'bilingual' && <small lang="si">නිර්දේශිත සහාය</small>}</dt><dd>{values.support}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').support}</small>}</dd></div>
       </dl>
+      <div className="quiz-confidence-insight">
+        <h3>{showEnglish ? 'Confidence Insight' : 'විශ්වාස මට්ටම පිළිබඳ සාරාංශය'}</h3>
+        {language === 'bilingual' && <p lang="si" className="quiz-confidence-heading-si">විශ්වාස මට්ටම පිළිබඳ සාරාංශය</p>}
+        {showEnglish && <p lang="en">{presentConfidenceInsight(result, 'en')}</p>}
+        {language !== 'en' && <p lang="si">{presentConfidenceInsight(result, 'si')}</p>}
+      </div>
     </section>
   )
 }

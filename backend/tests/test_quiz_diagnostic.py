@@ -1,4 +1,5 @@
 from collections import Counter
+from dataclasses import replace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -28,6 +29,8 @@ from scripts.seed_quiz_phase2 import load_bank, seed_bank
 def sample_responses(wrong_orders=(), error_code="inverse_operation"):
     return [
         ResponseEvidence(
+            question_id=f"00000000-0000-4000-8000-{order:012d}",
+            question_order=order,
             subconcept_code="two_step_equations" if order <= 4 else f"group_{order}",
             difficulty_level="easy"
             if order <= 4
@@ -99,6 +102,92 @@ def test_mapping_threshold_and_supported_weak_area():
         calculate_diagnostic(rows[:9], {})
 
 
+def test_confidence_states_time_evidence_and_no_time_mastery_penalty():
+    rows = sample_responses((4, 5, 6))
+    rows[0] = replace(rows[0], confidence_level="high")
+    rows[1] = replace(rows[1], confidence_level="low")
+    rows[2] = replace(rows[2], confidence_level="medium")
+    rows[3] = replace(rows[3], confidence_level="low")
+    rows[4] = replace(rows[4], confidence_level="high")
+    rows[5] = replace(rows[5], confidence_level="medium")
+    result = calculate_diagnostic(
+        rows, {"inverse_operation": MappingEvidence(4, False)}
+    )
+    evidence = result.diagnostic_evidence
+    assert evidence["confidence_correctness"] == {
+        "high_correct": 1,
+        "high_incorrect": 1,
+        "medium_correct": 5,
+        "medium_incorrect": 1,
+        "low_correct": 1,
+        "low_incorrect": 1,
+    }
+    assert [
+        item["confidence_correctness_state"]
+        for item in evidence["question_evidence"][:6]
+    ] == [
+        "secure_understanding",
+        "fragile_understanding",
+        "medium_confidence_correct",
+        "knowledge_gap_signal",
+        "possible_misconception_signal",
+        "medium_confidence_incorrect",
+    ]
+    assert evidence["question_evidence"][0]["question_id"] == rows[0].question_id
+    assert evidence["question_evidence"][0]["response_time_sec"] == 1.0
+    assert evidence["question_evidence"][0]["misconception_code"] is None
+    assert evidence["question_evidence"][4]["misconception_code"] == "inverse_operation"
+    assert evidence["response_time_summary"]["overall_average_sec"] == 5.5
+    assert evidence["response_time_summary"]["minimum_response_time_sec"] == 1.0
+    assert evidence["response_time_summary"]["maximum_response_time_sec"] == 10.0
+    assert (
+        evidence["response_time_summary"]["by_subconcept"]["two_step_equations"] == 2.5
+    )
+    assert result.confidence_pattern == "mixed_inconsistent"
+    assert result.misconception_code == "none"
+    assert (
+        calculate_diagnostic(
+            [
+                replace(row, response_time_sec=row.response_time_sec * 100)
+                for row in rows
+            ],
+            {"inverse_operation": MappingEvidence(4, False)},
+        ).quiz_mastery_score
+        == result.quiz_mastery_score
+    )
+
+
+def test_confidence_insight_uses_significant_counts_without_changing_misconception_rule():
+    rows = sample_responses((1, 2))
+    high_wrong = calculate_diagnostic(
+        rows, {"inverse_operation": MappingEvidence(3, False)}
+    )
+    assert high_wrong.confidence_pattern == "high_confidence_incorrect"
+    assert (
+        high_wrong.diagnostic_evidence["confidence_insight"]["kind"] == "high_incorrect"
+    )
+    assert high_wrong.misconception_code == "none"
+    assert (
+        calculate_diagnostic(
+            rows, {"inverse_operation": MappingEvidence(2, False)}
+        ).misconception_code
+        == "inverse_operation"
+    )
+    low_right_rows = [
+        replace(row, confidence_level="low") if row.question_order in (3, 4) else row
+        for row in sample_responses()
+    ]
+    low_right = calculate_diagnostic(low_right_rows, {})
+    assert low_right.confidence_pattern == "low_confidence_correct"
+    assert low_right.diagnostic_evidence["confidence_insight"]["kind"] == "low_correct"
+    assert (
+        calculate_diagnostic(sample_responses(), {}).diagnostic_evidence[
+            "confidence_insight"
+        ]["kind"]
+        == "neutral"
+    )
+
+
 def test_completed_session_analyzes_once_and_incomplete_or_empty_rejected():
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
@@ -164,6 +253,16 @@ def test_completed_session_analyzes_once_and_incomplete_or_empty_rejected():
         first = client.post(f"{base}/{session_id}/analyze")
         assert first.status_code == 200, first.text
         result = first.json()
+        assert result["confidence_insight"]["kind"] == "neutral"
+        assert len(result["diagnostic_evidence"]["question_evidence"]) == 10
+        assert (
+            result["diagnostic_evidence"]["question_evidence"][0]["question_id"]
+            == questions[0]["id"]
+        )
+        assert (
+            result["diagnostic_evidence"]["question_evidence"][0]["response_time_sec"]
+            == 1.0
+        )
         with factory() as database:
             responses = database.scalars(
                 select(QuizResponse).where(QuizResponse.quiz_session_id == session_id)
@@ -186,6 +285,24 @@ def test_completed_session_analyzes_once_and_incomplete_or_empty_rejected():
             )
         assert client.get(f"{base}/{session_id}/result").json() == result
         assert client.post(f"{base}/{session_id}/analyze").json() == result
+        with factory() as database:
+            saved = database.scalar(
+                select(QuizResult).where(QuizResult.quiz_session_id == session_id)
+            )
+            old_evidence = dict(saved.diagnostic_evidence)
+            for key in (
+                "confidence_correctness",
+                "question_evidence",
+                "confidence_insight",
+            ):
+                old_evidence.pop(key)
+            old_evidence["legacy_marker"] = True
+            saved.diagnostic_evidence = old_evidence
+            database.commit()
+        enriched = client.post(f"{base}/{session_id}/analyze").json()
+        assert enriched["diagnostic_evidence"]["legacy_marker"] is True
+        assert len(enriched["diagnostic_evidence"]["question_evidence"]) == 10
+        assert client.get(f"{base}/{session_id}/result").json() == enriched
         with factory() as database:
             assert (
                 database.scalar(

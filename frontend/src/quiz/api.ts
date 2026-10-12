@@ -52,6 +52,17 @@ export function completeQuizSession(sessionId: string): Promise<QuizSession> {
   return quizRequest<QuizSession>(`sessions/${encodeURIComponent(sessionId)}/complete`, {})
 }
 
-export function analyzeQuizSession(sessionId: string): Promise<QuizDiagnosticResult> {
-  return quizRequest<QuizDiagnosticResult>(`sessions/${encodeURIComponent(sessionId)}/analyze`, {})
+export async function analyzeQuizSession(sessionId: string): Promise<QuizDiagnosticResult> {
+  const result = await quizRequest<QuizDiagnosticResult>(`sessions/${encodeURIComponent(sessionId)}/analyze`, {})
+  return {
+    quiz_session_id: result.quiz_session_id,
+    questions_total: result.questions_total,
+    questions_attempted: result.questions_attempted,
+    correct_answers: result.correct_answers,
+    mastery_level: result.mastery_level,
+    weak_subconcept: result.weak_subconcept,
+    recommended_focus: result.recommended_focus,
+    recommended_support_level: result.recommended_support_level,
+    confidence_insight: result.confidence_insight,
+  }
 }

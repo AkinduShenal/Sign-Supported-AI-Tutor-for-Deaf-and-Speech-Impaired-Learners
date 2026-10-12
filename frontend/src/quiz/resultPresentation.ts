@@ -49,3 +49,19 @@ export function presentResult(result: QuizDiagnosticResult, language: QuizLangua
     support: pick(support[result.recommended_support_level]),
   }
 }
+
+export function presentConfidenceInsight(result: QuizDiagnosticResult, language: QuizLanguage): string {
+  const { kind, high_confidence_incorrect_count: highWrong, low_confidence_correct_count: lowRight } = result.confidence_insight
+  const highMessage = language === 'si'
+    ? `වැරදි පිළිතුරු ${highWrong}කට ඔබ ඉතා විශ්වාසයෙන් පිළිතුරු දී ඇත. මෙම ප්‍රදේශය තවදුරටත් පුහුණු කිරීම සුදුසුය.`
+    : `You were very confident on ${highWrong} incorrect ${highWrong === 1 ? 'answer' : 'answers'}. More practice may help you review this area.`
+  const lowMessage = language === 'si'
+    ? `ඔබ ප්‍රශ්න ${lowRight}කට නිවැරදිව පිළිතුරු දුන්නද විශ්වාසය අඩු විය. තවත් පුහුණුව ඔබේ විශ්වාසය ශක්තිමත් කිරීමට උපකාරී වේ.`
+    : `You answered ${lowRight} ${lowRight === 1 ? 'question' : 'questions'} correctly but with low confidence. More practice may help strengthen your confidence.`
+  if (kind === 'mixed') return `${highMessage} ${lowMessage}`
+  if (kind === 'high_incorrect') return highMessage
+  if (kind === 'low_correct') return lowMessage
+  return language === 'si'
+    ? 'ඔබේ පිළිතුරු සහ විශ්වාස මට්ටම පිළිබඳ සාරාංශය සකස් කර ඇත. දිගටම පුහුණු වන්න.'
+    : 'Your answers and confidence levels have been reviewed. Keep practicing.'
+}
