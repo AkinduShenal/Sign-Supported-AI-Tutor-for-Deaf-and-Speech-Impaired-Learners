@@ -13,7 +13,6 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.modules.tutor.content_schemas import (
-    AvatarTeachingSegment,
     LessonStep,
     PracticeFeedback,
     PracticeQuestion,
@@ -25,11 +24,12 @@ from app.modules.tutor.content_schemas import (
 from app.modules.tutor.schemas import TutorStrategyRequest, TutoringStrategy
 from app.modules.tutor.sign_planner import MathSignPlanner
 from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
-from app.modules.tutor.teaching_explanations import STRATEGY_DEMO_ACTIONS, STRATEGY_OPENINGS, explain_step, segments_from_lines
+from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_hint, explain_step, segments_from_lines
+from app.modules.tutor.knowledge import lesson_notes
 
 Level = Literal["foundation", "one_step", "two_step", "extended"]
 LEVELS: tuple[Level, ...] = ("foundation", "one_step", "two_step", "extended")
-CONTENT_VERSION = "grade10-linear-v4-teaching-demo-clips-draft"
+CONTENT_VERSION = "grade10-linear-v5-small-explanation-cues-draft"
 SUPPORTED_CONCEPTS = {"linear_equations", "linear_equation_balancing"}
 PLANNER = MathSignPlanner()
 
@@ -45,7 +45,7 @@ class PlanMetadata(BaseModel):
     misconception_support: str
     preferred_mode: str = "mixed"
     sign_support_required: bool = True
-    avatar_playback_speed: float = Field(default=0.75, ge=0.5, le=1)
+    avatar_playback_speed: float = Field(default=1.0, ge=0.5, le=1)
     content_review_status: str = "teacher_review_required"
     reassessment_note: str = "Return practice evidence to Quiz/Game for reassessment; this is not a new mastery diagnosis."
 
@@ -276,38 +276,24 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     examples = _examples(level)
     questions = _practice(level)
     simple = _text(STRATEGY_EXPLANATIONS[metadata.primary_strategy])
+    simple.knowledge_notes = lesson_notes(simple.text, level, metadata.primary_strategy.value)
     simple.avatar_segments = segments_from_lines(
         STRATEGY_OPENINGS[metadata.primary_strategy], _actions
     )
-    simple.avatar_segments[1].sign_actions = [STRATEGY_DEMO_ACTIONS[metadata.primary_strategy]]
     simple.sign_actions = [action for segment in simple.avatar_segments for action in segment.sign_actions]
-    metadata.avatar_playback_speed = {
-        TutoringStrategy.STEP_BY_STEP: 0.5,
-        TutoringStrategy.CONCEPTUAL_EXPLANATION: 0.75,
-        TutoringStrategy.WORKED_EXAMPLE_BASED: 0.75,
-        TutoringStrategy.PROGRESSIVE_HINTS: 0.75,
-        TutoringStrategy.ADVANCED_CHALLENGE: 1.0,
-    }[metadata.primary_strategy]
+    metadata.avatar_playback_speed = 1.0
     for worked in examples + [question.worked_solution for question in questions]:
         for step in worked.steps:
+            step.knowledge_notes = lesson_notes(step.instruction, level, metadata.primary_strategy.value)
             step.avatar_segments = explain_step(step, metadata.primary_strategy, _actions)
             step.sign_actions = [action for segment in step.avatar_segments for action in segment.sign_actions]
     for question in questions:
         for index, hint in enumerate(question.progressive_hints):
             # Keep hint stages separate: never include later hints or a solution
-            # in the earlier cue. The equation remains the unsolved question.
-            hint.avatar_segments = [AvatarTeachingSegment(
-                text=hint.text, expression=question.worked_solution.problem,
-                sign_actions=list(hint.sign_actions),
-            )]
-            followup = [
-                ("Identify the variable and the goal before asking for the next hint.", "ඊළඟ ඉඟිය බැලීමට පෙර විචල්‍යය සහ අරමුණ හඳුනාගන්න."),
-                ("Apply this operation to both sides, simplify, and try the question again.", "මේ ගණිත ක්‍රියාව දෙපසටම සිදු කර, සරල කර, ප්‍රශ්නයට නැවත උත්සාහ කරන්න."),
-                ("Use this clue to finish solving. Check your answer by substitution in the original equation.", "විසඳීම අවසන් කිරීමට මේ ඉඟිය භාවිත කරන්න. මුල් සමීකරණයට පිළිතුර ආදේශ කර පරීක්ෂා කරන්න."),
-            ][index]
-            hint.avatar_segments.extend(segments_from_lines(
-                [followup], _actions, question.worked_solution.problem
-            ))
+            # in an earlier cue. Only hint three introduces its collected line.
+            hint.avatar_segments = explain_hint(
+                hint.text, index, question.worked_solution.problem, _actions
+            )
             hint.sign_actions = [action for segment in hint.avatar_segments for action in segment.sign_actions]
         question.hint.avatar_segments = list(question.progressive_hints[1].avatar_segments)
         question.hint.sign_actions = list(question.progressive_hints[1].sign_actions)

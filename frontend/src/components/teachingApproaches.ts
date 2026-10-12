@@ -7,7 +7,6 @@ interface TeachingApproach {
   guidanceSi: string
   practice: string
   practiceSi: string
-  practiceFirst: boolean
 }
 
 export const TEACHING_APPROACHES: Record<TeachingStrategy, TeachingApproach> = {
@@ -18,7 +17,6 @@ export const TEACHING_APPROACHES: Record<TeachingStrategy, TeachingApproach> = {
     guidanceSi: 'එක් පියවරක් කියවා සමීකරණය වෙනස් වන ආකාරය බලන්න. ඉන්පසු ඉදිරියට යන්න. ගණිත ක්‍රියාවක් සිදු කරන පියවරකදී වෙනස් කළ යුතු පැති හඳුනාගන්න.',
     practice: 'Use the same small steps from the example. Apply an operation, simplify, and check before moving on.',
     practiceSi: 'උදාහරණයේ කුඩා පියවරම භාවිත කරන්න. ගණිත ක්‍රියාව සිදු කර, සරල කර, ඉදිරියට යාමට පෙර පරීක්ෂා කරන්න.',
-    practiceFirst: false,
   },
   conceptual_explanation: {
     title: 'Understand the concept',
@@ -27,7 +25,6 @@ export const TEACHING_APPROACHES: Record<TeachingStrategy, TeachingApproach> = {
     guidanceSi: 'මේ පියවරෙන් සමානතාව රැකෙන්නේ ඇයි? දෙපස එකම අගය නියෝජනය කරන නිසා සමබරතාව රැකීමට දෙපසටම එකම ගණිත ක්‍රියාව සිදු කරන්න.',
     practice: 'Before calculating, explain why your chosen operation keeps both sides equal. Then solve and check.',
     practiceSi: 'ගණනය කිරීමට පෙර, තෝරාගත් ගණිත ක්‍රියාවෙන් දෙපස සමානව පවතින්නේ ඇයි කියා පැහැදිලි කරන්න. ඉන්පසු විසඳා පරීක්ෂා කරන්න.',
-    practiceFirst: false,
   },
   worked_example_based: {
     title: 'Learn with an example',
@@ -36,7 +33,6 @@ export const TEACHING_APPROACHES: Record<TeachingStrategy, TeachingApproach> = {
     guidanceSi: 'එක් එක් සමීකරණය පෙර පියවර සමඟ සසඳන්න. භාවිත කළ ගණිත ක්‍රියාව හඳුනාගෙන, සමාන ප්‍රශ්නයකට උත්සාහ කිරීමට පෙර සම්පූර්ණ විසඳුම අධ්‍යයනය කරන්න.',
     practice: 'Compare this question with the worked example. The numbers may differ, but you can use the same solving method.',
     practiceSi: 'මේ ප්‍රශ්නය විසඳන ලද උදාහරණය සමඟ සසඳන්න. සංඛ්‍යා වෙනස් වුවත් එකම විසඳීමේ ක්‍රමය භාවිත කළ හැකියි.',
-    practiceFirst: false,
   },
   progressive_hints: {
     title: 'Try with gradual hints',
@@ -45,7 +41,6 @@ export const TEACHING_APPROACHES: Record<TeachingStrategy, TeachingApproach> = {
     guidanceSi: 'අවශ්‍ය විට මේ උදාහරණය බලන්න. පුහුණු ප්‍රශ්නයෙන් පටන්ගෙන ඔබට අවශ්‍ය ප්‍රමාණයට පමණක් ඉඟි බලන්න.',
     practice: 'Try first. Reveal one hint, try again, then ask for the next hint. After all three hints, you can open this question’s worked solution.',
     practiceSi: 'මුලින් උත්සාහ කරන්න. එක් ඉඟියක් බලා නැවත උත්සාහ කර, අවශ්‍ය නම් ඊළඟ ඉඟිය බලන්න. ඉඟි තුනම බැලූ පසු මේ ප්‍රශ්නයේ පියවර සහිත විසඳුම විවෘත කළ හැකියි.',
-    practiceFirst: true,
   },
   advanced_challenge: {
     title: 'Independent challenge',
@@ -54,6 +49,5 @@ export const TEACHING_APPROACHES: Record<TeachingStrategy, TeachingApproach> = {
     guidanceSi: 'ඔබේ උත්සාහයෙන් පසු ක්‍රම සසඳන්න මේ උදාහරණය භාවිත කරන්න. එක් එක් වෙනස්කිරීම පැහැදිලි කර අවසාන පිළිතුර පරීක්ෂා කරන්න.',
     practice: 'Choose your own method and solve independently. Explain your reasoning and substitute the answer into the original equation to verify it.',
     practiceSi: 'ඔබේම ක්‍රමයක් තෝරාගෙන තනිව විසඳන්න. ඔබේ හේතුව පැහැදිලි කර, මුල් සමීකරණයට පිළිතුර ආදේශ කර පරීක්ෂා කරන්න.',
-    practiceFirst: true,
   },
 }

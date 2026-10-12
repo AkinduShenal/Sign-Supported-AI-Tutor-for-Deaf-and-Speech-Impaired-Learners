@@ -32,7 +32,12 @@ def test_canonical_master_and_validation_policy(rig):
     expansion = rig.doc["extras"]["teaching_prototype_expansion"]
     assert expansion["existing_actions_preserved"] == 56
     assert expansion["teaching_actions_added"] == 15
-    assert len(rig.tracks) == 71
+    cues = rig.doc["extras"]["explanation_cue_expansion"]
+    assert cues["existing_actions_preserved"] == 71
+    assert cues["cue_actions_added"] == 12
+    assert cues["language_validation"] == "none"
+    assert cues["review_required"] is True
+    assert len(rig.tracks) == 83
     assert rig.doc["extras"]["composite_prototype_expansion"] == {
         "language_validation": "none",
         "review_required": True,

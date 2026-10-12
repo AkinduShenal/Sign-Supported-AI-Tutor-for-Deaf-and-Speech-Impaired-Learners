@@ -43,12 +43,19 @@ The main page contains the Grade 10 adaptive linear-equation workspace. Open
 import Quiz/Game diagnostic JSON. See [the implementation and research guide](docs/GRADE10_TUTOR.md)
 for API integration, tests, model status and remaining validation requirements.
 
+Each worked-example step now has **Ask about this step** and related bilingual
+lesson notes. Local retrieval works without an API key. Optional OpenAI generation
+can be enabled on the backend; provider failure falls back to the retrieved
+notes. See [tutor retrieval setup](docs/TUTOR_RAG.md) for configuration and limits.
+
 ## Avatar research status
 
-The master GLB contains 71 prototype educational gesture actions: 22 repaired
-core actions, 34 earlier review-only composites and 15 longer teaching demos.
-The new demos preserve the previous 56 actions and reuse their unchanged poses;
-builder preservation checks passed, with visual/signing review still pending. They are not
+The master GLB contains 83 prototype educational gesture actions: 22 repaired
+core actions, 34 earlier composites, 15 teaching demos and 12 short explanation
+cues. The latest expansion preserves all 71 previous actions and reuses their
+unchanged poses; builder preservation checks passed, with visual/signing review
+still pending. See [short explanation cues](avatar-sign-package/docs/EXPLANATION_CUES.md).
+They are not
 validated Sri Lankan Sign Language. Missing or unavailable actions fall back to
 written and visual mathematics support rather than being fabricated at runtime.
 

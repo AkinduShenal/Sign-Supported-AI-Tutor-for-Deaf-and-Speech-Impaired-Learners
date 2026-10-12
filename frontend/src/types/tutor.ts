@@ -24,6 +24,7 @@ export interface SignSupportedText {
   text: string
   sign_actions: string[]
   avatar_segments?: AvatarTeachingSegment[]
+  knowledge_notes?: KnowledgeSource[]
 }
 
 export interface LessonStep {
@@ -32,6 +33,7 @@ export interface LessonStep {
   expression: string
   sign_actions: string[]
   avatar_segments?: AvatarTeachingSegment[]
+  knowledge_notes?: KnowledgeSource[]
 }
 
 export interface WorkedExample {
@@ -63,6 +65,29 @@ export interface TutorLesson {
 
 export type LearningLevel = 'foundation' | 'one_step' | 'two_step' | 'extended'
 export type TeachingStrategy = 'step_by_step' | 'worked_example_based' | 'conceptual_explanation' | 'progressive_hints' | 'advanced_challenge'
+
+export interface KnowledgeSource {
+  id: string
+  title_en: string
+  title_si: string
+  text_en: string
+  text_si: string
+  source_ref: string
+  review_status: string
+  sign_actions: string[]
+  avatar_parts?: AvatarTeachingSegment[]
+  score: number
+}
+
+export interface TutorQuestionAnswer {
+  supported: boolean
+  mode: 'extractive' | 'openai' | 'fallback' | 'no_context' | 'disabled' | 'unavailable'
+  knowledge_version: string
+  review_status: string
+  paragraphs: { text_en: string; text_si: string; source_ids: string[] }[]
+  sources: KnowledgeSource[]
+  avatar_segments: AvatarTeachingSegment[]
+}
 export interface AdaptiveLesson extends TutorLesson {
   plan: {
     level: LearningLevel

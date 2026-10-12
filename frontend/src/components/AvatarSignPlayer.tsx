@@ -5,7 +5,7 @@ import { SinhalaText } from './SinhalaText'
 import type { AvatarTeachingSegment } from '../types/tutor'
 
 const MASTER_AVATAR_URL =
-  '/models/louise_signs_master.glb?v=teaching-expansion-v4'
+  '/models/louise_signs_master.glb?v=explanation-cues-v5'
 const BETWEEN_CLIP_DELAY_MS = 120
 const EMPTY_SIGNS: string[] = []
 const EMPTY_SEGMENTS: AvatarTeachingSegment[] = []
@@ -46,7 +46,7 @@ export function AvatarSignPlayer({
   teachingSegments = EMPTY_SEGMENTS,
   teachingKey = '',
   teachingApproach,
-  initialPlaybackSpeed = 0.75,
+  initialPlaybackSpeed = 1,
 }: AvatarSignPlayerProps) {
   // Derive part zero immediately when the lesson/step/hint changes, so an old
   // caption or solution cannot leak into the new context for a render.

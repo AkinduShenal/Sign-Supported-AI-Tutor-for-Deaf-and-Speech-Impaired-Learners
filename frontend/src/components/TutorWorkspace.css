@@ -77,7 +77,7 @@ body:has(.student-workspace) {
 .student-workspace .practice-solution p { margin: 6px 0; }
 .student-workspace .solution-equation { padding: 10px; margin-top: 10px; border-radius: 8px; background: var(--primary-soft); overflow-wrap: anywhere; font-size: 20px; }
 .student-workspace .step-explanation { margin: 18px 0; padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: #fafaff; }
-.student-workspace .step-explanation h3 { margin: 0 0 12px; font-size: 16px; color: var(--primary-dark); }
+.student-workspace .step-explanation > summary { min-height: 0; padding: 0; font-size: 16px; font-weight: 600; color: var(--primary-dark); }
 .student-workspace .step-explanation > div + div { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .student-workspace .step-explanation p { margin: 6px 0; font-size: 15px; }
 .student-workspace .avatar-teaching { margin: 16px 0; padding: 16px; border: 1px solid var(--border-strong); border-radius: 14px; background: #fafaff; }
@@ -87,6 +87,25 @@ body:has(.student-workspace) {
 .student-workspace .avatar-teaching .avatar-expression { margin: 12px 0; overflow-wrap: anywhere; }
 .student-workspace .avatar-part-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .student-workspace .avatar-part-controls button { flex: 1; padding: 8px 10px; font-size: 12px; }
+.student-workspace .lesson-knowledge-notes { margin: 18px 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; }
+.student-workspace .lesson-knowledge-notes p { font-size: 15px; }
+.student-workspace .tutor-question { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+.student-workspace .tutor-question h3 { font-size: 17px; color: var(--primary-dark); }
+.student-workspace .tutor-question > p { font-size: 14px; }
+.student-workspace .question-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.student-workspace .question-suggestions button { flex: 1 1 170px; text-align: left; font-size: 12px; }
+.student-workspace .question-suggestions span { display: block; }
+.student-workspace .question-suggestions [lang='si'] { margin-top: 6px; color: var(--text-muted); }
+.student-workspace .tutor-question form { display: grid; gap: 12px; }
+.student-workspace .tutor-question textarea { box-sizing: border-box; width: 100%; min-width: 0; resize: vertical; padding: 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: #fafaff; color: var(--text-main); font: inherit; line-height: 1.7; }
+.student-workspace .tutor-question textarea:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.student-workspace .tutor-question-answer { margin-top: 20px; padding: 16px; border-radius: 12px; background: var(--cyan-soft); overflow-wrap: anywhere; }
+.student-workspace .answer-paragraph { margin-top: 16px; }
+.student-workspace .answer-paragraph p { margin: 8px 0; font-size: 15px; }
+.student-workspace .answer-paragraph small, .student-workspace .question-review-note { color: var(--text-muted); font-size: 12px; }
+.student-workspace .answer-sources { margin-top: 18px; }
+.student-workspace .answer-sources ol { padding-left: 22px; }
+.student-workspace .answer-sources li { margin-top: 14px; }
 .student-workspace .lesson-grid { grid-template-columns: minmax(0, 2.2fr) minmax(390px, 1fr); gap: 24px; }
 .student-workspace .text-only-grid { grid-template-columns: minmax(0, 1fr); }
 .student-workspace .learning-column { min-width: 0; gap: 24px; }
@@ -158,6 +177,10 @@ body:has(.student-workspace) {
 .student-workspace input[type='checkbox'] { width: 20px; height: 20px; flex: none; appearance: none; border: 1.5px solid #bfc2d7; border-radius: 6px; background: #fff; cursor: pointer; transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease; }
 .student-workspace input[type='checkbox']:checked { border-color: var(--primary); background-color: var(--primary); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3.3 8.2 2.8 2.7 6.4-6.2' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); box-shadow: 0 4px 10px rgb(102 87 232 / 23%); }
 .student-workspace .practice-card { gap: 24px; scroll-margin-top: 20px; }
+.student-workspace .practice-section { min-width: 0; margin-top: 24px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); box-shadow: var(--shadow-soft); }
+.student-workspace .practice-section > summary { padding: 20px 24px; color: var(--primary-dark); font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
+.student-workspace .practice-section[open] > summary { border-bottom: 1px solid var(--border); }
+.student-workspace .practice-section > .practice-card { margin: 0; border: 0; border-radius: 0 0 20px 20px; box-shadow: none; }
 .student-workspace .question-total { color: var(--text-muted); font-size: 16px; font-weight: 400; }
 .student-workspace .level-label { flex: none; padding: 6px 10px; border: 1px solid #ffd6e2; border-radius: 999px; color: #a94363; background: var(--pink-soft); font-size: 12px; font-weight: 650; text-transform: capitalize; }
 .student-workspace .practice-prompt { display: grid; place-items: center; min-height: 140px; margin: 0; padding: 28px 20px; border: 1px solid #dfddff; border-radius: 16px; color: #403787; background: radial-gradient(circle at 10% 15%, rgb(237 108 145 / 12%), transparent 27%), radial-gradient(circle at 92% 88%, rgb(22 166 199 / 13%), transparent 30%), linear-gradient(145deg, #faf9ff, #f2f1ff); font-family: Georgia, 'Times New Roman', serif; font-size: clamp(28px, 3vw, 40px); font-weight: 600; text-align: center; overflow-wrap: anywhere; }
@@ -250,9 +273,6 @@ body:has(.student-workspace) {
   .student-workspace .learning-column { display: contents; }
   .student-workspace .worked-example { order: 0; }
   .student-workspace .avatar-panel { order: 1; position: static; grid-row: auto; }
-  .student-workspace .practice-card { order: 2; }
-  .student-workspace .practice-first .practice-card { order: 0; }
-  .student-workspace .practice-first .worked-example { order: 2; }
   .student-workspace .teaching-selector { grid-template-columns: minmax(0, 1fr); padding: 18px; }
   .student-workspace .lesson-header { grid-template-columns: auto minmax(0, 1fr); }
   .student-workspace .avatar-stage { height: 320px; }

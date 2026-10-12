@@ -1,6 +1,6 @@
 # Teaching demonstration actions — 2026-10-12
 
-The master now contains **71 actions**. These 15 new actions combine existing
+This expansion produced **71 actions**. These 15 new actions combine existing
 Louise movements into longer demonstrations. They are **review-only teaching
 topic cues**, not independently authored lexical signs or SLSL sentence
 translations. The user will review signing correctness and the final rendering.
@@ -31,11 +31,11 @@ No root motion, limb length change, new finger pose or facial expression is adde
 
 ## Runtime use
 
-`teaching_explanations.py` chooses an EXPLAIN action for the reasoning segment
-of an appropriate maths step. The exact original operation/number gestures remain
-in that step's instruction segment. The middle strategy introduction segment
-uses its corresponding TEACH action. The backend glossary includes all new
-manifest entries. Canonical and backend deployment manifests remain identical.
+The original expansion used EXPLAIN/TEACH actions for longer reasoning and
+strategy segments. The later [short explanation cue expansion](EXPLANATION_CUES.md)
+preserves these actions for review and replaces runtime captions with smaller
+bilingual teaching ideas. Exact operation/amount cues remain in the checked
+instruction segments. The current master has 83 actions; both manifests match.
 
 Select **Teaching approach**, then explicitly enable **Preview gestures** for
 review. The player advances through explanation parts after actual clip

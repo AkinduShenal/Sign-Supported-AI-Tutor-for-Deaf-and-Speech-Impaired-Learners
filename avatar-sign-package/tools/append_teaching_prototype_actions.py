@@ -44,7 +44,7 @@ RECIPES = {
 }
 
 
-def verify_append(original, original_binary, result, result_binary):
+def verify_append(original, original_binary, result, result_binary, recipes=RECIPES):
     """Reject anything beyond appended animation/accessor/BIN data."""
     allowed = {"animations", "accessors", "bufferViews", "buffers", "extras"}
     for key in set(original) | set(result):
@@ -55,7 +55,7 @@ def verify_append(original, original_binary, result, result_binary):
             raise ValueError(f"Existing {key} changed")
     if result_binary[:len(original_binary)] != original_binary:
         raise ValueError("Original mesh/skin/texture/animation binary data changed")
-    if len(result["animations"]) != len(original["animations"]) + len(RECIPES):
+    if len(result["animations"]) != len(original["animations"]) + len(recipes):
         raise ValueError("Unexpected animation count")
     if len({action["name"] for action in result["animations"]}) != len(result["animations"]):
         raise ValueError("Duplicate animation name")
@@ -72,7 +72,7 @@ def verify_append(original, original_binary, result, result_binary):
                for a in original["animations"]}
     durations = {}
     for animation in result["animations"][len(original["animations"]):]:
-        recipe = RECIPES[animation["name"]]
+        recipe = recipes[animation["name"]]
         tracks = animation_tracks(result, result_binary, animation)
         source_nodes = set(sources[recipe[0][0]])
         if set(tracks) != source_nodes:
