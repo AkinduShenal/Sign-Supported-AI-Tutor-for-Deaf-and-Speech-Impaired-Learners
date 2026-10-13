@@ -1,9 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.modules.game.collection_export import collection_zip, require_export_access
 from app.modules.game.schemas import (
     CreateGameSessionRequest,
     GameplayEventRequest,
@@ -15,6 +18,7 @@ from app.modules.game.schemas import (
     VariantUsageResponse,
 )
 from app.modules.game.service import (
+    GameEvidenceConflictError,
     GameResultNotFoundError,
     GameSessionNotFoundError,
     complete_game_session,
@@ -29,6 +33,25 @@ from app.modules.game.service import (
 router = APIRouter(prefix="/api/v1/game", tags=["Game"])
 
 
+@router.get("/exports/collection", dependencies=[Depends(require_export_access)])
+def download_collection(
+    database: Annotated[Session, Depends(get_db)],
+) -> Response:
+    try:
+        content, filename = collection_zip(database)
+    except (SQLAlchemyError, OSError) as error:
+        raise HTTPException(503, "Game data could not be exported. Please retry later.") from error
+    return Response(
+        content=content,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
 @router.post(
     "/sessions", response_model=GameSessionResponse, status_code=status.HTTP_201_CREATED
 )
@@ -36,7 +59,10 @@ def create_session(
     request: CreateGameSessionRequest,
     database: Annotated[Session, Depends(get_db)],
 ) -> GameSessionResponse:
-    return create_game_session(request, database)
+    try:
+        return create_game_session(request, database)
+    except GameEvidenceConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @router.post(
@@ -52,6 +78,8 @@ def create_event(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(error)
         ) from error
+    except GameEvidenceConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @router.post(
@@ -69,6 +97,8 @@ def create_task_attempt(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(error)
         ) from error
+    except GameEvidenceConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @router.post("/sessions/{game_session_id}/complete", response_model=GameSessionResponse)
@@ -82,6 +112,8 @@ def complete_session(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(error)
         ) from error
+    except GameEvidenceConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @router.get("/variant-usage", response_model=VariantUsageResponse)

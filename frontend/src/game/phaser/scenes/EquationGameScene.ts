@@ -1,12 +1,12 @@
 import Phaser from 'phaser'
 import type { LevelStep, OperationChoice } from '../../data/equationLevels'
 import type { EquationVariant } from '../../data/equationVariants'
-import { equationBeforeStep, expectedOperationOf } from '../../data/variantAccess'
+import { equationBeforeStep, expectedOperationOf, orderedChoices } from '../../data/variantAccess'
 import type { GameSessionTracker } from '../../analytics/GameSessionTracker'
 import { GameBackendSync } from '../../api/gameBackendSync'
 import { getVariantUsage } from '../../api/gameApi'
 import type { GameResultResponse } from '../../api/gameApi'
-import { getOrCreateStudentId } from '../../identity'
+import { requireCollectionStudent } from '../../collectionIdentity'
 import { GameSession } from '../../session/GameSession'
 import type { GameType } from '../../types'
 import { BalanceScale } from '../BalanceScale'
@@ -20,31 +20,33 @@ import {
   inline,
   stacked,
 } from '../gameText'
+import { GAME_THEME as T, cssColor } from '../theme/gameTheme'
+import { RoundedPanel, backgroundTouchScroll, crispSceneText, gameButton, progressStepper, watchViewportSize } from '../theme/gameUi'
 import { designSize, fitCameraToDesign, isCompactScreen, prefersReducedMotion } from '../viewport'
 
 const COLORS = {
-  text: '#1a1a1a',
-  buttonFill: 0xf4f3ec,
-  buttonBorder: 0x6b6375,
-  buttonBorderHover: 0xaa3bff,
-  correctText: '#0a7a3d',
-  incorrectText: '#b3261e',
+  text: cssColor(T.color.text),
+  buttonFill: T.color.surfaceSoft,
+  buttonBorder: T.color.border,
+  buttonBorderHover: T.color.primary,
+  correctText: cssColor(T.color.success),
+  incorrectText: cssColor(T.color.error),
 }
 
 // Vertical positions for the two layouts (wide desktop / compact phone).
 // The balance scale sits between the progress path and the drop zone.
 const LAYOUTS = {
   wide: {
-    titleY: 18, titleSize: '24px', subtitleY: 55, indicatorY: 91, pathY: 117,
-    scaleY: 151, equationY: 262, equationSize: 30, dropY: 306, dropH: 56,
-    cardsY: 377, cardH: 70, hintY: 439, hintTextY: 507, feedbackY: 507,
-    doneFeedbackY: 439, rewardY: 479, nextY: 527, nextH: 44,
+    titleY: 44, titleSize: '32px', subtitleY: 96, indicatorY: 150, pathY: 196,
+    scaleY: 250, equationY: 390, equationSize: 36, dropY: 466, dropH: 76,
+    cardsY: 568, cardH: 82, hintY: 680, hintTextY: 766, feedbackY: 766,
+    doneFeedbackY: 680, rewardY: 730, nextY: 790, nextH: 64,
   },
   compact: {
-    titleY: 20, titleSize: '26px', subtitleY: 78, indicatorY: 152, pathY: 186,
-    scaleY: 230, equationY: 348, equationSize: 26, dropY: 392, dropH: 64,
-    cardsY: 464, cardH: 72, hintY: 622, hintTextY: 700, feedbackY: 688,
-    doneFeedbackY: 622, rewardY: 664, nextY: 712, nextH: 56,
+    titleY: 92, titleSize: '30px', subtitleY: 170, indicatorY: 254, pathY: 300,
+    scaleY: 354, equationY: 484, equationSize: 34, dropY: 564, dropH: 88,
+    cardsY: 674, cardH: 88, hintY: 886, hintTextY: 988, feedbackY: 988,
+    doneFeedbackY: 886, rewardY: 952, nextY: 1024, nextH: 68,
   },
 }
 
@@ -90,7 +92,6 @@ export class EquationGameScene extends Phaser.Scene {
   private get stars(): number[] {
     return this.session.stars
   }
-  private hasAttemptedCurrentStep = false
   // Bumped on every init() (every create() cycle, including a resize
   // restart). loadAssessmentVariants() captures this before its one await
   // and checks it again after — Phaser reuses this same scene instance
@@ -141,7 +142,7 @@ export class EquationGameScene extends Phaser.Scene {
 
   // The drop zone the operation cards get dragged into.
   private dropZone!: Phaser.GameObjects.Zone
-  private dropZoneOutline!: Phaser.GameObjects.Rectangle
+  private dropZoneOutline!: RoundedPanel
   private dropZoneLabel!: Phaser.GameObjects.Text
   private dropZoneX = 0
   private dropZoneY = 0
@@ -172,7 +173,7 @@ export class EquationGameScene extends Phaser.Scene {
       data.session ??
       new GameSession({
         gameType: data.gameType ?? 'drag_drop',
-        studentId: getOrCreateStudentId(),
+        studentId: requireCollectionStudent(),
         backendSync: new GameBackendSync(),
       })
     this.currentStepIndex = data.stepIndex ?? 0
@@ -182,6 +183,8 @@ export class EquationGameScene extends Phaser.Scene {
   create(): void {
     this.isCompactLayout = isCompactScreen(this)
     fitCameraToDesign(this, this.isCompactLayout)
+    crispSceneText(this)
+    backgroundTouchScroll(this)
     this.reducedMotion = prefersReducedMotion()
 
     if (this.showSummary) {
@@ -211,21 +214,18 @@ export class EquationGameScene extends Phaser.Scene {
     // Recreate this scene after an orientation or browser-size change, so
     // the layout can switch cleanly between desktop and mobile. Progress
     // and analytics are passed back in through init(), above.
-    this.scale.on(Phaser.Scale.Events.RESIZE, this.handleResize, this)
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.scale.off(Phaser.Scale.Events.RESIZE, this.handleResize, this)
-    })
+    watchViewportSize(this, () => this.handleResize())
     this.events.once(Phaser.Scenes.Events.DESTROY, () => {
       this.isDestroyed = true
     })
   }
 
   private handleResize(): void {
-    this.scene.restart({
-      session: this.session,
-      stepIndex: this.currentStepIndex,
-      showSummary: this.showSummary,
-    } satisfies SceneInitData)
+    // Refit the existing design without restarting the scene: a restart
+    // cancels answer animations and resets the current step's input guards.
+    // Keeping this assessment's initial layout is safer than losing an
+    // accepted answer during a tablet rotation.
+    fitCameraToDesign(this, this.isCompactLayout)
   }
 
   // ---- Gameplay screen ----------------------------------------------
@@ -282,6 +282,12 @@ export class EquationGameScene extends Phaser.Scene {
     this.loadingText?.destroy()
     this.loadingText = null
 
+    new RoundedPanel(this, this.viewWidth / 2, this.isCompactLayout ? 470 : 365,
+      this.viewWidth - 40, this.isCompactLayout ? 300 : 292,
+      T.color.surfaceSoft, T.color.border, T.radius.panel)
+    gameButton(this, { x: 76, y: this.isCompactLayout ? 34 : 44,
+      width: 120, height: 60, label: GAME_TEXT.menu.en, subLabel: GAME_TEXT.menu.si,
+      kind: 'quiet', onClick: () => this.scene.start('GameSelectionScene') })
     this.createTitleAndInstructions()
     this.createLevelIndicator()
     this.createBalanceScale()
@@ -312,7 +318,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.add
       .text(centerX, layout.subtitleY, stacked(GAME_TEXT.instruction), {
         fontFamily: FONT_FAMILY,
-        fontSize: this.isCompactLayout ? '14px' : '15px',
+        fontSize: `${T.font.body}px`,
         color: COLORS.text,
         align: 'center',
         wordWrap: { width: Math.max(260, this.viewWidth - 40) },
@@ -325,10 +331,10 @@ export class EquationGameScene extends Phaser.Scene {
     this.levelIndicatorText = this.add
       .text(this.viewWidth / 2, this.layout.indicatorY, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: '14px',
-        color: COLORS.text,
+        fontSize: `${T.font.caption}px`,
+        color: cssColor(T.color.muted),
         align: 'center',
-        wordWrap: { width: this.viewWidth - 24 },
+        wordWrap: { width: this.viewWidth - 40 },
         ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
@@ -358,47 +364,10 @@ export class EquationGameScene extends Phaser.Scene {
   // Numbers and stars carry the meaning, not colour alone.
   private updateProgressPath(): void {
     this.progressItems.forEach((item) => item.destroy())
-    this.progressItems = []
-
-    const count = this.levels.length
-    const spacing = Math.min(64, (this.viewWidth - 48) / Math.max(1, count - 1))
-    const startX = this.viewWidth / 2 - (spacing * (count - 1)) / 2
-    const y = this.layout.pathY
-
-    for (let i = 0; i < count; i += 1) {
-      const x = startX + i * spacing
-      const done = this.stars[i] !== undefined
-      const current = i === this.currentLevelIndex && !done
-
-      if (i > 0) {
-        this.progressItems.push(
-          this.add.rectangle(x - spacing / 2, y, spacing - 22, 4, done ? 0xf5b301 : 0xd0ccd6),
-        )
-      }
-      const node = this.add
-        .circle(x, y, 13, done ? 0xf5b301 : 0xf4f3ec)
-        .setStrokeStyle(current ? 4 : 2, current ? COLORS.buttonBorderHover : COLORS.buttonBorder)
-      const label = this.add
-        .text(x, y, String(i + 1), {
-          fontFamily: FONT_FAMILY,
-          fontSize: '14px',
-          fontStyle: 'bold',
-          color: COLORS.text,
-        })
-        .setOrigin(0.5)
-      this.progressItems.push(node, label)
-      if (done) {
-        this.progressItems.push(
-          this.add
-            .text(x, y + 20, formatStars(this.stars[i]), {
-              fontFamily: FONT_FAMILY,
-              fontSize: '10px',
-              color: '#b07d00',
-            })
-            .setOrigin(0.5),
-        )
-      }
-    }
+    this.progressItems = progressStepper(this, {
+      x: this.viewWidth / 2, y: this.layout.pathY, width: this.viewWidth - 80,
+      count: this.levels.length, current: this.currentLevelIndex, stars: this.stars,
+    })
   }
 
   private createBalanceScale(): void {
@@ -427,7 +396,7 @@ export class EquationGameScene extends Phaser.Scene {
       .text(this.viewWidth / 2, this.layout.rewardY, '', {
         fontFamily: FONT_FAMILY,
         fontSize: this.isCompactLayout ? '20px' : '24px',
-        color: '#b07d00',
+        color: cssColor(T.color.gold),
         align: 'center',
         wordWrap: { width: this.viewWidth - 20 },
         ...SINHALA_TEXT,
@@ -461,20 +430,19 @@ export class EquationGameScene extends Phaser.Scene {
   // "Zone" is an invisible interactive area — we draw the outline and label
   // ourselves so it has something to look at.
   private createDropZone(): void {
-    const width = Math.min(240, this.viewWidth - 48)
+    const width = Math.min(300, this.viewWidth - 48)
     const height = this.layout.dropH
     this.dropZoneX = this.viewWidth / 2
     this.dropZoneY = this.layout.dropY
 
-    this.dropZoneOutline = this.add
-      .rectangle(this.dropZoneX, this.dropZoneY, width, height, 0xffffff, 0)
-      .setStrokeStyle(3, COLORS.buttonBorder)
+    this.dropZoneOutline = new RoundedPanel(this, this.dropZoneX, this.dropZoneY,
+      width, height, T.color.primarySoft, T.color.primary, T.radius.tile)
 
     this.dropZoneLabel = this.add
       .text(this.dropZoneX, this.dropZoneY, stacked(GAME_TEXT.dropHere), {
         fontFamily: FONT_FAMILY,
-        fontSize: '13px',
-        color: COLORS.text,
+        fontSize: `${T.font.body}px`,
+        color: cssColor(T.color.primaryText),
         align: 'center',
         wordWrap: { width: width - 20 },
         lineSpacing: 6,
@@ -494,7 +462,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.operationButtons.forEach((button) => button.destroy())
     this.operationButtons = []
 
-    const choices = this.currentStep.choices
+    const choices = orderedChoices(this.currentStep.choices, `${this.session.learningCycleId}:${this.currentLevel.variantId}:${this.currentStepIndex}`)
     const centerX = this.viewWidth / 2
 
     if (this.isCompactLayout) {
@@ -530,7 +498,7 @@ export class EquationGameScene extends Phaser.Scene {
       return
     }
 
-    const buttonWidth = 140
+    const buttonWidth = 180
     const buttonHeight = this.layout.cardH
     const gap = 24
     const rowY = this.layout.cardsY
@@ -666,70 +634,13 @@ export class EquationGameScene extends Phaser.Scene {
   // one Container so we can move/tween them as a single object and attach
   // one click handler instead of two.
   private createButton(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    label: string,
-    onClick: () => void,
-    fill: number = COLORS.buttonFill,
-    // Optional second line under the label (the Sinhala wording).
-    subLabel?: string,
+    x: number, y: number, width: number, height: number, label: string,
+    onClick: () => void, fill: number = COLORS.buttonFill, subLabel?: string,
   ): Phaser.GameObjects.Container {
-    const background = this.add
-      .rectangle(0, 0, width, height, fill)
-      .setStrokeStyle(3, COLORS.buttonBorder)
-
-    const text = this.add
-      .text(0, subLabel ? -9 : 0, label, {
-        fontFamily: FONT_FAMILY,
-        fontSize: subLabel ? '20px' : '26px',
-        fontStyle: 'bold',
-        color: COLORS.text,
-      })
-      .setOrigin(0.5)
-
-    const children: Phaser.GameObjects.GameObject[] = [background, text]
-    if (subLabel) {
-      children.push(
-        this.add
-          .text(0, 14, subLabel, {
-            fontFamily: FONT_FAMILY,
-            fontSize: '14px',
-            color: COLORS.text,
-            padding: { top: 3, bottom: 3 },
-          })
-          .setOrigin(0.5),
-      )
-    }
-
-    const container = this.add.container(x, y, children)
-
-    // The hit area has to be centered on the container's own (0, 0), the
-    // same way the rectangle and text above are, otherwise clicks land on
-    // the wrong spot relative to what is drawn on screen.
-    container.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
-      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
-      useHandCursor: true,
-    })
-
-    // Hovering swaps the border color so there's a visible response to the
-    // mouse that doesn't rely on anything but outline/shape.
-    container.on('pointerover', () => background.setStrokeStyle(3, COLORS.buttonBorderHover))
-    container.on('pointerout', () => background.setStrokeStyle(3, COLORS.buttonBorder))
-
-    // Clicking/tapping fires on release, not on press. This matters for the
-    // operation cards: a drag also starts with a press, so if we answered on
-    // press, picking a card up to drag it would immediately count as a
-    // click. Checking the "dragging" flag (set in createDragListeners) tells
-    // a genuine tap apart from the end of a drag — a tap never sets it.
-    container.on('pointerdown', () => container.setData('dragging', false))
-    container.on('pointerup', () => {
-      if (!container.getData('dragging')) onClick()
-    })
-
-    return container
+    return gameButton(this, { x, y, width, height, label, subLabel, onClick,
+      kind: subLabel && label !== `💡 ${GAME_TEXT.hint.en}` ? 'primary' : 'secondary',
+      fill: subLabel && label !== `💡 ${GAME_TEXT.hint.en}` ? T.color.primary : fill,
+      operation: !subLabel, dragAware: true })
   }
 
   private createFeedbackText(): void {
@@ -751,7 +662,7 @@ export class EquationGameScene extends Phaser.Scene {
       this.viewWidth / 2,
       this.layout.hintY,
       this.isCompactLayout ? 150 : 140,
-      44,
+      T.control.compactHeight,
       `💡 ${GAME_TEXT.hint.en}`,
       () => this.handleHintClick(),
       COLORS.buttonFill,
@@ -801,7 +712,6 @@ export class EquationGameScene extends Phaser.Scene {
     this.tracker.beginStep()
 
     this.hasAnsweredStepCorrectly = false
-    this.hasAttemptedCurrentStep = false
     this.balanceScale.setTaskComplete(false)
     this.rewardText.setAlpha(0)
     this.updateProgressPath()
@@ -809,7 +719,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.backendSync.sendEvent(this.currentLevel.variantId, 'QUESTION_SHOWN', {
       ...this.stepEvidence(),
       equation_shown: equationBeforeThisStep,
-      choices_offered: this.currentStep.choices.map((c) => c.label),
+      choices_offered: orderedChoices(this.currentStep.choices, `${this.session.learningCycleId}:${this.currentLevel.variantId}:${this.currentStepIndex}`).map((c) => c.label),
     })
     this.updateLevelIndicator()
     this.setEquationDisplay(equationBeforeThisStep)
@@ -842,15 +752,21 @@ export class EquationGameScene extends Phaser.Scene {
     if (this.hasAnsweredStepCorrectly) return
 
     const taskId = this.currentLevel.variantId
-    if (this.hasAttemptedCurrentStep) {
+    const priorAttempts = this.tracker.getStepAnalytics(this.currentStepIndex)?.attemptsCount ?? 0
+    const hintsBeforeAttempt = this.tracker.getStepAnalytics(this.currentStepIndex)?.hintCount ?? 0
+    if (priorAttempts > 0) {
       this.backendSync.sendEvent(taskId, 'RETRY_STARTED')
     }
-    this.hasAttemptedCurrentStep = true
     this.tracker.recordAttempt(this.currentStepIndex)
     const answerEvidence = {
       ...this.stepEvidence(),
       selected_choice: choice.label,
       is_correct: choice.isCorrect,
+      attempt_number: priorAttempts + 1,
+      hints_before_attempt: hintsBeforeAttempt,
+      question_prompt: equationBeforeStep(this.currentLevel, this.currentStepIndex),
+      expected_response: expectedOperationOf(this.currentStep),
+      answer_type: 'equation_operation',
     }
     this.backendSync.sendEvent(taskId, 'ANSWER_SUBMITTED', answerEvidence)
 
@@ -1156,7 +1072,7 @@ export class EquationGameScene extends Phaser.Scene {
         fontFamily: FONT_FAMILY,
         fontSize: compact ? '34px' : '38px',
         fontStyle: 'bold',
-        color: '#b07d00',
+        color: cssColor(T.color.gold),
       })
       .setOrigin(0.5)
     if (!this.reducedMotion) {
@@ -1219,11 +1135,11 @@ export class EquationGameScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
     const toggle = this.add.container(centerX, top + 14, [
-      this.add.rectangle(0, 0, 210, 46, COLORS.buttonFill).setStrokeStyle(2, COLORS.buttonBorder),
+      new RoundedPanel(this, 0, 0, 240, 64, COLORS.buttonFill, COLORS.buttonBorder),
       toggleLabel,
     ])
     toggle.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-105, -23, 210, 46),
+      hitArea: new Phaser.Geom.Rectangle(-120, -32, 240, 64),
       hitAreaCallback: Phaser.Geom.Rectangle.Contains,
       useHandCursor: true,
     })
@@ -1278,6 +1194,20 @@ export class EquationGameScene extends Phaser.Scene {
       `Total Time: ${totalTime}`,
     ])
     this.renderChooseAnotherButton()
+    const warning = this.add.text(this.viewWidth / 2, this.viewHeight / 2,
+      'Save unverified. Tap to retry. / සුරැකීම තහවුරු නැත. නැවත උත්සාහ කරන්න.',
+      { ...SINHALA_TEXT, fontFamily: FONT_FAMILY, fontSize: '18px', color: '#ffffff',
+        backgroundColor: '#9b1c1c', align: 'center', wordWrap: { width: this.viewWidth - 48 },
+        padding: { x: 12, y: 12 } })
+      .setOrigin(0.5).setDepth(1000).setInteractive({ useHandCursor: true })
+    warning.on('pointerdown', () => {
+      warning.disableInteractive().setText('Retrying save…')
+      void this.backendSync.completeSession().then(() => {
+        if (!this.isDestroyed) this.scene.restart({
+          session: this.session, stepIndex: this.currentStepIndex, showSummary: true,
+        } satisfies SceneInitData)
+      })
+    })
   }
 }
 
@@ -1286,14 +1216,14 @@ export class EquationGameScene extends Phaser.Scene {
 function operationFill(label: string): number {
   switch (label.trim().charAt(0)) {
     case '+':
-      return 0xdff5e6
+      return T.color.operation.add
     case '-':
     case '−':
-      return 0xffe8d1
+      return T.color.operation.subtract
     case '×':
-      return 0xdbeafe
+      return T.color.operation.multiply
     case '÷':
-      return 0xfce1f0
+      return T.color.operation.divide
     default:
       return COLORS.buttonFill
   }

@@ -17,6 +17,7 @@ export interface CreateGameSessionInput {
   concept_id: string
   learning_cycle_id: string
   assessment_phase: AssessmentPhase
+  client_session_id?: string
 }
 
 export function createGameSession(

@@ -1,12 +1,14 @@
 import Phaser from 'phaser'
 import { splitEquation } from './equationSides'
+import { GAME_THEME as T, cssColor } from './theme/gameTheme'
+import { RoundedPanel } from './theme/gameUi'
 
-const BEAM_COLOR = 0x6b6375
-const BEAM_DONE_COLOR = 0xf5b301
-const ACCENT = 0xaa3bff
-const PAN_FILL = 0xf4f3ec
-const WRONG_COLOR = 0xb3261e
-const TEXT_COLOR = '#1a1a1a'
+const BEAM_COLOR = T.color.borderStrong
+const BEAM_DONE_COLOR = T.color.gold
+const ACCENT = T.color.primary
+const PAN_FILL = T.color.surface
+const WRONG_COLOR = T.color.error
+const TEXT_COLOR = cssColor(T.color.text)
 const MIN_FONT = 12
 
 interface BalanceScaleOptions {
@@ -37,13 +39,13 @@ export class BalanceScale {
   private readonly beam: Phaser.GameObjects.Graphics
   private readonly leftPan: Phaser.GameObjects.Container
   private readonly rightPan: Phaser.GameObjects.Container
-  private readonly leftBox: Phaser.GameObjects.Rectangle
-  private readonly rightBox: Phaser.GameObjects.Rectangle
+  private readonly leftBox: RoundedPanel
+  private readonly rightBox: RoundedPanel
   private readonly leftText: Phaser.GameObjects.Text
   private readonly rightText: Phaser.GameObjects.Text
 
   private angleRadians = 0
-  private beamColor = BEAM_COLOR
+  private beamColor: number = BEAM_COLOR
   private tilt: Phaser.Tweens.Tween | null = null
 
   constructor(scene: Phaser.Scene, options: BalanceScaleOptions) {
@@ -65,9 +67,8 @@ export class BalanceScale {
     this.beam = scene.add.graphics()
 
     const makePan = () => {
-      const box = scene.add
-        .rectangle(0, 0, this.panWidth, this.panHeight, PAN_FILL)
-        .setStrokeStyle(3, BEAM_COLOR)
+      const box = new RoundedPanel(scene, 0, 0, this.panWidth, this.panHeight,
+        PAN_FILL, BEAM_COLOR, T.radius.tile)
       const text = scene.add
         .text(0, 0, '', {
           fontFamily: this.fontFamily,
@@ -118,7 +119,7 @@ export class BalanceScale {
           fontSize: '24px',
           fontStyle: 'bold',
           color: '#ffffff',
-          backgroundColor: '#aa3bff',
+          backgroundColor: cssColor(T.color.primary),
           padding: { x: 8, y: 4 },
         })
         .setOrigin(0.5)
@@ -220,7 +221,7 @@ export class BalanceScale {
         .text(this.x, this.y, '★', {
           fontFamily: this.fontFamily,
           fontSize: '22px',
-          color: '#f5b301',
+          color: cssColor(T.color.gold),
         })
         .setOrigin(0.5)
       const angle = (i / count) * Math.PI * 2

@@ -50,6 +50,7 @@ class CreateGameSessionRequest(BaseModel):
     concept_id: str = Field(min_length=1, max_length=100)
     learning_cycle_id: uuid.UUID
     assessment_phase: AssessmentPhase = AssessmentPhase.PRE_TUTOR
+    client_session_id: uuid.UUID | None = None
 
 
 class GameSessionResponse(BaseModel):

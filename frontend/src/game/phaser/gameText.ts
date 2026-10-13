@@ -51,10 +51,23 @@ export const GAME_TEXT = {
   nextTutor: { en: 'Next: meet your Tutor!', si: 'ඊළඟට: ඔබේ ගුරුවරයා හමුවන්න!' },
   showDetails: { en: 'Show details ▾', si: 'විස්තර පෙන්වන්න' },
   hideDetails: { en: 'Hide details ▴', si: 'විස්තර සඟවන්න' },
-  chooseGame: { en: 'Choose Your Game', si: 'ඔබේ ක්‍රීඩාව තෝරන්න' },
+  chooseGame: { en: 'Choose Your Game', si: 'ක්‍රීඩාව තෝරන්න' },
   play: { en: 'Play', si: 'ක්‍රීඩා කරන්න' },
   comingNext: { en: 'Coming next', si: 'ඉක්මනින්' },
   chooseAnother: { en: 'Choose Another Game', si: 'වෙනත් ක්‍රීඩාවක් තෝරන්න' },
+  menu: { en: '☰ Menu', si: 'මෙනුව' },
+  // Hangman-specific (Milestone 4 §19). Draft Sinhala, same review caveat.
+  solveForX: { en: 'Solve for x', si: 'x සඳහා විසඳන්න' },
+  enterAnswer: { en: 'Enter your answer', si: 'ඔබේ පිළිතුර ඇතුළත් කරන්න' },
+  submitAnswer: { en: 'Submit Answer', si: 'පිළිතුර යොමු කරන්න' },
+  attemptsLeft: { en: 'Attempts Left', si: 'ඉතිරි උත්සාහයන්' },
+  correctAnswerLabel: { en: 'Correct answer', si: 'නිවැරදි පිළිතුර' },
+  questionFailed: { en: 'Question Failed', si: 'ප්‍රශ්නය අසාර්ථකයි' },
+  questionsSolved: { en: 'Questions Solved', si: 'විසඳූ ප්‍රශ්න' },
+  questionsFailed: { en: 'Questions Failed', si: 'අසාර්ථක ප්‍රශ්න' },
+  // Session-level only (Milestone 4 session summary) — shown once, never
+  // per question, and only when the figure never fell this session.
+  neverFell: { en: "🎉 You didn't let him fall!", si: 'ඔබ ඔහුට වැටෙන්න ඉඩ දුන්නේ නැහැ!' },
 } satisfies Record<string, Bilingual>
 
 // Game Selection card text, keyed by GameType (draft Sinhala, same review
@@ -66,15 +79,15 @@ export const GAME_TYPE_TEXT: Record<
   drag_drop: {
     name: { en: 'Drag & Drop', si: 'ඇදගෙන දමන්න' },
     description: {
-      en: 'Move operations. Balance the equation.',
-      si: 'ක්‍රියා ගෙන යන්න. සමීකරණය තුලනය කරන්න.',
+      en: 'Balance the equation.',
+      si: 'සමීකරණය තුලනය කරන්න.',
     },
   },
   hangman: {
     name: { en: 'Hangman', si: 'හෑන්ග්මන්' },
     description: {
-      en: 'Solve the equation before the figure is complete.',
-      si: 'රූපය සම්පූර්ණ වීමට පෙර සමීකරණය විසඳන්න.',
+      en: 'Don\'t let the man fall.',
+      si: 'වැටෙන්න නොදි තියාගන්න​.',
     },
   },
   mystery_reveal: {

@@ -1,0 +1,353 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "IndependentLabel": {
+      "additionalProperties": false,
+      "properties": {
+        "student_code": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Student Code",
+          "type": "string"
+        },
+        "session_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "concept": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Concept",
+          "type": "string"
+        },
+        "assessment_phase": {
+          "enum": [
+            "pre_tutor",
+            "post_tutor"
+          ],
+          "title": "Assessment Phase",
+          "type": "string"
+        },
+        "value": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Value",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "teacher",
+            "quiz",
+            "test"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "source_reference": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Source Reference",
+          "type": "string"
+        },
+        "assessed_at": {
+          "format": "date-time",
+          "title": "Assessed At",
+          "type": "string"
+        },
+        "rubric_version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Rubric Version",
+          "type": "string"
+        },
+        "gameplay_independent": {
+          "title": "Gameplay Independent",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "student_code",
+        "session_id",
+        "concept",
+        "assessment_phase",
+        "value",
+        "source",
+        "source_reference",
+        "assessed_at",
+        "rubric_version",
+        "gameplay_independent"
+      ],
+      "title": "IndependentLabel",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One aggregate per learner\u2013concept\u2013assessment session, frozen at window end.\n\nSupplied metrics are audited whole-window totals. None means unavailable;\nabsence of events never implies a measured zero. Question difficulty is not a\nlearner label and is deliberately not an input field in this version.",
+  "properties": {
+    "student_code": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Student Code",
+      "type": "string"
+    },
+    "session_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "concept": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Concept",
+      "type": "string"
+    },
+    "game_type": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Game Type"
+    },
+    "activity_ids": {
+      "items": {
+        "minLength": 1,
+        "pattern": "\\S",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Activity Ids",
+      "type": "array"
+    },
+    "assessment_phase": {
+      "enum": [
+        "pre_tutor",
+        "post_tutor"
+      ],
+      "title": "Assessment Phase",
+      "type": "string"
+    },
+    "observation_started_at": {
+      "format": "date-time",
+      "title": "Observation Started At",
+      "type": "string"
+    },
+    "observation_ended_at": {
+      "format": "date-time",
+      "title": "Observation Ended At",
+      "type": "string"
+    },
+    "total_steps": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total Steps"
+    },
+    "first_attempt_correct_steps": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "First Attempt Correct Steps"
+    },
+    "first_attempt_observation_complete": {
+      "default": false,
+      "title": "First Attempt Observation Complete",
+      "type": "boolean"
+    },
+    "score_definition": {
+      "const": "first_attempt_correctness_v1",
+      "default": "first_attempt_correctness_v1",
+      "title": "Score Definition",
+      "type": "string"
+    },
+    "gameplay_score": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gameplay Score"
+    },
+    "wrong_attempts": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Wrong Attempts"
+    },
+    "retry_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Retry Count"
+    },
+    "hint_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Hint Count"
+    },
+    "steps_with_hints": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Steps With Hints"
+    },
+    "hint_observation_complete": {
+      "default": false,
+      "title": "Hint Observation Complete",
+      "type": "boolean"
+    },
+    "tasks_total": {
+      "exclusiveMinimum": 0,
+      "title": "Tasks Total",
+      "type": "integer"
+    },
+    "tasks_completed": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Tasks Completed"
+    },
+    "task_completed": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Task Completed"
+    },
+    "skipped_steps": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Skipped Steps"
+    },
+    "task_duration_seconds": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Task Duration Seconds"
+    },
+    "task_duration_reliable": {
+      "default": false,
+      "title": "Task Duration Reliable",
+      "type": "boolean"
+    },
+    "difficulty_label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IndependentLabel"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mastery_label": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IndependentLabel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "student_code",
+    "session_id",
+    "concept",
+    "game_type",
+    "activity_ids",
+    "assessment_phase",
+    "observation_started_at",
+    "observation_ended_at",
+    "total_steps",
+    "first_attempt_correct_steps",
+    "wrong_attempts",
+    "retry_count",
+    "hint_count",
+    "steps_with_hints",
+    "tasks_total",
+    "tasks_completed",
+    "task_completed",
+    "skipped_steps",
+    "task_duration_seconds",
+    "difficulty_label"
+  ],
+  "title": "ResearchObservation",
+  "type": "object"
+}

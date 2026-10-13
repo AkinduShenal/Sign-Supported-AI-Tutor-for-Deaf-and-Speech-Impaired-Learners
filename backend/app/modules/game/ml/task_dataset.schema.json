@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One task occurrence, aggregated across its steps and retries.\n\nRequired nullable fields must be explicitly supplied as null when unavailable.\nIDs are for audit/grouping only. No ORM defaults imply verified observations.",
+  "properties": {
+    "student_code": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Student Code",
+      "type": "string"
+    },
+    "session_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "learning_cycle_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Learning Cycle Id",
+      "type": "string"
+    },
+    "game_type": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Game Type"
+    },
+    "task_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "task_order": {
+      "minimum": 1,
+      "title": "Task Order",
+      "type": "integer"
+    },
+    "difficulty": {
+      "anyOf": [
+        {
+          "enum": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Difficulty"
+    },
+    "concept": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Concept"
+    },
+    "total_steps": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total Steps"
+    },
+    "first_attempt_correct_steps": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "First Attempt Correct Steps"
+    },
+    "wrong_attempts": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Wrong Attempts"
+    },
+    "retry_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Retry Count"
+    },
+    "hint_requests": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Hint Requests"
+    },
+    "steps_with_hints": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Steps With Hints"
+    },
+    "task_duration_seconds": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Task Duration Seconds"
+    },
+    "task_completed": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Task Completed"
+    },
+    "next_task_hint_used_label": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Next Task Hint Used Label"
+    },
+    "hint_observation_complete": {
+      "default": false,
+      "title": "Hint Observation Complete",
+      "type": "boolean"
+    },
+    "task_duration_reliable": {
+      "default": false,
+      "title": "Task Duration Reliable",
+      "type": "boolean"
+    },
+    "next_task_difficulty": {
+      "anyOf": [
+        {
+          "enum": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Next Task Difficulty"
+    }
+  },
+  "required": [
+    "student_code",
+    "session_id",
+    "learning_cycle_id",
+    "game_type",
+    "task_id",
+    "task_order",
+    "difficulty",
+    "concept",
+    "total_steps",
+    "first_attempt_correct_steps",
+    "wrong_attempts",
+    "retry_count",
+    "hint_requests",
+    "steps_with_hints",
+    "task_duration_seconds",
+    "task_completed"
+  ],
+  "title": "TaskRecord",
+  "type": "object"
+}
