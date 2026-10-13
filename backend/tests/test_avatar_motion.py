@@ -29,7 +29,15 @@ def test_canonical_master_and_validation_policy(rig):
         hashlib.sha256(MASTER.read_bytes()).hexdigest()
         == manifest["master_avatar_sha256"]
     )
-    assert len(rig.tracks) == 56
+    expansion = rig.doc["extras"]["teaching_prototype_expansion"]
+    assert expansion["existing_actions_preserved"] == 56
+    assert expansion["teaching_actions_added"] == 15
+    cues = rig.doc["extras"]["explanation_cue_expansion"]
+    assert cues["existing_actions_preserved"] == 71
+    assert cues["cue_actions_added"] == 12
+    assert cues["language_validation"] == "none"
+    assert cues["review_required"] is True
+    assert len(rig.tracks) == 83
     assert rig.doc["extras"]["composite_prototype_expansion"] == {
         "language_validation": "none",
         "review_required": True,
@@ -37,6 +45,8 @@ def test_canonical_master_and_validation_policy(rig):
         "composite_actions_added": 34,
     }
     assert rig.doc["extras"]["arm_roll_repair"]["language_validation"] == "none"
+    assert expansion["language_validation"] == "none"
+    assert expansion["review_required"] is True
     for sign in manifest["signs"]:
         if sign["id"] in rig.tracks and sign["id"] != "IDLE":
             assert sign["validation_status"] != "validated"

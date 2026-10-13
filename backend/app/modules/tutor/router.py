@@ -10,12 +10,13 @@ from app.modules.tutor.content_schemas import (
     TutorLessonResponse,
 )
 from app.modules.tutor.lesson_content import get_lesson
-from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse
+from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse, TutoringStrategy
 from app.modules.tutor.service import (
     DuplicateSessionConflictError,
     TutorStrategyService,
 )
 from app.modules.tutor.sign_planner import MathSignPlanner
+from app.modules.tutor.rag import TutorQuestionAnswer, TutorQuestionRequest, answer_question
 from app.modules.tutor.adaptive_lesson import (
     AdaptiveLesson,
     Level,
@@ -32,9 +33,40 @@ service = TutorStrategyService()
 sign_planner = MathSignPlanner()
 
 
+@router.post("/rag/answer", response_model=TutorQuestionAnswer)
+async def ask_about_lesson(request: TutorQuestionRequest) -> TutorQuestionAnswer:
+    try:
+        return await answer_question(request)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@router.get("/rag/status")
+def rag_status() -> dict:
+    from app.core.config import settings
+    from app.modules.tutor.knowledge import get_knowledge_index
+
+    try:
+        index = get_knowledge_index()
+        version, chunks = index.version, len(index.documents)
+    except (OSError, ValueError, KeyError, TypeError):
+        version, chunks = "unavailable", 0
+    return {
+        "enabled": settings.rag_enabled,
+        "retriever": "local_bm25",
+        "knowledge_version": version,
+        "chunks": chunks,
+        "generation_ready": bool(settings.rag_generation_enabled and settings.openai_api_key
+                                 and settings.openai_api_key.get_secret_value().strip()),
+        "review_status": "teacher_review_required",
+    }
+
+
 @router.get("/grade10/{level}", response_model=AdaptiveLesson)
-def preview_grade10(level: Level) -> AdaptiveLesson:
-    return preview_lesson(level)
+def preview_grade10(
+    level: Level, strategy: TutoringStrategy = TutoringStrategy.STEP_BY_STEP
+) -> AdaptiveLesson:
+    return preview_lesson(level, strategy)
 
 
 @router.post("/adaptive-lesson", response_model=AdaptiveLesson)

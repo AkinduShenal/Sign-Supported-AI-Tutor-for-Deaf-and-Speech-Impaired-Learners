@@ -62,4 +62,9 @@ export interface QuizDiagnosticResult {
   weak_subconcept: string | null
   recommended_focus: string | null
   recommended_support_level: 'low' | 'medium' | 'high'
+  confidence_insight: {
+    kind: 'mixed' | 'high_incorrect' | 'low_correct' | 'neutral'
+    high_confidence_incorrect_count: number
+    low_confidence_correct_count: number
+  }
 }

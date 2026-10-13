@@ -48,22 +48,35 @@ class QuizDiagnosticService:
             )
 
         existing = repository.get_quiz_result(database, quiz_session_id)
-        if existing is not None:
+        if existing is not None and all(
+            key in (existing.diagnostic_evidence or {})
+            for key in (
+                "confidence_correctness",
+                "question_evidence",
+                "confidence_insight",
+            )
+        ):
             return QuizDiagnosticResponse.model_validate(existing)
 
         rows = repository.get_diagnostic_rows(database, quiz_session_id)
         if len(rows) != RULES.expected_questions:
+            if existing is not None:
+                return QuizDiagnosticResponse.model_validate(existing)
             raise QuizConflictError(
                 "A completed official assessment requires ten saved responses"
             )
         if [response.question_order for response, _ in rows] != list(
             range(1, RULES.expected_questions + 1)
         ):
+            if existing is not None:
+                return QuizDiagnosticResponse.model_validate(existing)
             raise QuizConflictError("Official response order is incomplete")
         if (
             len({response.question_id for response, _ in rows})
             != RULES.expected_questions
         ):
+            if existing is not None:
+                return QuizDiagnosticResponse.model_validate(existing)
             raise QuizConflictError("Official responses must use distinct questions")
         if any(
             question.concept_id != session.concept_id
@@ -71,18 +84,24 @@ class QuizDiagnosticService:
             or question.question_type != "multiple_choice"
             for _, question in rows
         ):
+            if existing is not None:
+                return QuizDiagnosticResponse.model_validate(existing)
             raise QuizConflictError("Responses do not match the official question set")
         counts = Counter(question.difficulty_level for _, question in rows)
         if (
             tuple(counts[tier] for tier in ("easy", "medium", "hard"))
             != RULES.expected_difficulty_counts
         ):
+            if existing is not None:
+                return QuizDiagnosticResponse.model_validate(existing)
             raise QuizConflictError(
                 "Official question difficulty distribution is incomplete"
             )
 
         evidence = [
             ResponseEvidence(
+                question_id=str(response.question_id),
+                question_order=response.question_order,
                 subconcept_code=question.subconcept_code,
                 difficulty_level=question.difficulty_level,
                 is_correct=response.is_correct,
@@ -106,6 +125,29 @@ class QuizDiagnosticService:
             )
         }
         values = calculate_diagnostic(evidence, mappings)
+        if existing is not None:
+            merged = dict(existing.diagnostic_evidence or {})
+            for key in (
+                "confidence_correctness",
+                "question_evidence",
+                "confidence_insight",
+            ):
+                merged.setdefault(key, values.diagnostic_evidence[key])
+            time_summary = dict(merged.get("response_time_summary") or {})
+            for key, value in values.diagnostic_evidence[
+                "response_time_summary"
+            ].items():
+                time_summary.setdefault(key, value)
+            merged["response_time_summary"] = time_summary
+            existing.diagnostic_evidence = merged
+            try:
+                database.commit()
+                database.refresh(existing)
+            except Exception:
+                database.rollback()
+                raise
+            return QuizDiagnosticResponse.model_validate(existing)
+
         result = QuizResult(
             quiz_session_id=session.quiz_session_id,
             student_id=session.student_id,

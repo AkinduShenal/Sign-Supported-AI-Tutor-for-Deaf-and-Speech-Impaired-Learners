@@ -3,7 +3,9 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
+
+from app.modules.quiz.diagnostic_rules import RULES
 
 
 class AssessmentPhase(StrEnum):
@@ -93,6 +95,12 @@ class QuizAnswerSavedResponse(BaseModel):
     saved: Literal[True] = True
 
 
+class QuizConfidenceInsight(BaseModel):
+    kind: Literal["mixed", "high_incorrect", "low_correct", "neutral"]
+    high_confidence_incorrect_count: int
+    low_confidence_correct_count: int
+
+
 class QuizDiagnosticResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -119,3 +127,29 @@ class QuizDiagnosticResponse(BaseModel):
     quiz_difficulty_level: str
     diagnostic_evidence: dict | None
     completed_at: datetime
+
+    @computed_field
+    @property
+    def confidence_insight(self) -> QuizConfidenceInsight:
+        evidence = self.diagnostic_evidence or {}
+        stored = evidence.get("confidence_insight")
+        if isinstance(stored, dict):
+            return QuizConfidenceInsight.model_validate(stored)
+        counts = evidence.get("confidence_counts") or {}
+        high_wrong = (counts.get("incorrect") or {}).get("high", 0)
+        low_right = (counts.get("correct") or {}).get("low", 0)
+        significant = RULES.confidence_pattern_min_count
+        kind = (
+            "mixed"
+            if high_wrong >= significant and low_right >= significant
+            else "high_incorrect"
+            if high_wrong >= significant
+            else "low_correct"
+            if low_right >= significant
+            else "neutral"
+        )
+        return QuizConfidenceInsight(
+            kind=kind,
+            high_confidence_incorrect_count=high_wrong,
+            low_confidence_correct_count=low_right,
+        )
