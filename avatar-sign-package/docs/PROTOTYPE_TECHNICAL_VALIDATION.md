@@ -88,6 +88,14 @@ appends review-only combinations of their neutral-to-neutral motion. See
 `COMPOSITE_PROTOTYPE_ACTIONS.md`. The same mechanical audit applies, but the
 expansion adds no linguistic validation.
 
+The 2026-10-12 teaching expansion appends another 15 composites, preserving
+all 56 previous actions, producing 71 actions. Builder preservation
+checks passed; the user is handling visual/signing verification. See
+`TEACHING_DEMO_ACTIONS.md` for recipes, hashes, backup and review instructions.
+
+The later short-cue expansion preserves all 71 actions and appends 12 more
+(83 total). See `EXPLANATION_CUES.md` for unchanged-rotation checks and backups.
+
 ## What this does NOT solve
 
 - No lexical action has been human-validated as SLSL. Finger articulation,

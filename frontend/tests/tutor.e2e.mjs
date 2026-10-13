@@ -96,7 +96,7 @@ try {
   assert.deepEqual(untranslated, [])
   assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent.includes('සමීකරණයක්')"), true)
   assert.equal(await evaluate("document.querySelector('.bilingual-question [lang=si]').textContent.includes('x + 5 = 12')"), true)
-  assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 56)
+  assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 83)
   assert.equal(await evaluate("document.querySelector('.sign-chip.is-active') === null"), true)
   assert.equal(await evaluate("document.querySelector('.tutor-setup').open"), false)
   assert.equal(await evaluate("document.querySelector('.reviewer-settings').open"), false)
@@ -134,7 +134,7 @@ try {
   await click('Resume')
   await until("document.querySelector('.sign-chip.is-active') === null && document.querySelector('model-viewer').animationName === 'IDLE'")
   await evaluate("document.querySelector('.avatar-options > summary').click()")
-  assert.equal(await evaluate("document.querySelector('[aria-label=\"New animation example\"]').options.length"), 35)
+  assert.equal(await evaluate("document.querySelector('[aria-label=\"New animation example\"]').options.length"), 62)
   await evaluate(`(() => {
     const select = document.querySelector('[aria-label="New animation example"]');
     Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(select, 'BRACKET');
@@ -164,7 +164,7 @@ try {
   assert.equal(await evaluate("document.querySelector('.feedback') === null"), true)
   await click('Show hint')
   await until("document.querySelector('.question-hints .hint-panel')")
-  assert.equal(await evaluate("document.querySelector('.avatar-caption').textContent === document.querySelector('.question-hints .hint-panel p').textContent"), true)
+  assert.equal(await evaluate("document.querySelector('.avatar-caption').textContent === 'Both sides have the same value.'"), true)
   await click('Next hint')
   await until("document.querySelector('.question-hints .hint-panel p').textContent.includes('Subtract 2')")
   assert.equal(await evaluate("document.querySelector('.question-hints [lang=si]').textContent"), 'දෙපසින්ම 2 අඩු කරන්න.')
@@ -270,7 +270,7 @@ try {
   }
   }
   assert.deepEqual(errors, [])
-  console.log('PASS: always-visible worked-example-first layout, hints and navigation, strict fallback, 56 clips, explicit opt-in, pause/replay, step sequence, server grading, first-attempt evidence, mobile layout, reduced motion, missing model, no JS errors.')
+  console.log('PASS: teaching layout, hints and navigation, strict fallback, 83 clips, explicit opt-in, pause/replay, step sequence, server grading, first-attempt evidence, mobile layout, reduced motion, missing model, no JS errors.')
 } finally {
   socket?.close()
   for (const child of children) child.kill('SIGTERM')

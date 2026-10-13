@@ -6,6 +6,13 @@ technically checked neutral-to-neutral motion. They are useful for playback and
 review, but they are not motion-captured transcriptions and are not validated
 Sri Lankan Sign Language.
 
+The next expansion added 15 longer teaching-demo composites (71 total actions).
+See [the teaching demo catalogue](TEACHING_DEMO_ACTIONS.md) for that separate
+expansion; all 56 earlier actions remain unchanged.
+
+The current master also includes 12 [short explanation cues](EXPLANATION_CUES.md),
+bringing the total to 83 actions and preserving every earlier clip.
+
 ## Review references
 
 Use these Sri Lankan resources to check or replace each prototype:

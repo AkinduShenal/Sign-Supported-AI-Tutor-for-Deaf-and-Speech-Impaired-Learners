@@ -99,8 +99,10 @@ non-improvement analysis remain separate components.
   The mesh/skeleton and finger key shapes remain from the supplied package.
   See [avatar repair checks](../avatar-sign-package/docs/PROTOTYPE_TECHNICAL_VALIDATION.md).
 - Canonical manifests: `avatar-sign-package/manifest/` (backend deployment snapshots remain synced).
-- The library has 56 prototype actions: 22 repaired core motions and 34
-  review-only composites; **zero lexical signs are human-validated**.
+- The library has 83 prototype actions: 22 repaired core motions, 34 earlier
+  review-only composites, 15 teaching demos and 12 short explanation cues. The
+  expansion preserves all previous actions and source poses; its visual/signing
+  review is pending. **Zero lexical signs are human-validated**.
 - Default playback is validated-only. Missing/unvalidated actions use text and
   equation support. A reviewer must explicitly enable **Preview unvalidated
   gestures** to inspect the supplied prototype actions.

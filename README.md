@@ -72,7 +72,7 @@ for the adaptive linear-equation workspace. Open
 import Quiz/Game diagnostic JSON. See [the implementation and research guide](docs/GRADE10_TUTOR.md)
 for API integration, tests, model status and remaining validation requirements.
 
-Backend settings currently read `backend/.env` when environment variables are
+Backend settings currently read the root `.env` when environment variables are
 absent; Docker Compose reads the root `.env` and injects `DATABASE_URL`.
 Explicit environment variables take precedence. Never print credentials or run
 tests with the shared Supabase URL: use the isolated commands in the status guide
@@ -83,10 +83,19 @@ warning, lint passed with **5 existing warnings**. The same-day Batch 2 backend
 verification passed 201 cases across isolated executions; it is not a claim that
 the current combined test invocation is safe or that learner validation is done.
 
+Each worked-example step now has **Ask about this step** and related bilingual
+lesson notes. Local retrieval works without an API key. Optional OpenAI generation
+can be enabled on the backend; provider failure falls back to the retrieved
+notes. See [tutor retrieval setup](docs/TUTOR_RAG.md) for configuration and limits.
+
 ## Avatar research status
 
-The master GLB contains 56 technically checked prototype educational gesture
-actions: 22 repaired core actions plus 34 review-only composites. They are not
+The master GLB contains 83 prototype educational gesture actions: 22 repaired
+core actions, 34 earlier composites, 15 teaching demos and 12 short explanation
+cues. The latest expansion preserves all 71 previous actions and reuses their
+unchanged poses; builder preservation checks passed, with visual/signing review
+still pending. See [short explanation cues](avatar-sign-package/docs/EXPLANATION_CUES.md).
+They are not
 validated Sri Lankan Sign Language. Missing or unavailable actions fall back to
 written and visual mathematics support rather than being fabricated at runtime.
 
