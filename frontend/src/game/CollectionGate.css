@@ -1,0 +1,10 @@
+.collection-gate { grid-column: 1 / -1; width: 100%; box-sizing: border-box; margin: 12px auto; padding: 16px; max-width: 1100px; background: #fff; color: #172c44; border: 1px solid #aabac9; border-radius: 12px; }
+.collection-gate form { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.collection-gate input:not([type=checkbox]), .collection-gate button { min-height: 44px; padding: 8px 12px; font: inherit; }
+.collection-gate button { margin: 6px; cursor: pointer; }
+.collection-gate label { display: block; }
+.collection-gate code { overflow-wrap: anywhere; }
+.collection-gate [role=alert] { color: #9b1c1c; }
+.collection-shell { display: flex; flex-direction: column; width: 100%; min-width: 0; align-items: center; }
+.collection-export { margin-top: 16px; padding-top: 12px; border-top: 1px solid #aabac9; }
+.collection-export summary { cursor: pointer; font-weight: 600; }

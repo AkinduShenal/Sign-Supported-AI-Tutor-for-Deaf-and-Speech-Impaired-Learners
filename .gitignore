@@ -23,6 +23,9 @@ avatar/previews/
 # Temporary diagnostics
 tmp/
 
+# Local research CSV exports
+/exports/
+
 # IDE
 .vscode/
 .idea/

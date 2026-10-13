@@ -128,9 +128,13 @@ export class HangmanFigure {
     const handY = barY
     const handSpread = 46
     const shoulderYHang = handY + 46 + sag
-    // The settled pose needs room below the shoulders for the torso (30),
-    // a bent knee segment and a shin down to the mat — see the seated leg
-    // constants below, which this must stay in sync with.
+    // Torso length while hanging vs. once settled on the mat — change these
+    // two numbers to make the torso longer/shorter. The settled pose needs
+    // room below the shoulders for TORSO_LEN_FALLEN, the straight legs below
+    // (see SEATED_THIGH_LEN/SEATED_SHIN_LEN further down) and a landing on
+    // the mat, so shoulderYSettled below must stay in sync with both.
+    const TORSO_LEN_HANG = 54
+    const TORSO_LEN_FALLEN = 36
     const shoulderYSettled = matY - 66
     const shoulderY = lerp(shoulderYHang, shoulderYSettled, easeOutQuad(settle))
     const bodyCx = cx
@@ -139,7 +143,7 @@ export class HangmanFigure {
     const headR = 15
     const torsoWidth = 30
     const torsoTop = shoulderY
-    const torsoBottom = torsoTop + lerp(54, 30, settle)
+    const torsoBottom = torsoTop + lerp(TORSO_LEN_HANG, TORSO_LEN_FALLEN, settle)
     const headCx = bodyCx + lean * 0.3
     const headCy = torsoTop - headR + 6 + lean * 0.2
     const shoulderJointY = torsoTop + 8
@@ -181,30 +185,26 @@ export class HangmanFigure {
     g.fillPath()
     this.drawFace(headCx, headCy, fingersLost, settle, celebrate)
 
-    // Legs: dangling while hanging, bent and seated once settled.
+    // Legs: two straight capsules, each attached directly under its own
+    // shoulder (the same x used for the arm/shoulder joint above) rather
+    // than both forking from one shared center hip — reads as two legs
+    // instead of a single point splitting in two.
     ;[-1, 1].forEach((side) => {
-      const hipX = bodyCx + lean * 0.15
-      let footX: number
+      const hipX = bodyCx + lean * 0.2 + side * (torsoWidth / 2 - 4)
       let footY: number
       if (settle < 0.5) {
         const legLen = lerp(46, 20, settle * 2 <= 1 ? settle * 2 : 1)
-        footX = hipX + side * 10
         footY = torsoBottom + legLen
-        this.fillCapsule(hipX, torsoBottom, footX, footY, 5.5, PANTS)
       } else {
-        // Seated-pose leg lengths — change these two numbers to make the
+        // Seated-pose leg length — change these two numbers to make the
         // legs longer/shorter after the fall (and keep shoulderYSettled
         // above in sync so the feet still land on the mat).
         const SEATED_THIGH_LEN = 14
         const SEATED_SHIN_LEN = 16
-        const kneeX = bodyCx + lean * 0.1 + side * 22
-        const kneeY = torsoBottom + SEATED_THIGH_LEN
-        footX = kneeX + side * 4
-        footY = kneeY + SEATED_SHIN_LEN
-        this.fillCapsule(hipX, torsoBottom, kneeX, kneeY, 5.5, PANTS)
-        this.fillCapsule(kneeX, kneeY, footX, footY, 5, PANTS)
+        footY = torsoBottom + SEATED_THIGH_LEN + SEATED_SHIN_LEN
       }
-      this.filledFoot(footX, footY, side)
+      this.fillCapsule(hipX, torsoBottom, hipX, footY, 5.5, PANTS)
+      this.filledFoot(hipX, footY, side)
     })
 
     if (settle > 0.05 && settle < 0.95) {

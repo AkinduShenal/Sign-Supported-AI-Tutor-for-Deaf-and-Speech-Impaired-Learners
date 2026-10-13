@@ -6,6 +6,7 @@ import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.modules.game.models import GameplayEvent as GameplayEventModel
@@ -32,6 +33,10 @@ class GameResultNotFoundError(ValueError):
     pass
 
 
+class GameEvidenceConflictError(ValueError):
+    pass
+
+
 # Milestone 3's assessment blueprint (Step 10): a pre-tutor assessment is
 # always 2 Easy + 2 Medium + 2 Hard diagnostic tasks, 6 total. Fixed here
 # rather than derived from however many tasks happen to have rows, so a
@@ -46,8 +51,21 @@ ASSESSMENT_TASKS_TOTAL = EASY_TASKS_REQUIRED + MEDIUM_TASKS_REQUIRED + HARD_TASK
 def create_game_session(
     request: CreateGameSessionRequest, database: Session
 ) -> GameSessionResponse:
+    session_code = str(request.client_session_id or uuid.uuid4())
+    existing = database.scalar(
+        select(GameSessionModel).where(GameSessionModel.game_session_id == session_code)
+    )
+    if existing is not None:
+        if (
+            existing.student_id != request.student_id
+            or existing.concept_id != request.concept_id
+            or existing.learning_cycle_id != request.learning_cycle_id
+            or existing.assessment_phase != request.assessment_phase.value
+        ):
+            raise GameEvidenceConflictError("client_session_id belongs to different session data")
+        return _to_session_response(existing)
     session = GameSessionModel(
-        game_session_id=str(uuid.uuid4()),
+        game_session_id=session_code,
         student_id=request.student_id,
         concept_id=request.concept_id,
         learning_cycle_id=request.learning_cycle_id,
@@ -55,7 +73,21 @@ def create_game_session(
         status=GameSessionStatus.IN_PROGRESS.value,
     )
     database.add(session)
-    database.commit()
+    try:
+        database.commit()
+    except IntegrityError:
+        database.rollback()
+        existing = database.scalar(
+            select(GameSessionModel).where(GameSessionModel.game_session_id == session_code)
+        )
+        if existing is None or (
+            existing.student_id != request.student_id
+            or existing.concept_id != request.concept_id
+            or existing.learning_cycle_id != request.learning_cycle_id
+            or existing.assessment_phase != request.assessment_phase.value
+        ):
+            raise
+        return _to_session_response(existing)
     database.refresh(session)
     return _to_session_response(session)
 
@@ -63,7 +95,39 @@ def create_game_session(
 def record_game_event(
     request: GameplayEventRequest, database: Session
 ) -> GameplayEventResponse:
-    _get_session_or_raise(request.game_session_id, database)
+    # Lock the parent row so concurrent retries for the same session cannot
+    # both pass the deduplication check on PostgreSQL. Older clients without
+    # client_event_id retain their original append-only behaviour.
+    session = database.scalar(
+        select(GameSessionModel)
+        .where(GameSessionModel.game_session_id == request.game_session_id)
+        .with_for_update()
+    )
+    if session is None:
+        raise GameSessionNotFoundError(request.game_session_id)
+    client_event_id = request.event_payload.get("client_event_id")
+    if client_event_id is not None:
+        if not isinstance(client_event_id, str) or not client_event_id.strip():
+            raise GameEvidenceConflictError("client_event_id must be a nonempty string")
+        prior = database.scalars(
+            select(GameplayEventModel).where(
+                GameplayEventModel.game_session_id == request.game_session_id
+            )
+        )
+        for existing in prior:
+            if existing.event_payload.get("client_event_id") != client_event_id:
+                continue
+            if (
+                existing.task_id != request.task_id
+                or existing.event_type != request.event_type.value
+                or existing.event_timestamp.replace(tzinfo=existing.event_timestamp.tzinfo or UTC)
+                != request.event_timestamp.astimezone(UTC)
+                or existing.event_payload != request.event_payload
+            ):
+                raise GameEvidenceConflictError("client_event_id was reused with different evidence")
+            return _to_event_response(existing)
+    if session.status != GameSessionStatus.IN_PROGRESS.value:
+        raise GameEvidenceConflictError("completed Game session cannot accept new events")
 
     event = GameplayEventModel(
         game_session_id=request.game_session_id,
@@ -81,7 +145,52 @@ def record_game_event(
 def save_task_attempt(
     request: GameTaskAttemptRequest, database: Session
 ) -> GameTaskAttemptResponse:
-    _get_session_or_raise(request.game_session_id, database)
+    session = database.scalar(
+        select(GameSessionModel)
+        .where(GameSessionModel.game_session_id == request.game_session_id)
+        .with_for_update()
+    )
+    if session is None:
+        raise GameSessionNotFoundError(request.game_session_id)
+    existing = database.scalar(
+        select(GameTaskAttemptModel).where(
+            GameTaskAttemptModel.game_session_id == request.game_session_id,
+            GameTaskAttemptModel.task_id == request.task_id,
+            GameTaskAttemptModel.attempt_number == request.attempt_number,
+        )
+    )
+    if existing is not None:
+        expected = (
+            request.attempts_count,
+            request.wrong_attempts,
+            request.hints_used,
+            request.skipped_steps,
+            request.time_taken_sec,
+            request.is_completed,
+            request.is_successful,
+            request.score,
+            request.activity_id,
+            request.variant_id,
+            request.difficulty_level.value if request.difficulty_level else None,
+        )
+        actual = (
+            existing.attempts_count,
+            existing.wrong_attempts,
+            existing.hints_used,
+            existing.skipped_steps,
+            existing.time_taken_sec,
+            existing.is_completed,
+            existing.is_successful,
+            existing.score,
+            existing.activity_id,
+            existing.variant_id,
+            existing.difficulty_level,
+        )
+        if actual != expected:
+            raise GameEvidenceConflictError("task attempt was resubmitted with different evidence")
+        return _to_attempt_response(existing)
+    if session.status != GameSessionStatus.IN_PROGRESS.value:
+        raise GameEvidenceConflictError("completed Game session cannot accept new task attempts")
 
     attempt = GameTaskAttemptModel(
         game_session_id=request.game_session_id,
@@ -106,29 +215,136 @@ def save_task_attempt(
 
 
 def complete_game_session(game_session_id: str, database: Session) -> GameSessionResponse:
-    session = _get_session_or_raise(game_session_id, database)
-    session.status = GameSessionStatus.COMPLETED.value
-    session.completed_at = datetime.now(UTC)
-    database.commit()
-    database.refresh(session)
-
-    # Milestone 3 Step 16: completion is backend-decided, not a frontend
-    # "questionNumber === 6" check. If this session actually reached the
-    # 2+2+2 blueprint, calculate and persist its game_results row now
-    # (Step 17) — idempotent, so completing an already-completed session
-    # again (e.g. a retried network call) never creates a duplicate.
-    if is_assessment_complete(game_session_id, database):
+    # Use the same parent-row lock as event/attempt writes. Completion must
+    # not race an in-flight answer into the database after evidence checks.
+    session = database.scalar(
+        select(GameSessionModel)
+        .where(GameSessionModel.game_session_id == game_session_id)
+        .with_for_update()
+    )
+    if session is None:
+        raise GameSessionNotFoundError(game_session_id)
+    # An interrupted/partial assessment stays identifiable as in_progress.
+    # A result is only written for a saved six-task assessment.
+    if not is_assessment_complete(game_session_id, database):
+        raise GameEvidenceConflictError("saved assessment is incomplete")
+    try:
+        if session.status != GameSessionStatus.COMPLETED.value:
+            session.status = GameSessionStatus.COMPLETED.value
+            session.completed_at = datetime.now(UTC)
+        # create_game_result commits a new result and the pending status
+        # together. If a result already exists, commit only the status.
         create_game_result(game_session_id, database)
-
-    return _to_session_response(session)
+        if session in database.dirty:
+            database.commit()
+        database.refresh(session)
+        return _to_session_response(session)
+    except Exception:
+        database.rollback()
+        raise
 
 
 def is_assessment_complete(game_session_id: str, database: Session) -> bool:
-    """True once at least 2 Easy, 2 Medium and 2 Hard tasks have been
-    *processed* for this session — a wrong or skipped task still counts,
-    only success does not (Milestone 3 Step 16). Counts distinct task_id
-    rows per difficulty_level, so a task that somehow got two attempt rows
-    isn't double-counted."""
+    """True only for exactly six saved, processed tasks in the 2+2+2 plan."""
+
+    attempts = database.scalars(
+        select(GameTaskAttemptModel).where(
+            GameTaskAttemptModel.game_session_id == game_session_id
+        )
+    ).all()
+    if len(attempts) != ASSESSMENT_TASKS_TOTAL:
+        return False
+    if len({attempt.task_id for attempt in attempts}) != ASSESSMENT_TASKS_TOTAL:
+        return False
+    if any(not attempt.is_completed or attempt.attempts_count < 1 for attempt in attempts):
+        return False
+
+    events = database.scalars(
+        select(GameplayEventModel).where(
+            GameplayEventModel.game_session_id == game_session_id
+        )
+    ).all()
+    audited = any(
+        event.event_type == "GAME_STARTED"
+        and event.event_payload.get("recording_protocol") == "game-evidence-v1"
+        for event in events
+    )
+    if any(event.event_payload.get("client_event_id") for event in events) and not audited:
+        return False
+    if audited:
+        started = next(
+            event for event in events
+            if event.event_type == "GAME_STARTED"
+            and event.event_payload.get("recording_protocol") == "game-evidence-v1"
+        )
+        game_type = started.event_payload.get("game_type")
+        if game_type not in ("drag_drop", "hangman"):
+            return False
+        by_task: dict[str, list[GameplayEventModel]] = {}
+        for event in events:
+            if event.task_id is not None:
+                by_task.setdefault(event.task_id, []).append(event)
+        for attempt in attempts:
+            task_events = by_task.get(attempt.task_id, [])
+            answers = [
+                event for event in task_events
+                if event.event_type in ("ANSWER_CORRECT", "ANSWER_INCORRECT")
+            ]
+            if len(answers) != attempt.attempts_count:
+                return False
+            if sum(event.event_type == "ANSWER_INCORRECT" for event in answers) != attempt.wrong_attempts:
+                return False
+            if sum(event.event_type == "HINT_REQUESTED" for event in task_events) != attempt.hints_used:
+                return False
+            if any(
+                not event.event_payload.get("question_prompt")
+                or not event.event_payload.get("expected_response")
+                or not (
+                    event.event_payload.get("selected_choice") is not None
+                    or event.event_payload.get("submitted_value") is not None
+                )
+                or event.event_payload.get("difficulty_level") != attempt.difficulty_level
+                or event.event_payload.get("game_type") != game_type
+                for event in answers
+            ):
+                return False
+            for event in answers:
+                payload = event.event_payload
+                step_index = payload.get("step_index", 0)
+                step_count = payload.get("step_count", 1)
+                number = payload.get("attempt_number")
+                if (
+                    not isinstance(step_index, int) or not isinstance(step_count, int)
+                    or not isinstance(number, int) or step_count < 1
+                    or step_index < 0 or step_index >= step_count or number < 1
+                ):
+                    return False
+            correct_steps = {
+                event.event_payload.get("step_index", 0)
+                for event in answers if event.event_type == "ANSWER_CORRECT"
+            }
+            planned_steps = max(
+                (event.event_payload.get("step_count", 1) for event in answers),
+                default=1,
+            )
+            if attempt.is_successful != (correct_steps == set(range(planned_steps))):
+                return False
+            attempts_by_step: dict[int, set[int]] = {}
+            step_event_counts: dict[int, int] = {}
+            for event in answers:
+                payload = event.event_payload
+                step_index = payload.get("step_index", 0)
+                number = payload.get("attempt_number")
+                attempts_by_step.setdefault(step_index, set()).add(number)
+                step_event_counts[step_index] = step_event_counts.get(step_index, 0) + 1
+            if any(
+                numbers != set(range(1, step_event_counts[step_index] + 1))
+                for step_index, numbers in attempts_by_step.items()
+            ):
+                return False
+            expected_retries = sum(len(numbers) - 1 for numbers in attempts_by_step.values())
+            if sum(event.event_type == "RETRY_STARTED" for event in task_events) != expected_retries:
+                return False
 
     rows = database.execute(
         select(
@@ -141,9 +357,9 @@ def is_assessment_complete(game_session_id: str, database: Session) -> bool:
     counts = {difficulty: count for difficulty, count in rows}
 
     return (
-        counts.get("easy", 0) >= EASY_TASKS_REQUIRED
-        and counts.get("medium", 0) >= MEDIUM_TASKS_REQUIRED
-        and counts.get("hard", 0) >= HARD_TASKS_REQUIRED
+        counts.get("easy", 0) == EASY_TASKS_REQUIRED
+        and counts.get("medium", 0) == MEDIUM_TASKS_REQUIRED
+        and counts.get("hard", 0) == HARD_TASKS_REQUIRED
     )
 
 

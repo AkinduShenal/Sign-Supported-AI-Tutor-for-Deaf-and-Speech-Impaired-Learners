@@ -208,10 +208,9 @@ def test_complete_game_session():
     response = client.post(
         f"/api/v1/game/sessions/{session['game_session_id']}/complete"
     )
-    assert response.status_code == 200, response.text
-    body = response.json()
-    assert body["status"] == "completed"
-    assert body["completed_at"] is not None
+    assert response.status_code == 409, response.text
+    body = client.get(f"/api/v1/game/results/{session['game_session_id']}")
+    assert body.status_code == 404
 
 
 def test_complete_unknown_session_returns_404():
@@ -310,8 +309,8 @@ def test_full_session_event_attempt_flow():
     assert attempt_response.status_code == 201, attempt_response.text
 
     complete_response = client.post(f"/api/v1/game/sessions/{session_id}/complete")
-    assert complete_response.status_code == 200
-    assert complete_response.json()["status"] == "completed"
+    assert complete_response.status_code == 409
+    assert client.get(f"/api/v1/game/results/{session_id}").status_code == 404
 
 
 # ---- Batch 4: feature engineering, automatic completion, game_results ----
@@ -378,6 +377,18 @@ def test_game_result_created_automatically_once_2_2_2_reached():
     assert body["successful_tasks"] == 6
     assert body["game_success_rate"] == 1.0
     assert body["game_completion_rate"] == 1.0
+    # Late writes must not alter evidence after the result was frozen.
+    late_event = client.post("/api/v1/game/events", json={
+        "game_session_id": session_id, "task_id": "E1",
+        "event_type": "HINT_REQUESTED",
+        "event_timestamp": datetime.now(UTC).isoformat(),
+        "event_payload": {"client_event_id": str(uuid.uuid4())},
+    })
+    assert late_event.status_code == 409
+    assert client.post("/api/v1/game/task-attempts", json={
+        "game_session_id": session_id, "task_id": "E3",
+        "difficulty_level": "easy",
+    }).status_code == 409
 
 
 def test_game_result_rate_calculations_are_correct():
@@ -594,3 +605,190 @@ def test_event_and_attempt_for_unknown_session_rejected_by_foreign_key():
     )
     assert event.status_code == 404
     assert attempt.status_code == 404
+
+
+def test_retry_keys_preserve_one_session_event_and_task_summary():
+    from sqlalchemy import func, select
+
+    from app.modules.game.models import GameplayEvent, GameSession, GameTaskAttempt
+
+    cycle_id = str(uuid.uuid4())
+    client_id = str(uuid.uuid4())
+    payload = {
+        "student_id": "STU_001", "concept_id": "linear_equations",
+        "learning_cycle_id": cycle_id, "client_session_id": client_id,
+    }
+    first = client.post("/api/v1/game/sessions", json=payload)
+    second = client.post("/api/v1/game/sessions", json=payload)
+    assert first.status_code == second.status_code == 201
+    assert first.json()["game_session_id"] == second.json()["game_session_id"] == client_id
+    assert client.post(
+        "/api/v1/game/sessions", json={**payload, "student_id": "STU_002"}
+    ).status_code == 409
+
+    event = {
+        "game_session_id": client_id, "task_id": "E1", "event_type": "ANSWER_INCORRECT",
+        "event_timestamp": datetime.now(UTC).isoformat(),
+        "event_payload": {"client_event_id": str(uuid.uuid4()), "submitted_value": "2"},
+    }
+    saved = client.post("/api/v1/game/events", json=event)
+    retried = client.post("/api/v1/game/events", json=event)
+    assert saved.status_code == retried.status_code == 201
+    assert saved.json()["id"] == retried.json()["id"]
+    assert client.post(
+        "/api/v1/game/events", json={**event, "event_type": "ANSWER_CORRECT"}
+    ).status_code == 409
+
+    attempt = {
+        "game_session_id": client_id, "task_id": "E1", "attempt_number": 1,
+        "attempts_count": 1, "wrong_attempts": 1, "difficulty_level": "easy",
+    }
+    saved_attempt = client.post("/api/v1/game/task-attempts", json=attempt)
+    retried_attempt = client.post("/api/v1/game/task-attempts", json=attempt)
+    assert saved_attempt.json()["id"] == retried_attempt.json()["id"]
+    assert client.post(
+        "/api/v1/game/task-attempts", json={**attempt, "wrong_attempts": 0}
+    ).status_code == 409
+    with TestingSessionLocal() as database:
+        assert database.scalar(select(func.count(GameSession.id))) == 1
+        assert database.scalar(select(func.count(GameplayEvent.id))) == 1
+        assert database.scalar(select(func.count(GameTaskAttempt.id))) == 1
+
+
+def test_audited_completion_needs_saved_answers_and_exports_same_source_ids(tmp_path):
+    import csv
+
+    from scripts.export_game_collection import export_game_data
+
+    session = _create_session(student_id="STU_001", concept_id="linear_equations")
+    session_id = session["game_session_id"]
+    def event(task_id: str | None, kind: str, payload: dict):
+        response = client.post("/api/v1/game/events", json={
+            "game_session_id": session_id, "task_id": task_id,
+            "event_type": kind, "event_timestamp": datetime.now(UTC).isoformat(),
+            "event_payload": {**payload, "client_event_id": str(uuid.uuid4())},
+        })
+        assert response.status_code == 201, response.text
+        return response.json()
+
+    event(None, "GAME_STARTED", {"game_type": "hangman", "recording_protocol": "game-evidence-v1"})
+    answer_ids = []
+    for task_id, difficulty in [
+        ("E1", "easy"), ("E2", "easy"), ("M1", "medium"),
+        ("M2", "medium"), ("H1", "hard"), ("H2", "hard"),
+    ]:
+        _save_attempt(session_id, task_id, difficulty)
+        if task_id == "E1":
+            event("E1", "HINT_REQUESTED", {})
+            event("E1", "ANSWER_INCORRECT", {
+                "game_type": "hangman", "difficulty_level": difficulty,
+                "question_prompt": "x + 3 = 7", "expected_response": "4",
+                "submitted_value": "3", "attempt_number": 1, "answer_type": "final_value",
+                "hints_before_attempt": 1,
+            })
+            event("E1", "RETRY_STARTED", {})
+            # The task summary must match both answers and the hint.
+            assert client.post("/api/v1/game/sessions/" + session_id + "/complete").status_code == 409
+        answer_ids.append(event(task_id, "ANSWER_CORRECT", {
+            "game_type": "hangman", "difficulty_level": difficulty,
+            "question_prompt": "x + 3 = 7", "expected_response": "4",
+            "submitted_value": "4", "attempt_number": 2 if task_id == "E1" else 1,
+            "answer_type": "final_value", "hints_before_attempt": 1 if task_id == "E1" else 0,
+        })["id"])
+    # A mismatched summary must not create a seemingly valid Game result.
+    assert client.post(f"/api/v1/game/sessions/{session_id}/complete").status_code == 409
+    assert client.get(f"/api/v1/game/results/{session_id}").status_code == 404
+
+    # The export still includes all seven saved answer outcomes and marks
+    # this assessment incomplete; it does not fabricate independent labels.
+    with TestingSessionLocal() as database:
+        counts = export_game_data(database, tmp_path)
+    assert counts["student_answers"] == 7
+    assert counts["incomplete_sessions"] == 1
+    with (tmp_path / "student_answers.csv").open(encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    assert set(answer_ids).issubset({row["source_event_id"] for row in rows})
+    assert {row["student_code"] for row in rows} == {"STU_001"}
+    assert {row["answer_type"] for row in rows} == {"final_value"}
+    assert {row["first_attempt_correct"] for row in rows} == {"True", "False"}
+    with (tmp_path / "game_events.csv").open(encoding="utf-8-sig", newline="") as handle:
+        event_rows = list(csv.DictReader(handle))
+    assert {row["event_type"] for row in event_rows} >= {
+        "ANSWER_CORRECT", "ANSWER_INCORRECT", "HINT_REQUESTED", "RETRY_STARTED"
+    }
+    with (tmp_path / "independent_assessment_labels.csv").open(encoding="utf-8-sig", newline="") as handle:
+        labels = list(csv.DictReader(handle))
+    assert labels[0]["independent_label"] == ""
+
+
+def test_audited_hangman_failure_does_not_become_full_success():
+    session_id = _create_session(student_id="STU_002")["game_session_id"]
+    def save_event(task_id: str | None, kind: str, payload: dict):
+        response = client.post("/api/v1/game/events", json={
+            "game_session_id": session_id, "task_id": task_id,
+            "event_type": kind, "event_timestamp": datetime.now(UTC).isoformat(),
+            "event_payload": {**payload, "client_event_id": str(uuid.uuid4())},
+        })
+        assert response.status_code == 201, response.text
+
+    save_event(None, "GAME_STARTED", {"game_type": "hangman", "recording_protocol": "game-evidence-v1"})
+    for task_id, difficulty in [
+        ("E1", "easy"), ("E2", "easy"), ("M1", "medium"),
+        ("M2", "medium"), ("H1", "hard"), ("H2", "hard"),
+    ]:
+        failed = task_id == "E1"
+        count = 10 if failed else 1
+        for number in range(1, count + 1):
+            if number > 1:
+                save_event(task_id, "RETRY_STARTED", {})
+            save_event(task_id, "ANSWER_INCORRECT" if failed else "ANSWER_CORRECT", {
+                "game_type": "hangman", "difficulty_level": difficulty,
+                "question_prompt": "x + 3 = 7", "expected_response": "4",
+                "submitted_value": "3" if failed else "4",
+                "attempt_number": number, "answer_type": "final_value",
+            })
+        _save_attempt(
+            session_id, task_id, difficulty, attempts_count=count,
+            wrong_attempts=count if failed else 0, is_successful=not failed,
+            score=0 if failed else 1,
+        )
+    completed = client.post(f"/api/v1/game/sessions/{session_id}/complete")
+    assert completed.status_code == 200, completed.text
+    result = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert result["tasks_completed"] == 6
+    assert result["successful_tasks"] == 5
+    assert result["game_success_rate"] == pytest.approx(5 / 6)
+    assert result["wrong_attempt_count"] == 10
+    assert result["retry_count"] == 9
+
+
+def test_audited_drag_drop_multistep_answer_order_and_hints():
+    session_id = _create_session(student_id="STU_003")["game_session_id"]
+    def event(task_id: str | None, kind: str, payload: dict):
+        response = client.post("/api/v1/game/events", json={
+            "game_session_id": session_id, "task_id": task_id,
+            "event_type": kind, "event_timestamp": datetime.now(UTC).isoformat(),
+            "event_payload": {**payload, "client_event_id": str(uuid.uuid4())},
+        })
+        assert response.status_code == 201, response.text
+
+    event(None, "GAME_STARTED", {"game_type": "drag_drop", "recording_protocol": "game-evidence-v1"})
+    for task_id, difficulty in [
+        ("E1", "easy"), ("E2", "easy"), ("M1", "medium"),
+        ("M2", "medium"), ("H1", "hard"), ("H2", "hard"),
+    ]:
+        step_count = 2 if task_id == "H1" else 1
+        for step_index in range(step_count):
+            event(task_id, "ANSWER_CORRECT", {
+                "game_type": "drag_drop", "difficulty_level": difficulty,
+                "step_index": step_index, "step_count": step_count,
+                "question_prompt": "2x + 1 = 7", "expected_response": "-1",
+                "selected_choice": "-1", "attempt_number": 1,
+                "answer_type": "equation_operation",
+            })
+        _save_attempt(session_id, task_id, difficulty, attempts_count=step_count)
+    completed = client.post(f"/api/v1/game/sessions/{session_id}/complete")
+    assert completed.status_code == 200, completed.text
+    result = client.get(f"/api/v1/game/results/{session_id}").json()
+    assert result["successful_tasks"] == 6
+    assert result["game_avg_attempts_per_task"] == pytest.approx(7 / 6)
