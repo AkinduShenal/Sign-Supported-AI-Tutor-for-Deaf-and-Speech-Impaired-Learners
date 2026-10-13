@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:5173"
 
     model_config = SettingsConfigDict(
+        env_file=(".env", "../.env"),
         extra="ignore",
     )
 

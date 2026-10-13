@@ -23,6 +23,24 @@ app.add_middleware(
 
 app.include_router(tutor_router)
 
+# Integrate Linear Equation AI Tutor service
+try:
+    from app.modules.non_improvement_section_tutor.main import router as linear_tutor_router
+    from app.modules.non_improvement_section_tutor.services.db import init_db as init_linear_tutor_db
+    app.include_router(linear_tutor_router)
+except Exception as _tutor_import_err:
+    init_linear_tutor_db = None
+    print(f"[WARN] Could not import Linear Equation Tutor: {_tutor_import_err}")
+
+
+@app.on_event("startup")
+def startup_event():
+    if init_linear_tutor_db:
+        try:
+            init_linear_tutor_db()
+        except Exception as _db_err:
+            print(f"[WARN] Linear Equation Tutor init_db error: {_db_err}")
+
 
 @app.get("/api/v1/health", tags=["System"])
 def health_check() -> dict[str, str]:
@@ -41,3 +59,8 @@ def database_health_check() -> dict[str, str]:
         "status": "ok",
         "database": "connected",
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
