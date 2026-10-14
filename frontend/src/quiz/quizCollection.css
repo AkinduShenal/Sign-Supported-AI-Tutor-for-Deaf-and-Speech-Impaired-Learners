@@ -1,0 +1,10 @@
+.quiz-collection-shell { width: min(860px, calc(100% - 32px)); margin: 24px auto 0; }
+.quiz-collection-gate { border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; background: var(--surface); box-shadow: var(--shadow-soft); }
+.quiz-collection-gate form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
+.quiz-collection-gate input:not([type='checkbox']) { min-height: 40px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
+.quiz-collection-gate button { min-height: 40px; border: 1px solid var(--primary); border-radius: 8px; padding: 6px 12px; color: var(--primary); background: var(--surface); margin-right: 8px; }
+.quiz-collection-gate button:disabled { opacity: .5; }
+.quiz-collection-gate label { display: inline-flex; align-items: center; gap: 6px; }
+.quiz-collection-gate p { line-height: 1.45; }
+.quiz-collection-gate [role='alert'] { color: #9b1c1c; }
+.quiz-collection-export { margin-top: 14px; }

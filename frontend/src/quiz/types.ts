@@ -23,6 +23,7 @@ export interface QuizQuestion {
 
 export interface QuizSession {
   quiz_session_id: string
+  student_id: string
   concept_id: string
   learning_cycle_id: string
   assessment_phase: 'pre_tutor'
@@ -43,6 +44,7 @@ export interface QuizAnswer {
   response_time_sec: number
   confidence_level: ConfidenceLevel
   question_order: number
+  client_action_at: string
 }
 
 export interface QuizAnswerSaved {
@@ -50,6 +52,10 @@ export interface QuizAnswerSaved {
   quiz_session_id: string
   question_id: string
   question_order: number
+  selected_option_id: string
+  response_time_sec: number
+  confidence_level: ConfidenceLevel
+  answered_at: string
   saved: true
 }
 
