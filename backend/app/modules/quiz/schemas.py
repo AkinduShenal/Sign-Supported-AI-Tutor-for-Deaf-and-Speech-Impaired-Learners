@@ -1,9 +1,10 @@
 import uuid
+import re
 from datetime import datetime
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from app.modules.quiz.diagnostic_rules import RULES
 
@@ -59,10 +60,18 @@ class QuizSessionCreate(BaseModel):
     learning_cycle_id: uuid.UUID | None = None
     quiz_attempt_number: int = Field(default=1, gt=0)
     display_language: DisplayLanguage = DisplayLanguage.BILINGUAL
+    client_session_id: uuid.UUID | None = None
+
+    @model_validator(mode="after")
+    def require_collection_code(self):
+        if self.client_session_id is not None and re.fullmatch(r"STU_[0-9]{3,6}", self.student_id) is None:
+            raise ValueError("Collection sessions require STU_ followed by 3–6 digits")
+        return self
 
 
 class QuizSessionResponse(BaseModel):
     quiz_session_id: str
+    student_id: str
     concept_id: str
     learning_cycle_id: uuid.UUID
     assessment_phase: AssessmentPhase
@@ -85,6 +94,7 @@ class QuizAnswerSubmit(BaseModel):
     response_time_sec: float = Field(ge=0, allow_inf_nan=False)
     confidence_level: ConfidenceLevel
     question_order: int = Field(gt=0)
+    client_action_at: datetime | None = None
 
 
 class QuizAnswerSavedResponse(BaseModel):
@@ -92,6 +102,10 @@ class QuizAnswerSavedResponse(BaseModel):
     quiz_session_id: str
     question_id: uuid.UUID
     question_order: int
+    selected_option_id: uuid.UUID
+    response_time_sec: float
+    confidence_level: ConfidenceLevel
+    answered_at: datetime
     saved: Literal[True] = True
 
 

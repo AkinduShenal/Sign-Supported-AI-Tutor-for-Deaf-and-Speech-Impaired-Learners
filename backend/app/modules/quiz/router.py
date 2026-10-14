@@ -1,9 +1,12 @@
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.modules.quiz.collection_export import quiz_collection_zip, require_quiz_export_access
 from app.modules.quiz.diagnostic_service import QuizDiagnosticService
 from app.modules.quiz.schemas import (
     AssessmentPhase,
@@ -29,6 +32,18 @@ diagnostic_service = QuizDiagnosticService()
 Database = Annotated[Session, Depends(get_db)]
 
 
+@router.get("/exports/collection", dependencies=[Depends(require_quiz_export_access)])
+def download_collection(database: Database) -> Response:
+    try:
+        content, filename = quiz_collection_zip(database)
+    except (SQLAlchemyError, OSError) as error:
+        raise HTTPException(503, "Quiz data could not be exported.") from error
+    return Response(content=content, media_type="application/zip", headers={
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
+    })
+
+
 @router.get("/questions", response_model=list[QuizQuestionResponse])
 def list_questions(
     database: Database,
@@ -49,7 +64,10 @@ def list_questions(
 def create_session(
     request: QuizSessionCreate, database: Database
 ) -> QuizSessionResponse:
-    return service.create_session(database, request)
+    try:
+        return service.create_session(database, request)
+    except QuizConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @router.get("/sessions/{quiz_session_id}", response_model=QuizSessionDetailResponse)

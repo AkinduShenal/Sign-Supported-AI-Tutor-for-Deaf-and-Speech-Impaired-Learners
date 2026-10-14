@@ -1,26 +1,29 @@
-import type { QuizAnswer, QuizAnswerSaved, QuizDiagnosticResult, QuizQuestion, QuizSession, QuizSessionDetail } from './types'
+import type { QuizAnswer, QuizAnswerSaved, QuizDiagnosticResult, QuizLanguage, QuizQuestion, QuizSession, QuizSessionDetail } from './types'
+import { withQuizTimeout } from './requestTimeout'
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000/api/v1'
-const API_BASE_URL = (
+export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
 ).replace(/\/$/, '')
 
 async function quizRequest<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}/quiz/${path}`, {
-    method: body === undefined ? 'GET' : 'POST',
-    headers: {
-      Accept: 'application/json',
-      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
-  })
-  if (!response.ok) {
-    const details = await response.json().catch(() => null) as { detail?: unknown } | null
-    const message = typeof details?.detail === 'string' ? details.detail : null
-    throw new Error(message || `Quiz request failed (${response.status}). Please try again.`)
-  }
-  return response.json() as Promise<T>
+  return withQuizTimeout(async requestSignal => {
+    const response = await fetch(`${API_BASE_URL}/quiz/${path}`, {
+      method: body === undefined ? 'GET' : 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: requestSignal,
+    })
+    if (!response.ok) {
+      const details = await response.json().catch(() => null) as { detail?: unknown } | null
+      const message = typeof details?.detail === 'string' ? details.detail : null
+      throw new Error(message || `Quiz request failed (${response.status}). Please try again.`)
+    }
+    return response.json() as Promise<T>
+  }, signal)
 }
 
 export function getPreQuizQuestions(signal?: AbortSignal): Promise<QuizQuestion[]> {
@@ -31,12 +34,18 @@ export function getPreQuizQuestions(signal?: AbortSignal): Promise<QuizQuestion[
   )
 }
 
-export function createPreQuizSession(studentId: string): Promise<QuizSession> {
+export interface CreateQuizSessionInput {
+  student_id: string
+  concept_id: 'linear_equations'
+  assessment_phase: 'pre_tutor'
+  display_language: QuizLanguage
+  learning_cycle_id: string
+  client_session_id: string
+}
+
+export function createPreQuizSession(input: CreateQuizSessionInput): Promise<QuizSession> {
   return quizRequest<QuizSession>('sessions', {
-    student_id: studentId,
-    concept_id: 'linear_equations',
-    assessment_phase: 'pre_tutor',
-    display_language: 'bilingual',
+    ...input,
   })
 }
 

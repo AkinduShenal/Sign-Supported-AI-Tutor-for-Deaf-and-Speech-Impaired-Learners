@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Mapping
 
 from app.modules.quiz.diagnostic_rules import (
-    MISCONCEPTION_FOCUS,
     RULES,
     SUBCONCEPT_FOCUS,
     TUTOR_MISCONCEPTION_CODES,
@@ -94,14 +93,12 @@ def calculate_diagnostic(
         if item["attempted"] >= rules.weak_subconcept_min_attempts
         and item["accuracy"] < rules.weak_subconcept_accuracy_below
     ]
-    weak_subconcept = (
-        min(
-            weak_candidates,
-            key=lambda pair: (pair[1]["accuracy"], -pair[1]["attempted"], pair[0]),
-        )[0]
-        if weak_candidates
-        else None
-    )
+    # A tied lowest accuracy does not support naming one area as uniquely weak.
+    lowest_accuracy = min((item["accuracy"] for _, item in weak_candidates), default=None)
+    lowest_candidates = [
+        code for code, item in weak_candidates if item["accuracy"] == lowest_accuracy
+    ]
+    weak_subconcept = lowest_candidates[0] if len(lowest_candidates) == 1 else None
 
     misconception_counts = Counter(
         item.misconception_code
@@ -267,10 +264,6 @@ def calculate_diagnostic(
     if weak_subconcept:
         recommended_focus = SUBCONCEPT_FOCUS.get(
             weak_subconcept, weak_subconcept.replace("_", " ").title()
-        )
-    elif misconception_code != "none":
-        recommended_focus = MISCONCEPTION_FOCUS.get(
-            misconception_code, "Linear Equation Steps"
         )
     else:
         recommended_focus = "Continue Linear Equation Practice"
