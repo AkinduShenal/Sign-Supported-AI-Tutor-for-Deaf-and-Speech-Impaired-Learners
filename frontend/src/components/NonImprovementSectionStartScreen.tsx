@@ -57,7 +57,7 @@ export function NonImprovementSectionStartScreen({ onEvaluationComplete }: NonIm
       <div className="doodle-pattern" aria-hidden="true" />
       
       <main className="celebration" style={{ backgroundColor: 'white', padding: '40px', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '400px', minHeight: 'auto' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '16px', color: '#333' }}>Re-Assessment</h1>
+        <h1 style={{ fontSize: '2rem', marginBottom: '16px', color: '#333' }}>Re Assessment</h1>
         <p style={{ marginBottom: '32px', color: '#666', fontSize: '1.1rem' }}>
           Welcome! Let's start by evaluating your current skills. Click the button below to submit your initial test and get a personalized lesson.
         </p>
