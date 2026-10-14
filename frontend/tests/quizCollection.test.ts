@@ -41,7 +41,8 @@ test('Quiz queue preserves exact answer across response loss, refresh, and learn
       return { response_id: `source-${body.question_order}`, quiz_session_id: id,
         question_id: body.question_id, question_order: body.question_order,
         selected_option_id: body.selected_option_id, response_time_sec: body.response_time_sec,
-        confidence_level: body.confidence_level, answered_at: body.client_action_at, saved: true }
+        confidence_level: body.confidence_level, answered_at: body.client_action_at,
+        is_correct: body.selected_option_id === 'option-A', saved: true }
     },
     complete: async (_id: string) => savedSession(source, 'completed'),
   }
@@ -59,15 +60,22 @@ test('Quiz queue preserves exact answer across response loss, refresh, and learn
   assert.deepEqual(reopened.session(id).responses[0].body, original)
   assert.equal(await reopened.flush(id), true)
   assert.equal(reopened.session(id).responses[0].saved, true)
-  reopened.answer(id, { ...original, question_id: 'question-2', question_order: 2,
+  assert.equal(reopened.session(id).responses[0].is_correct, true)
+  assert.equal(reopened.session(id).responses[0].feedback_viewed, false)
+  reopened.acknowledgeFeedback(id, 0)
+  const reloaded = new PendingQuizWrites(storage, transport, 'http://isolated.test/api/v1')
+  assert.equal(reloaded.session(id).responses[0].is_correct, true)
+  assert.equal(reloaded.session(id).responses[0].feedback_viewed, true)
+  reloaded.answer(id, { ...original, question_id: 'question-2', question_order: 2,
     selected_option_id: 'option-B', response_time_sec: 5.25, client_action_at: '2026-10-13T08:01:00.000Z' })
-  assert.equal(await reopened.flush(id), true)
-  assert.equal(reopened.session(id).completed, true)
-  assert.equal(reopened.status(id), 'Saved')
+  assert.equal(await reloaded.flush(id), true)
+  assert.equal(reloaded.session(id).completed, true)
+  assert.equal(reloaded.session(id).responses[1].is_correct, false)
+  assert.equal(reloaded.status(id), 'Saved')
   assert.equal(answerCalls, 3)
   assert.equal(saved.size, 2)
-  reopened.close(id)
-  assert.equal(reopened.start(learner('STU_002', '11b2760e-656c-40bc-9f82-2dabfafc6870'), ['question-1']), 'QUIZ-11b2760e-656c-40bc-9f82-2dabfafc6870')
+  reloaded.close(id)
+  assert.equal(reloaded.start(learner('STU_002', '11b2760e-656c-40bc-9f82-2dabfafc6870'), ['question-1']), 'QUIZ-11b2760e-656c-40bc-9f82-2dabfafc6870')
 })
 
 test('Quiz queue rejects a mismatched answer acknowledgment and retains the write', async () => {
@@ -78,7 +86,8 @@ test('Quiz queue rejects a mismatched answer acknowledgment and retains the writ
     answer: async (id, body) => ({ response_id: 'wrong', quiz_session_id: id,
       question_id: body.question_id, question_order: body.question_order,
       selected_option_id: 'different-option', response_time_sec: body.response_time_sec,
-      confidence_level: body.confidence_level, answered_at: body.client_action_at, saved: true }),
+      confidence_level: body.confidence_level, answered_at: body.client_action_at,
+      is_correct: true, saved: true }),
     complete: async () => savedSession(source, 'completed'),
   }, 'http://isolated.test/api/v1')
   const id = queue.start(source, ['question-1'])

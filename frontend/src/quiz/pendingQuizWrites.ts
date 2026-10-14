@@ -9,6 +9,8 @@ export interface QuizWrite {
   body: QuizAnswer
   saved: boolean
   response_id: string | null
+  is_correct?: boolean
+  feedback_viewed?: boolean
 }
 
 export interface QuizCollectionSession {
@@ -128,13 +130,23 @@ export class PendingQuizWrites {
     }
     this.update(next => {
       const target = next.sessions.find(item => `QUIZ-${item.request.client_session_id}` === id)!
-      target.responses.push({ body, saved: false, response_id: null })
+      target.responses.push({ body, saved: false, response_id: null, feedback_viewed: false })
       if (target.responses.length === target.question_ids.length) target.completion_requested = true
     })
   }
   close(id: string): void {
     if (this.status(id) !== 'Saved') throw new Error('Recover pending Quiz evidence before switching learners.')
     this.update(next => { next.sessions.find(row => `QUIZ-${row.request.client_session_id}` === id)!.closed = true })
+  }
+  acknowledgeFeedback(id: string, questionIndex: number): void {
+    const write = this.session(id).responses[questionIndex]
+    if (!write?.saved || typeof write.is_correct !== 'boolean') {
+      throw new Error('Saved answer feedback is not available yet.')
+    }
+    this.update(next => {
+      const target = next.sessions.find(row => `QUIZ-${row.request.client_session_id}` === id)!
+      target.responses[questionIndex].feedback_viewed = true
+    })
   }
   flush(id: string): Promise<boolean> {
     const running = this.inFlight.get(id)
@@ -168,12 +180,13 @@ export class PendingQuizWrites {
           || saved.response_time_sec !== write.body.response_time_sec
           || saved.confidence_level !== write.body.confidence_level
           || Date.parse(saved.answered_at) !== Date.parse(write.body.client_action_at)
-          || !saved.response_id || saved.saved !== true) {
+          || !saved.response_id || saved.saved !== true || typeof saved.is_correct !== 'boolean') {
           throw new Error('Quiz answer acknowledgment does not match the stored question evidence.')
         }
         this.update(next => {
           const target = next.sessions.find(item => `QUIZ-${item.request.client_session_id}` === id)!
           target.responses[index].saved = true; target.responses[index].response_id = saved.response_id
+          target.responses[index].is_correct = saved.is_correct
         })
       }
       row = this.session(id)

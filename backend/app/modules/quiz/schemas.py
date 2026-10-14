@@ -106,6 +106,7 @@ class QuizAnswerSavedResponse(BaseModel):
     response_time_sec: float
     confidence_level: ConfidenceLevel
     answered_at: datetime
+    is_correct: bool
     saved: Literal[True] = True
 
 

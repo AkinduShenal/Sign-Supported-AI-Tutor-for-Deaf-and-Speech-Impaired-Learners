@@ -56,6 +56,7 @@ export interface QuizAnswerSaved {
   response_time_sec: number
   confidence_level: ConfidenceLevel
   answered_at: string
+  is_correct: boolean
   saved: true
 }
 

@@ -28,6 +28,7 @@ const questions = bank.questions.map((item, index) => ({
     option_text_si: option[1],
   })),
 }))
+const correctOptionIds = bank.questions.map((item, index) => uuid(100 + index * 4 + item.options.findIndex(option => option[2])))
 
 const chromePath = process.env.QUIZ_TEST_CHROME || (process.platform === 'win32'
   ? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
@@ -44,9 +45,9 @@ function launch(command, args, cwd, env = {}) {
 }
 
 async function ready(url, child) {
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 40; i++) {
     if (child.exitCode !== null) throw Error(`Test process exited before ${url} became ready`)
-    try { const response = await fetch(url); if (response.ok) return }
+    try { const response = await fetch(url, { signal: AbortSignal.timeout(500) }); if (response.ok) return }
     catch { /* Wait for startup. */ }
     await delay(100)
   }
@@ -62,7 +63,14 @@ try {
   const chrome = launch(chromePath, ['--headless=new', '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*', '--remote-debugging-port=9237', `--user-data-dir=${profile}`, 'about:blank'], frontend)
   await Promise.all([ready('http://127.0.0.1:5187', vite), ready('http://127.0.0.1:9237/json', chrome)])
 
-  const targets = await (await fetch('http://127.0.0.1:9237/json')).json()
+  let targets
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      targets = await (await fetch('http://127.0.0.1:9237/json', { signal: AbortSignal.timeout(1000) })).json()
+      break
+    } catch { await delay(100) }
+  }
+  if (!targets) throw Error('Chrome debugging endpoint could not be read')
   socket = new WebSocket(targets.find(target => target.type === 'page').webSocketDebuggerUrl)
   await new Promise(resolve => socket.addEventListener('open', resolve, { once: true }))
   let id = 0
@@ -101,6 +109,7 @@ try {
 
   const mockSource = `(() => {
     const questions = ${JSON.stringify(questions)};
+    const correctOptionIds = ${JSON.stringify(correctOptionIds)};
     const stored = JSON.parse(localStorage.getItem('__quizMockServer') || 'null');
     const calls = stored?.calls || { questions: 0, sessions: 0, responses: [], responseRequests: 0, completions: 0, analyses: 0, failNextResponse: false, loseNextConfirmation: false };
     window.__quizMock = calls;
@@ -145,7 +154,8 @@ try {
         return reply({ response_id: '${uuid(600)}', quiz_session_id: session.quiz_session_id,
           question_id: body.question_id, question_order: body.question_order,
           selected_option_id: body.selected_option_id, response_time_sec: body.response_time_sec,
-          confidence_level: body.confidence_level, answered_at: body.client_action_at, saved: true }, 201);
+          confidence_level: body.confidence_level, answered_at: body.client_action_at,
+          is_correct: body.selected_option_id === correctOptionIds[body.question_order - 1], saved: true }, 201);
       }
       if (path.endsWith('/complete') && method === 'POST') { calls.completions++; session.status = 'completed'; session.completed_at = new Date().toISOString(); persist(); return reply(session); }
       if (path.endsWith('/analyze') && method === 'POST') {
@@ -193,9 +203,14 @@ try {
   assert.equal(await evaluate("document.querySelector('.quiz-submit').disabled"), false)
   await delay(50)
   await evaluate("document.querySelector('.quiz-submit').click(); document.querySelector('.quiz-submit').click()")
-  await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 2 of 10'")
+  await until("document.querySelector('.quiz-answer-feedback.is-correct')?.textContent.includes('Correct answer!')")
   assert.equal(await evaluate('window.__quizMock.responses.length'), 1)
   assert.equal(await evaluate('window.__quizMock.responses[0].question_id'), questions[0].id)
+  assert.equal(await evaluate("document.querySelector('.quiz-progress-label strong')?.textContent"), 'Question 1 of 10')
+  assert.equal(await evaluate("document.querySelector('.quiz-option.is-correct input')?.checked"), true)
+  assert.equal(await evaluate("document.querySelector('.quiz-option.is-correct input')?.disabled"), true)
+  await click('.quiz-feedback-continue')
+  await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 2 of 10'")
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('x + 5 = 12')"), false)
   assert.equal(await evaluate("/\\b(correct|wrong|misconception|pass|fail|hint|try again)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
   assert.equal(await evaluate("document.querySelector('.quiz-submit').disabled"), true)
@@ -217,9 +232,11 @@ try {
       await until("document.querySelector('.quiz-collection-gate button[type=submit]:not(:disabled)')")
       await evaluate("(() => { const input = document.querySelector('#quiz-student-code'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'STU_001'); input.dispatchEvent(new Event('input', { bubbles: true })); })()")
       await click('.quiz-collection-gate button[type=submit]')
-      await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 4 of 10'")
+      await until("document.querySelector('.quiz-answer-feedback.is-incorrect')?.textContent.includes('Incorrect answer.')")
       assert.equal(await evaluate('window.__quizMock.sessions'), 1)
       assert.equal(await evaluate('window.__quizMock.responses.length'), 3)
+      await click('.quiz-feedback-continue')
+      await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 4 of 10'")
       continue
     }
     if (number === 4) await evaluate('window.__quizMock.loseNextConfirmation = true')
@@ -227,6 +244,8 @@ try {
     if (number === 4) {
       await until("document.querySelector('.quiz-panel h2')?.textContent === 'Quiz evidence needs recovery'")
       await click('.quiz-collection-gate button[type=button]')
+      await until("document.querySelector('.quiz-answer-feedback.is-incorrect')?.textContent.includes('Incorrect answer.')")
+      await click('.quiz-feedback-continue')
       await until("document.querySelector('#quiz-transition-title')?.textContent === 'Beginner Level Completed'")
       assert.equal(await evaluate("document.querySelector('.quiz-level-transition').textContent.includes('ආරම්භක මට්ටම සම්පූර්ණයි')"), true)
       await click('.quiz-language button:nth-child(2)')
@@ -240,6 +259,10 @@ try {
       assert.equal(await evaluate("document.querySelector('.quiz-level-heading').textContent.includes('Intermediate Level')"), true)
       continue
     }
+    await until("Boolean(document.querySelector('.quiz-answer-feedback'))")
+    assert.equal(await evaluate("document.querySelector('.quiz-progress-label strong')?.textContent"), `Question ${number} of 10`)
+    assert.equal(await evaluate("document.querySelector('.quiz-answer-feedback').classList.contains('is-correct')"), correctOptionIds[number - 1] === questions[number - 1].options[0].id)
+    await click('.quiz-feedback-continue')
     if (number === 8) {
       await until("document.querySelector('#quiz-transition-title')?.textContent === 'Intermediate Level Completed'")
       assert.equal(await evaluate("document.querySelector('.quiz-level-transition').textContent.includes('අතරමැදි මට්ටම සම්පූර්ණයි')"), true)

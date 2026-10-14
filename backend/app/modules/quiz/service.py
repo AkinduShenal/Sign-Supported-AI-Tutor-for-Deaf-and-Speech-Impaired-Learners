@@ -135,6 +135,7 @@ class QuizService:
             response_time_sec=response.response_time_sec,
             confidence_level=response.confidence_level,
             answered_at=response.answered_at.replace(tzinfo=response.answered_at.tzinfo or timezone.utc),
+            is_correct=response.is_correct,
         )
 
     @staticmethod

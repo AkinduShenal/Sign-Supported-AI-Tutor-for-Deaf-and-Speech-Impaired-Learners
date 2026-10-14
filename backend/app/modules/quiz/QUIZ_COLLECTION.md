@@ -2,6 +2,8 @@
 
 The Quiz researcher gate requires an assigned `STU_` code followed by 3–6 digits. A client-idempotent Quiz session carries that code in `quiz_sessions.student_id`. Its queued answers are written to `quiz_responses`. The queue is stored under `quiz.collection.pending.v1` in the browser profile and origin used for collection. Keep that profile until all pending writes show **Saved**. **Assessment Complete** appears only after the backend accepts all 10 configured questions (4 easy, 4 medium, 2 hard).
 
+After each answer is saved, the learner sees whether that selected answer was correct or incorrect on the same question and chooses when to continue. The correct option is not revealed. This feedback can affect later answers, so document that the feedback-enabled flow was used when interpreting or comparing research sessions. The current database does not record a Quiz protocol version.
+
 If a request fails, keep the learner code and browser profile, reconnect, and use **Retry / Recover Quiz evidence**. After a refresh, open Quiz Assessment and enter the same code. An unfinished session can be ended only after all existing writes are saved; ending it leaves the exported completion flag false. The gate uses a browser Web Lock to allow one collection tab and requires current Chrome or Edge. Browser storage or profile deletion can destroy unsent evidence.
 
 ## Export
