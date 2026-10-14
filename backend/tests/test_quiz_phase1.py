@@ -218,7 +218,7 @@ def test_correct_response_derives_result_and_stores_evidence(quiz_db):
     payload = answer_payload(question_id, correct_id)
     saved = client.post(f"/api/v1/quiz/sessions/{session_id}/responses", json=payload)
     assert saved.status_code == 201, saved.text
-    assert "is_correct" not in saved.json()
+    assert saved.json()["is_correct"] is True
     assert "misconception_code" not in saved.json()
     assert "feedback" not in saved.json()
     with factory() as database:
@@ -248,6 +248,7 @@ def test_incorrect_response_uses_option_mapping_not_client_claim(quiz_db):
     payload.pop("misconception_code")
     saved = client.post(f"/api/v1/quiz/sessions/{session_id}/responses", json=payload)
     assert saved.status_code == 201
+    assert saved.json()["is_correct"] is False
     with factory() as database:
         stored = database.scalar(select(QuizResponse))
         assert stored is not None
@@ -272,6 +273,7 @@ def test_wrong_question_option_and_conflicting_duplicate_are_rejected(quiz_db):
     replayed = client.post(url, json=answer_payload(question_id, correct_id))
     assert replayed.status_code == 201
     assert replayed.json()["response_id"]
+    assert replayed.json()["is_correct"] is True
     assert client.post(url, json=answer_payload(question_id, correct_id, response_time_sec=99)).status_code == 409
     with factory() as database:
         assert len(list(database.scalars(select(QuizResponse)))) == 1
