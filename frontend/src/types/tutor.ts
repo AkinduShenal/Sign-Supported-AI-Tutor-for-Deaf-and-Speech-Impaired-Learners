@@ -11,6 +11,18 @@ export interface SignReference {
   animation_type: string | null
   prototype_ready: boolean
   validation_status: SignValidationStatus
+  reference_videos?: { title: string; url: string; language: string; source: string }[]
+}
+
+export interface ExplanationMotion {
+  clip: string
+  kind: string
+  beats: { role: string; start: number; end: number; text: string; text_si: string }[]
+  original_expression: string | null
+  current_expression: string | null
+  substituted_expression: string | null
+  value: string | null
+  language_status: string
 }
 
 export interface AvatarTeachingSegment {
@@ -18,6 +30,10 @@ export interface AvatarTeachingSegment {
   text_si?: string | null
   expression?: string | null
   sign_actions: string[]
+  expression_tokens?: { text: string; start: number; end: number; action_index: number | null }[]
+  unsupported_tokens?: string[]
+  support_kind?: 'key_terms' | 'expression' | 'meaning_demonstration'
+  motion?: ExplanationMotion | null
 }
 
 export interface SignSupportedText {
@@ -40,6 +56,7 @@ export interface WorkedExample {
   problem: string
   steps: LessonStep[]
   answer: string
+  avatar_intro_segments?: AvatarTeachingSegment[]
 }
 
 export interface PracticeQuestion {

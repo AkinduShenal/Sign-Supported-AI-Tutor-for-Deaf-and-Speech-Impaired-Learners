@@ -18,8 +18,27 @@ MANIFEST_ROOT = (
 )
 MANIFEST_PATH = MANIFEST_ROOT / "signs.json"
 PHRASE_MAP_PATH = MANIFEST_ROOT / "phrase_map.json"
-EXPRESSION_TOKEN_PATTERN = re.compile(r"\d+|[A-Za-z]+|[+\-−×*/÷=()]|[^\s]")
+EXPRESSION_TOKEN_PATTERN = re.compile(r"\d+(?:\.\d+)?(?:\s*/\s*\d+)?|[A-Za-z]+|[^\s]")
 NUMBER_PATTERN = re.compile(r"\b\d+\b")
+
+
+def expression_units(expression: str) -> list[tuple[str, int, int]]:
+    """Preserve offsets, scope, signed numbers, fractions and decimals."""
+    matches = list(EXPRESSION_TOKEN_PATTERN.finditer(expression))
+    units: list[tuple[str, int, int]] = []
+    index = 0
+    while index < len(matches):
+        match = matches[index]
+        value, end = match.group(), match.end()
+        previous = units[-1][0] if units else ""
+        unary = value in {"-", "−", "+"} and previous in {"", "(", "=", "+", "-", "−", "×", "*", "/", "÷"}
+        if unary and index + 1 < len(matches):
+            index += 1
+            end = matches[index].end()
+            value = expression[match.start():end]
+        units.append((value, match.start(), end))
+        index += 1
+    return units
 
 
 @dataclass(frozen=True)
@@ -67,10 +86,6 @@ class MathSignPlanner:
     those unvalidated gestures distinguishable from validated language clips.
     """
 
-    def __init__(self) -> None:
-        sequence_policy = _load_phrase_map()["sequence_policy"]
-        self.max_sign_actions = int(sequence_policy["max_actions_per_step"])
-
     def plan(
         self,
         *,
@@ -89,14 +104,18 @@ class MathSignPlanner:
             candidates, unsupported_tokens = self._actions_from_expression(
                 expression
             )
-            candidates = self._compact_expression_actions(candidates)
         else:
             candidates = []
 
-        candidates = self._unique(candidates)
-        if "BOTH_SIDES" in candidates and "BALANCE" in candidates:
-            candidates = [action for action in candidates if action != "BALANCE"]
-        candidates = candidates[: self.max_sign_actions]
+        # Instruction support is a vocabulary summary. Expression support below
+        # is a complete ordered token sequence and must retain every occurrence.
+        if instruction_actions:
+            candidates = self._unique(candidates)
+            if "BOTH_SIDES" in candidates and "BALANCE" in candidates:
+                candidates = [action for action in candidates if action != "BALANCE"]
+
+        # A sequence is ordered content: repeated digits, variables and operators
+        # carry meaning. Never deduplicate or silently cut off an equation.
         manifest = _manifest_by_id()
         sign_actions: list[str] = []
         playable_actions: list[str] = []
@@ -160,7 +179,13 @@ class MathSignPlanner:
                 matches.append((match.start(), 2_000, action))
 
         matches.sort(key=lambda item: (item[0], item[1]))
-        return self._unique([action for _, _, action in matches])
+        # Adjacent lexical aliases ("x, the unknown variable") name one concept.
+        # Operators and every numeric occurrence still retain their positions.
+        actions: list[str] = []
+        for _, _, action in matches:
+            if not actions or action != actions[-1] or action.startswith("NUMBER_"):
+                actions.append(action)
+        return actions
 
     def _actions_from_expression(
         self,
@@ -170,15 +195,13 @@ class MathSignPlanner:
         unsupported_tokens: list[str] = []
         token_map = _load_phrase_map()["expression_tokens"]
 
-        for token in EXPRESSION_TOKEN_PATTERN.findall(expression):
-            if token.isdigit():
+        for token, _, _ in expression_units(expression):
+            if token.isdigit() and len(token) == 1:
                 actions.extend(self._number_actions(token))
             elif token in token_map:
                 actions.append(token_map[token])
             elif token.lower() in token_map:
                 actions.append(token_map[token.lower()])
-            elif token in {"(", ")"}:
-                actions.append("BRACKET")
             else:
                 unsupported_tokens.append(token)
 
@@ -196,16 +219,6 @@ class MathSignPlanner:
         return bool(entry.get("prototype_ready")) and (
             entry.get("validation_status") != "validated"
         )
-
-    @staticmethod
-    def _compact_expression_actions(actions: list[str]) -> list[str]:
-        unique = MathSignPlanner._unique(actions)
-        concept_actions = [
-            action
-            for action in unique
-            if not action.startswith("NUMBER_") and action != "VARIABLE"
-        ]
-        return concept_actions or unique[:1]
 
     @staticmethod
     def _number_actions(number: str) -> list[str]:

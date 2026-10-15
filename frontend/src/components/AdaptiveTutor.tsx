@@ -132,7 +132,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
   const mounted = useRef(true)
   useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
   const example = lesson.worked_examples[exampleIndex]
-  const steps = useMemo(() => [{ instruction: lesson.simple_explanation.text, expression: example.problem, sign_actions: lesson.simple_explanation.sign_actions, avatar_segments: lesson.simple_explanation.avatar_segments, knowledge_notes: lesson.simple_explanation.knowledge_notes }, ...example.steps], [example, lesson])
+  const steps = useMemo(() => [{ instruction: lesson.simple_explanation.text, expression: example.problem, sign_actions: lesson.simple_explanation.sign_actions, avatar_segments: example.avatar_intro_segments ?? lesson.simple_explanation.avatar_segments, knowledge_notes: lesson.simple_explanation.knowledge_notes }, ...example.steps], [example, lesson])
   const step = steps[stepIndex]
   const question = lesson.practice_questions[questionIndex]
   const hintCount = hintCounts[question.question_id] ?? 0
@@ -154,7 +154,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
       ? { sign_actions: solutionSegments.flatMap(segment => segment.sign_actions), instruction: question.prompt, expression: question.worked_solution.problem, avatar_segments: solutionSegments }
       : hintCount > 0
         ? { sign_actions: hint.sign_actions, instruction: hint.text, expression: question.worked_solution.problem, avatar_segments: hint.avatar_segments }
-        : { sign_actions: lesson.simple_explanation.sign_actions, instruction: lesson.simple_explanation.text, expression: question.worked_solution.problem, avatar_segments: lesson.simple_explanation.avatar_segments }
+        : { sign_actions: lesson.simple_explanation.sign_actions, instruction: lesson.simple_explanation.text, expression: question.worked_solution.problem, avatar_segments: question.worked_solution.avatar_intro_segments ?? lesson.simple_explanation.avatar_segments }
     : step
   const avatarContent = ragAvatar ? {
     sign_actions: ragAvatar.answer.avatar_segments.flatMap(segment => segment.sign_actions),
@@ -290,7 +290,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
       <div className="learning-column">
         {workedExampleCard}
       </div>
-      {showAvatar && <AvatarSignPlayer compact signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} teachingSegments={avatarContent.avatar_segments} teachingKey={avatarTeachingKey} teachingApproach={approach.title} initialPlaybackSpeed={lesson.plan.avatar_playback_speed} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
+      {showAvatar && <AvatarSignPlayer compact signReferences={lesson.sign_glossary} signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} teachingSegments={avatarContent.avatar_segments} teachingKey={avatarTeachingKey} teachingApproach={approach.title} initialPlaybackSpeed={lesson.plan.avatar_playback_speed} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
     </section>
     <details ref={practiceSectionRef} className="practice-section">
       <summary>Practice questions / <span lang="si">පුහුණු ප්‍රශ්න</span></summary>

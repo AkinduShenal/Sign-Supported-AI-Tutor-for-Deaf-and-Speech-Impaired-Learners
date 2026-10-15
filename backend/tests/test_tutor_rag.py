@@ -109,6 +109,12 @@ def test_generates_with_retrieved_citations_and_no_student_payload(monkeypatch):
     body = ask().json()
     assert body["mode"] == "openai"
     assert [source["id"] for source in body["sources"]] == ["inverse-add-subtract"]
+    assert [(part["text"], part["text_si"]) for part in body["avatar_segments"]] == [
+        (paragraph["text_en"], paragraph["text_si"]) for paragraph in body["paragraphs"]
+    ]
+    assert body["avatar_segments"][0]["motion"]["clip"] == "FLOW_SUBTRACT_BOTH"
+    lesson = client.get("/api/v1/tutor/grade10/foundation").json()
+    assert body["avatar_segments"][0]["motion"]["current_expression"] == lesson["worked_examples"][0]["steps"][1]["expression"]
 
 
 @pytest.mark.parametrize("source_ids", [[], ["invented-source"]])
