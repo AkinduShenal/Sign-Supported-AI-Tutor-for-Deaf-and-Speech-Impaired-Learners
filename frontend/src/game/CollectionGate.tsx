@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { setCollectionStudent, validateStudentCode } from './collectionIdentity'
 import { getCollectionStore, openCollectionStore } from './api/collectionStore'
 import { CollectionExport } from './CollectionExport'
+import { GameLanguageToggle } from './GameLanguageToggle'
 import './CollectionGate.css'
 
 export function CollectionGate({ children }: { children: ReactNode }) {
@@ -127,6 +128,6 @@ export function CollectionGate({ children }: { children: ReactNode }) {
       {active && rows.length === 0 && <button type="button" onClick={close}>Switch learner</button>}
       <CollectionExport disabled={!lock || pending || busy || !!fatal} />
     </section>
-    {active && !recoveryOnly && !fatal && children}
+    {active && !recoveryOnly && !fatal && <><GameLanguageToggle />{children}</>}
   </div>
 }
