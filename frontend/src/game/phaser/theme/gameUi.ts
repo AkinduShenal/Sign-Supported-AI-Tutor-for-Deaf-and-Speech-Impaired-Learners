@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { FONT_FAMILY, SINHALA_TEXT } from '../gameText'
+import type { Bilingual } from '../gameText'
+import { getGameLanguage, primaryGameText, secondaryGameText, subscribeGameLanguage } from '../../gameLanguage'
 import { formatStars } from '../stars'
 import { GAME_THEME as T, cssColor, textResolution, renderPixelRatio } from './gameTheme'
 
@@ -63,6 +65,46 @@ export class RoundedPanel extends Phaser.GameObjects.Graphics {
 
 export type ButtonKind = 'primary' | 'secondary' | 'quiet' | 'disabled'
 
+const languageBindings = new WeakMap<Phaser.GameObjects.Text, { render: () => string }>()
+
+// Update labels in place; never restart a scene or touch assessment state.
+export function bindLanguageText(text: Phaser.GameObjects.Text, render: () => string): Phaser.GameObjects.Text {
+  const previous = languageBindings.get(text)
+  if (previous) previous.render = render
+  else {
+    const binding = { render }
+    languageBindings.set(text, binding)
+    const unsubscribe = subscribeGameLanguage(() => text.setText(binding.render()))
+    text.once(Phaser.GameObjects.Events.DESTROY, () => { unsubscribe(); languageBindings.delete(text) })
+  }
+  return text.setText(render())
+}
+
+export function bilingualPair(scene: Phaser.Scene, options: {
+  x: number; primaryY: number; secondaryY: number; text: Bilingual; width: number
+  primarySize: number; secondarySize: number; color: string; secondaryColor?: string; wrap?: boolean
+}): [Phaser.GameObjects.Text, Phaser.GameObjects.Text] {
+  const make = (y: number, color: string) => scene.add.text(options.x, y, '', {
+    fontFamily: FONT_FAMILY, color, align: 'center', ...SINHALA_TEXT,
+    ...(options.wrap ? { wordWrap: { width: options.width } } : {}),
+  }).setOrigin(0.5)
+  const first = make(options.primaryY, options.color)
+  const second = make(options.secondaryY, options.secondaryColor ?? options.color)
+  const fit = (object: Phaser.GameObjects.Text, size: number) => {
+    object.setFontSize(size)
+    if (!options.wrap && object.width > options.width) object.setFontSize(Math.max(14, Math.floor(size * options.width / object.width)))
+  }
+  const update = () => {
+    first.setText(primaryGameText(options.text)).setFontStyle(getGameLanguage() === 'en' ? 'bold' : '')
+    second.setText(secondaryGameText(options.text)).setFontStyle('')
+    fit(first, options.primarySize); fit(second, options.secondarySize)
+  }
+  update()
+  const unsubscribe = subscribeGameLanguage(update)
+  first.once(Phaser.GameObjects.Events.DESTROY, unsubscribe)
+  return [first, second]
+}
+
 export function gameButton(scene: Phaser.Scene, options: {
   x: number; y: number; width: number; height: number; label: string; subLabel?: string
   onClick: () => void; kind?: ButtonKind; fill?: number; operation?: boolean; dragAware?: boolean; interactive?: boolean
@@ -82,13 +124,32 @@ export function gameButton(scene: Phaser.Scene, options: {
     fontFamily: FONT_FAMILY,
     fontSize: options.operation ? T.font.operation : subLabel ? T.font.body : 23,
     fontStyle: 'bold', color, align: 'center', wordWrap: { width: width - 16 },
+    ...(subLabel ? SINHALA_TEXT : {}),
   }).setOrigin(0.5)
   const children: Phaser.GameObjects.GameObject[] = [background, labelText]
   if (subLabel) {
-    children.push(scene.add.text(0, 15, subLabel, {
-      fontFamily: FONT_FAMILY, fontSize: T.font.caption, color,
+    const secondary = scene.add.text(0, 15, subLabel, {
+      fontFamily: FONT_FAMILY, fontSize: T.font.caption - 1, color,
       ...SINHALA_TEXT, wordWrap: { width: width - 12 }, align: 'center',
-    }).setOrigin(0.5))
+    }).setOrigin(0.5)
+    children.push(secondary)
+    const update = () => {
+      labelText.setText(primaryGameText({ en: label, si: subLabel }))
+        .setFontStyle(getGameLanguage() === 'en' ? 'bold' : '')
+      secondary.setText(secondaryGameText({ en: label, si: subLabel }))
+      // Fit the two labels inside their existing hit area in either language.
+      labelText.setFontSize(T.font.body)
+      secondary.setFontSize(T.font.caption - 1)
+      const gap = 2
+      const required = labelText.height + secondary.height + gap
+      const scale = Math.min(1, (height - 8) / required)
+      labelText.setScale(scale); secondary.setScale(scale)
+      labelText.y = -(secondary.height * scale + gap) / 2
+      secondary.y = (labelText.height * scale + gap) / 2
+    }
+    update()
+    const unsubscribe = subscribeGameLanguage(update)
+    labelText.once(Phaser.GameObjects.Events.DESTROY, unsubscribe)
   }
   const button = scene.add.container(Math.round(x), Math.round(y), children)
   if (disabled || options.interactive === false) return button

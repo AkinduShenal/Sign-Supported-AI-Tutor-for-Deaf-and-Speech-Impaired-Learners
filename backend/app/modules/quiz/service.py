@@ -1,11 +1,12 @@
 import uuid
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.modules.quiz import repository
+from app.modules.quiz.diagnostic_rules import RULES
 from app.modules.quiz.models import QuizResponse, QuizSession
 from app.modules.quiz.schemas import (
     AssessmentPhase,
@@ -81,8 +82,12 @@ class QuizService:
         database: Session,
         request: QuizSessionCreate,
     ) -> QuizSessionResponse:
+        session_id = f"QUIZ-{request.client_session_id or uuid.uuid4()}"
+        existing = repository.get_quiz_session(database, session_id)
+        if existing is not None:
+            return self._matching_session(existing, request)
         session = QuizSession(
-            quiz_session_id=f"QUIZ-{uuid.uuid4()}",
+            quiz_session_id=session_id,
             student_id=request.student_id,
             concept_id=request.concept_id,
             learning_cycle_id=request.learning_cycle_id or uuid.uuid4(),
@@ -95,10 +100,59 @@ class QuizService:
             repository.create_quiz_session(database, session)
             database.commit()
             database.refresh(session)
+        except IntegrityError:
+            database.rollback()
+            existing = repository.get_quiz_session(database, session_id)
+            if existing is None:
+                raise
+            return self._matching_session(existing, request)
         except Exception:
             database.rollback()
             raise
         return QuizSessionResponse.model_validate(session, from_attributes=True)
+
+    @staticmethod
+    def _matching_session(session: QuizSession, request: QuizSessionCreate) -> QuizSessionResponse:
+        if (
+            session.student_id != request.student_id
+            or session.concept_id != request.concept_id
+            or session.assessment_phase != request.assessment_phase.value
+            or session.quiz_attempt_number != request.quiz_attempt_number
+            or session.display_language != request.display_language.value
+            or (request.learning_cycle_id is not None and session.learning_cycle_id != request.learning_cycle_id)
+        ):
+            raise QuizConflictError("client_session_id belongs to different Quiz session data")
+        return QuizSessionResponse.model_validate(session, from_attributes=True)
+
+    @staticmethod
+    def _saved_response(response: QuizResponse) -> QuizAnswerSavedResponse:
+        return QuizAnswerSavedResponse(
+            response_id=response.id,
+            quiz_session_id=response.quiz_session_id,
+            question_id=response.question_id,
+            question_order=response.question_order,
+            selected_option_id=response.selected_option_id,
+            response_time_sec=response.response_time_sec,
+            confidence_level=response.confidence_level,
+            answered_at=response.answered_at.replace(tzinfo=response.answered_at.tzinfo or timezone.utc),
+            is_correct=response.is_correct,
+        )
+
+    @staticmethod
+    def _matching_response(response: QuizResponse, request: QuizAnswerSubmit) -> QuizAnswerSavedResponse:
+        requested_time = request.client_action_at
+        if requested_time is not None:
+            requested_time = requested_time.replace(tzinfo=requested_time.tzinfo or timezone.utc).astimezone(timezone.utc)
+        saved_time = response.answered_at.replace(tzinfo=response.answered_at.tzinfo or timezone.utc).astimezone(timezone.utc)
+        if (
+            response.selected_option_id != request.selected_option_id
+            or response.response_time_sec != request.response_time_sec
+            or response.confidence_level != request.confidence_level.value
+            or response.question_order != request.question_order
+            or (requested_time is not None and saved_time != requested_time)
+        ):
+            raise QuizConflictError("Question already has different saved evidence")
+        return QuizService._saved_response(response)
 
     def submit_answer(
         self,
@@ -111,6 +165,9 @@ class QuizService:
         )
         if session is None:
             raise QuizNotFoundError("Quiz session was not found")
+        existing = repository.get_quiz_response(database, quiz_session_id, request.question_id)
+        if existing is not None:
+            return self._matching_response(existing, request)
         if session.status != "in_progress":
             raise QuizConflictError("Quiz session is no longer in progress")
         question = repository.get_question_by_id(database, request.question_id)
@@ -129,12 +186,6 @@ class QuizService:
             raise QuizInvalidAnswerError(
                 "Selected option does not belong to the question"
             )
-        if (
-            repository.get_quiz_response(database, quiz_session_id, question.id)
-            is not None
-        ):
-            raise QuizConflictError("This question already has an official response")
-
         response = QuizResponse(
             quiz_session_id=quiz_session_id,
             question_id=question.id,
@@ -145,6 +196,7 @@ class QuizService:
             confidence_level=request.confidence_level.value,
             misconception_code=option.misconception_code,
             question_order=request.question_order,
+            **({"answered_at": request.client_action_at} if request.client_action_at is not None else {}),
         )
         try:
             repository.save_quiz_response(database, response)
@@ -162,19 +214,15 @@ class QuizService:
                 constraint_name == "quiz_responses_quiz_session_id_question_id_key"
                 or sqlite_duplicate
             ):
-                raise QuizConflictError(
-                    "This question already has an official response"
-                ) from error
+                existing = repository.get_quiz_response(database, quiz_session_id, question.id)
+                if existing is not None:
+                    return self._matching_response(existing, request)
+                raise QuizConflictError("This question already has an official response") from error
             raise
         except Exception:
             database.rollback()
             raise
-        return QuizAnswerSavedResponse(
-            response_id=response.id,
-            quiz_session_id=quiz_session_id,
-            question_id=question.id,
-            question_order=response.question_order,
-        )
+        return self._saved_response(response)
 
     def get_session(
         self, database: Session, quiz_session_id: str
@@ -201,8 +249,23 @@ class QuizService:
         )
         if session is None:
             raise QuizNotFoundError("Quiz session was not found")
+        if session.status == "completed":
+            return QuizSessionResponse.model_validate(session, from_attributes=True)
         if session.status != "in_progress":
             raise QuizConflictError("Quiz session is no longer in progress")
+        rows = repository.get_diagnostic_rows(database, quiz_session_id)
+        expected = dict(zip(("easy", "medium", "hard"), RULES.expected_difficulty_counts))
+        use = "pre" if session.assessment_phase == "pre_tutor" else "post"
+        bank = repository.get_questions(database, session.concept_id, use)
+        if (
+            len(rows) != RULES.expected_questions
+            or len(bank) != RULES.expected_questions
+            or {response.question_id for response, _ in rows} != {question.id for question in bank}
+            or {response.question_order for response, _ in rows} != set(range(1, RULES.expected_questions + 1))
+            or Counter(question.difficulty_level for _, question in rows) != expected
+            or any(question.concept_id != session.concept_id or question.assessment_use not in (use, "both") for _, question in rows)
+        ):
+            raise QuizConflictError("Saved Quiz assessment is incomplete or does not match the configured question plan")
         try:
             repository.complete_quiz_session(
                 database, session, datetime.now(timezone.utc)

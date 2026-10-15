@@ -6,9 +6,9 @@
 // where it overlaps, and get it reviewed before any learner or research
 // use. Never describe it as validated.
 //
-// Both languages are always shown together (no toggle) so the text stays
-// visible and nothing depends on finding a switch first. The analytics
-// detail lines and the per-step hint sentences are still English-only.
+// Both languages remain visible. Sinhala is primary by default; the Game
+// language toggle changes their order and prominence without restarting play.
+import { formatGameLanguages } from '../gameLanguage.ts'
 
 // Extra room for Sinhala glyphs (tall marks above and below the line), and
 // never bold: synthetic bold smears the marks together.
@@ -28,6 +28,7 @@ export interface Bilingual {
 }
 
 export const GAME_TEXT = {
+  balanceEquation: { en: 'Balance the Equation', si: 'සමීකරණය තුලනය කරන්න' },
   instruction: {
     en: 'Choose the operation that keeps the equation balanced.',
     si: 'සමීකරණය තුලනය කර තබන ක්‍රියාව තෝරන්න.',
@@ -68,6 +69,21 @@ export const GAME_TEXT = {
   // Session-level only (Milestone 4 session summary) — shown once, never
   // per question, and only when the figure never fell this session.
   neverFell: { en: "🎉 You didn't let him fall!", si: 'ඔබ ඔහුට වැටෙන්න ඉඩ දුන්නේ නැහැ!' },
+  wrongAnswers: { en: 'Wrong Answers', si: 'වැරදි පිළිතුරු' },
+  hintsUsed: { en: 'Hints Used', si: 'භාවිත කළ ඉඟි' },
+  totalTime: { en: 'Total Time', si: 'මුළු කාලය' },
+  starsEarned: { en: 'Stars Earned', si: 'ලබාගත් තරු' },
+  tasks: { en: 'Tasks', si: 'කාර්යයන්' },
+  successful: { en: 'Successful', si: 'සාර්ථක කාර්යයන්' },
+  successRate: { en: 'Success Rate', si: 'සාර්ථකත්ව අනුපාතය' },
+  completionRate: { en: 'Completion Rate', si: 'සම්පූර්ණ කිරීමේ අනුපාතය' },
+  averageAttempts: { en: 'Average Attempts', si: 'සාමාන්‍ය උත්සාහ ගණන' },
+  hintRate: { en: 'Hint Rate', si: 'ඉඟි භාවිත අනුපාතය' },
+  retries: { en: 'Retries', si: 'නැවත උත්සාහ' },
+  activeTime: { en: 'Active Time', si: 'ක්‍රියාකාරී කාලය' },
+  levelsCompleted: { en: 'Levels Completed', si: 'සම්පූර්ණ කළ මට්ටම්' },
+  saveUnverified: { en: 'Save unverified. Tap to retry.', si: 'සුරැකීම තහවුරු නැත. නැවත උත්සාහ කරන්න.' },
+  retryingSave: { en: 'Retrying save…', si: 'නැවත සුරකිමින්…' },
 } satisfies Record<string, Bilingual>
 
 // Game Selection card text, keyed by GameType (draft Sinhala, same review
@@ -105,14 +121,14 @@ export function difficultyText(difficulty: Difficulty): Bilingual {
   return GAME_TEXT[difficulty]
 }
 
-// "English · සිංහල" on one line, for places with room for it.
+// Primary language first; both remain visible.
 export function inline(text: Bilingual): string {
-  return `${text.en} · ${text.si}`
+  return formatGameLanguages(text, ' · ')
 }
 
-// "English\nසිංහල" on two lines.
+// Primary language on the first line.
 export function stacked(text: Bilingual): string {
-  return `${text.en}\n${text.si}`
+  return formatGameLanguages(text)
 }
 
 // DRAFT Sinhala for the per-step hint sentences in data/equationVariants.ts.
@@ -169,8 +185,8 @@ export function sinhalaHint(english: string): string | null {
   return null
 }
 
-// English hint with the draft Sinhala under it (English only if no template).
+// Primary language first when a Sinhala hint template is available.
 export function bilingualHint(english: string): string {
   const sinhala = sinhalaHint(english)
-  return sinhala ? `${english}\n${sinhala}` : english
+  return sinhala ? stacked({ en: english, si: sinhala }) : english
 }
