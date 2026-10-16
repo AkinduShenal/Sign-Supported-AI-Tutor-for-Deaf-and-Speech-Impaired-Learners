@@ -283,11 +283,13 @@
     "x": "VARIABLE"
   },
   "sequence_policy": {
-    "max_actions_per_step": 4,
+    "max_actions_per_step": null,
     "prefer_instruction_over_raw_expression": true,
-    "deduplicate": true,
+    "deduplicate": false,
     "allow_prototype_educational_gestures": true,
     "skip_missing_or_unvalidated_clips": true,
-    "fallback_to_text_only": true
+    "fallback_to_text_only": true,
+    "preserve_expression_order": true,
+    "report_unsupported_numeric_units": true
   }
 }

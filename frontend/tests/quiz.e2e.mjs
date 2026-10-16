@@ -107,7 +107,14 @@ try {
     assert.equal(await evaluate(`Boolean(document.querySelector(${JSON.stringify(selector)})?.click() ?? document.querySelector(${JSON.stringify(selector)}))`), true)
   }
 
+  async function reloadPage() {
+    const previous = await evaluate('window.__quizDocumentId')
+    await send('Page.reload', { ignoreCache: true })
+    await until(`document.readyState === 'complete' && window.__quizDocumentId && window.__quizDocumentId !== ${JSON.stringify(previous)}`)
+  }
+
   const mockSource = `(() => {
+    window.__quizDocumentId = crypto.randomUUID();
     const questions = ${JSON.stringify(questions)};
     const correctOptionIds = ${JSON.stringify(correctOptionIds)};
     const stored = JSON.parse(localStorage.getItem('__quizMockServer') || 'null');
@@ -120,6 +127,11 @@ try {
     window.fetch = async (input, init = {}) => {
       const url = typeof input === 'string' ? input : input.url;
       const path = new URL(url, location.href).pathname;
+      if (path.endsWith('/tutor/learning-status')) {
+        calls.tutorReference = Object.fromEntries(new URL(url, location.href).searchParams);
+        persist();
+        return reply({quiz_complete:true,game_complete:false,ready:false});
+      }
       if (!path.startsWith('/api/v1/quiz/')) return originalFetch(input, init);
       const method = init.method || 'GET';
       if (path.endsWith('/questions') && method === 'GET') {
@@ -184,6 +196,8 @@ try {
   await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 1 of 10'")
   assert.equal(await evaluate("document.querySelector('.quiz-level-heading').textContent.includes('Beginner Level')"), true)
   assert.equal(await evaluate('window.__quizMock.sessions'), 1)
+  assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].request.student_id"), 'STU_001')
+  assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].request.learning_cycle_id === JSON.parse(localStorage.getItem('learning.context.v1')).learners.STU_001.learningCycleId"), true)
   assert.equal(await evaluate("document.querySelectorAll('.quiz-option').length"), 4)
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('Solve x + 5 = 12.')"), true)
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('සමීකරණය විසඳන්න')"), true)
@@ -208,7 +222,7 @@ try {
   assert.equal(await evaluate('window.__quizMock.responses[0].question_id'), questions[0].id)
   assert.equal(await evaluate("document.querySelector('.quiz-progress-label strong')?.textContent"), 'Question 1 of 10')
   assert.equal(await evaluate("document.querySelector('.quiz-option.is-correct input')?.checked"), true)
-  assert.equal(await evaluate("document.querySelector('.quiz-option.is-correct input')?.disabled"), true)
+  assert.equal(await evaluate("document.querySelector('.quiz-option.is-correct input')?.matches(':disabled')"), true)
   await click('.quiz-feedback-continue')
   await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 2 of 10'")
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('x + 5 = 12')"), false)
@@ -226,7 +240,7 @@ try {
       await until("document.querySelector('.quiz-panel h2')?.textContent === 'Quiz evidence needs recovery'")
       assert.equal(await evaluate('window.__quizMock.responses.length'), 2)
       assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].responses[2].body.question_id"), questions[2].id)
-      await send('Page.reload', { ignoreCache: true })
+      await reloadPage()
       await until("document.querySelector('.quiz-panel h2')?.textContent !== 'Quiz evidence needs recovery' && [...document.querySelectorAll('.app-navigation button')].some(button => button.textContent === 'Quiz Assessment')")
       await evaluate("[...document.querySelectorAll('.app-navigation button')].find(button => button.textContent === 'Quiz Assessment').click()")
       await until("document.querySelector('.quiz-collection-gate button[type=submit]:not(:disabled)')")
@@ -313,7 +327,7 @@ try {
   assert.equal(await evaluate("document.querySelector('.quiz-page').textContent.includes('Solve x + 5 = 12')"), false)
   assert.equal(await evaluate("/\\b(misconception|inverse_operation|high_confidence_incorrect|diagnostic_evidence|19\\.3|pass|fail|hint)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
   await evaluate("(() => { const server = JSON.parse(localStorage.getItem('__quizMockServer')); server.calls.noWeak = true; localStorage.setItem('__quizMockServer', JSON.stringify(server)); })()")
-  await send('Page.reload', { ignoreCache: true })
+  await reloadPage()
   await until("document.querySelector('.quiz-page') === null && [...document.querySelectorAll('.app-navigation button')].some(button => button.textContent === 'Quiz Assessment')")
   await evaluate("[...document.querySelectorAll('.app-navigation button')].find(button => button.textContent === 'Quiz Assessment').click()")
   await until("document.querySelector('.quiz-collection-gate button[type=submit]:not(:disabled)')")
@@ -323,8 +337,14 @@ try {
   assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('No single weak area identified')"), true)
   assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('Continue practising all Linear Equation skills.')"), true)
   assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('Equation Meaning')"), false)
+  // The main-branch recovery gate must retain the automatic Tutor handoff.
+  assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].request.learning_cycle_id === JSON.parse(localStorage.getItem('learning.context.v1')).learners.STU_001.learningCycleId"), true)
+  await click('.quiz-tutor-continue')
+  await until("document.querySelector('.assessment-needed')")
+  assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].closed"), true)
+  assert.equal(await evaluate("window.__quizMock.tutorReference.learning_cycle_id === JSON.parse(localStorage.getItem('learning.context.v1')).learners.STU_001.learningCycleId"), true)
   await evaluate("(() => { localStorage.removeItem('quiz.collection.pending.v1'); localStorage.setItem('__quizHangQuestions', '1'); })()")
-  await send('Page.reload', { ignoreCache: true })
+  await reloadPage()
   await until("[...document.querySelectorAll('.app-navigation button')].some(button => button.textContent === 'Quiz Assessment')")
   await evaluate("[...document.querySelectorAll('.app-navigation button')].find(button => button.textContent === 'Quiz Assessment').click()")
   await until("document.querySelector('.quiz-collection-gate button[type=submit]:not(:disabled)')")
@@ -333,7 +353,7 @@ try {
   await until("document.querySelector('.quiz-panel[role=alert]')?.textContent.includes('Quiz request timed out')")
   assert.equal(await evaluate("document.querySelector('.quiz-panel[role=alert] button')?.textContent"), 'Reload questions')
   assert.equal(await evaluate('window.__quizMock.sessions'), 1)
-  console.log('Quiz browser flow PASS: 4/4/2 levels, two transitions, isolated question timers, refresh recovery, 10 saved responses, one completion, bilingual results, no feedback, and stalled-question timeout.')
+  console.log('Quiz browser flow PASS: 4/4/2 levels, transitions, answer feedback, isolated timers, refresh recovery, 10 saved responses, one completion, bilingual results, shared-cycle Tutor handoff, and stalled-question timeout.')
 } finally {
   socket?.close()
   for (const child of children) child.kill()

@@ -286,6 +286,7 @@ export function LessonPage({ conceptId }: LessonPageProps) {
         </div>
 
         <AvatarSignPlayer
+          signReferences={lesson.sign_glossary}
           signActions={avatarSignActions}
           validatedSignIds={validatedSignIds}
           prototypeSignIds={prototypeSignIds}

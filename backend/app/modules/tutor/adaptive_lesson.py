@@ -1,7 +1,7 @@
 """Bounded, auditable Grade 10 content. No generated mathematics or sign motion.
 
 The diagnostic contract is shared with /strategy. A trained strategy predictor
-can be injected; the default is explicitly the existing rule-based baseline.
+can be injected; the default is the bundled trained strategy pipeline.
 Content and thresholds remain drafts pending teacher/student evaluation.
 """
 
@@ -9,6 +9,7 @@ import re
 from decimal import Decimal
 from fractions import Fraction
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -23,13 +24,14 @@ from app.modules.tutor.content_schemas import (
 )
 from app.modules.tutor.schemas import TutorStrategyRequest, TutoringStrategy
 from app.modules.tutor.sign_planner import MathSignPlanner
-from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
-from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_hint, explain_step, segments_from_lines
+from app.modules.tutor.explanation_choreography import choreograph_segments
+from app.modules.tutor.strategy_model import StrategyPredictor, get_strategy_model
+from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_hint, explain_step, expression_segment, segments_from_lines
 from app.modules.tutor.knowledge import lesson_notes
 
 Level = Literal["foundation", "one_step", "two_step", "extended"]
 LEVELS: tuple[Level, ...] = ("foundation", "one_step", "two_step", "extended")
-CONTENT_VERSION = "grade10-linear-v5-small-explanation-cues-draft"
+CONTENT_VERSION = "grade10-linear-v7-meaning-choreography-draft"
 SUPPORTED_CONCEPTS = {"linear_equations", "linear_equation_balancing"}
 PLANNER = MathSignPlanner()
 
@@ -40,6 +42,9 @@ class PlanMetadata(BaseModel):
     model_version: str
     content_version: str = CONTENT_VERSION
     primary_strategy: TutoringStrategy
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    prediction_id: UUID | None = None
+    prior_mastery_source: Literal["pre_tutor_quiz"] | None = None
     supporting_strategies: list[TutoringStrategy] = Field(default_factory=list)
     rationale: str
     misconception_support: str
@@ -277,23 +282,29 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
     questions = _practice(level)
     simple = _text(STRATEGY_EXPLANATIONS[metadata.primary_strategy])
     simple.knowledge_notes = lesson_notes(simple.text, level, metadata.primary_strategy.value)
-    simple.avatar_segments = segments_from_lines(
+    simple.avatar_segments = choreograph_segments(segments_from_lines(
         STRATEGY_OPENINGS[metadata.primary_strategy], _actions
-    )
+    ) + [expression_segment(examples[0].problem)], original_expression=examples[0].problem)
     simple.sign_actions = [action for segment in simple.avatar_segments for action in segment.sign_actions]
     metadata.avatar_playback_speed = 1.0
     for worked in examples + [question.worked_solution for question in questions]:
+        worked.avatar_intro_segments = choreograph_segments(segments_from_lines(
+            STRATEGY_OPENINGS[metadata.primary_strategy], _actions
+        ) + [expression_segment(worked.problem)], original_expression=worked.problem)
         for step in worked.steps:
             step.knowledge_notes = lesson_notes(step.instruction, level, metadata.primary_strategy.value)
-            step.avatar_segments = explain_step(step, metadata.primary_strategy, _actions)
+            step.avatar_segments = choreograph_segments(
+                explain_step(step, metadata.primary_strategy, _actions),
+                original_expression=worked.problem, expression_context=step.expression,
+            )
             step.sign_actions = [action for segment in step.avatar_segments for action in segment.sign_actions]
     for question in questions:
         for index, hint in enumerate(question.progressive_hints):
             # Keep hint stages separate: never include later hints or a solution
             # in an earlier cue. Only hint three introduces its collected line.
-            hint.avatar_segments = explain_hint(
+            hint.avatar_segments = choreograph_segments(explain_hint(
                 hint.text, index, question.worked_solution.problem, _actions
-            )
+            ), original_expression=question.worked_solution.problem)
             hint.sign_actions = [action for segment in hint.avatar_segments for action in segment.sign_actions]
         question.hint.avatar_segments = list(question.progressive_hints[1].avatar_segments)
         question.hint.sign_actions = list(question.progressive_hints[1].sign_actions)
@@ -316,6 +327,10 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
         == "composite_prototype_educational_gesture"
     ]
     sign_ids.update(entry["id"] for entry in review_entries)
+    # Q&A can use any authored explanation flow, even when that concept was
+    # not requested by the initial example's steps.
+    sign_ids.update(entry["id"] for entry in PLANNER.manifest_entries()
+                    if entry.get("category") == "explanation_flow")
     glossary = []
     for sign_id in sorted(sign_ids):
         entry = PLANNER.manifest_entry(sign_id) or {}
@@ -333,6 +348,7 @@ def build_lesson(level: Level, metadata: PlanMetadata) -> AdaptiveLesson:
                 validation_status="validated"
                 if entry.get("validation_status") == "validated"
                 else "pending",
+                reference_videos=entry.get("reference_videos", []),
             )
         )
     return AdaptiveLesson(
@@ -378,7 +394,7 @@ def plan_lesson(
         raise ValueError(
             "This planner supports only Grade 10 linear equations; route other concepts to their own tutor."
         )
-    model = model or RuleBasedStrategyModel()
+    model = model if model is not None else get_strategy_model()
     prediction = model.predict(request)
     # Mastery is input supplied by Quiz/Game, not a new diagnostic owned by Tutor.
     score = (
@@ -414,6 +430,7 @@ def plan_lesson(
         source="diagnostic",
         model_version=model.version,
         primary_strategy=prediction.primary_strategy,
+        confidence=prediction.confidence,
         supporting_strategies=list(prediction.supporting_strategies),
         rationale=f"Quiz mastery {request.quiz.quiz_mastery_score:.0%}; Game mastery {request.game.game_mastery_score:.0%}; prior mastery {request.learner.prior_mastery_score:.0%}. Conservative draft placement; response speed is not used as an ability penalty.",
         misconception_support=MISCONCEPTION_SUPPORT[request.quiz.misconception_code],

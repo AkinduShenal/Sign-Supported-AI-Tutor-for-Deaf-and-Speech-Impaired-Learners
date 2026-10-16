@@ -440,6 +440,63 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.equation-token {
+  padding: 4px 6px;
+  min-width: 28px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.equation-token:disabled { opacity: 1; cursor: default; }
+.equation-token.is-active { background: #5140c7; color: white; border-color: #5140c7; }
+.equation-token:focus-visible { outline: 3px solid #24175d; outline-offset: 2px; }
+.equation-token:not(:disabled):hover { border-color: #5140c7; }
+.avatar-current-token { margin: 10px 0; text-align: center; font-weight: 700; color: #4130ad; }
+.avatar-current-token span { color: #62627b; font-weight: 400; }
+.avatar-token-fallback { font-size: 13px; line-height: 1.6; color: #62627b; }
+.avatar-close-view { display: flex; gap: 8px; align-items: center; font-size: 13px; line-height: 1.6; }
+.avatar-source-references { margin: 12px 0; font-size: 13px; line-height: 1.6; }
+.avatar-source-references summary { cursor: pointer; color: #4130ad; }
+.avatar-source-references a { display: block; padding: 4px 0; overflow-wrap: anywhere; }
+
+.avatar-meaning-board { margin: 10px 0; padding: 12px; border: 1px solid #d9d5ff; border-radius: 12px; background: #f3f1ff; text-align: center; }
+.meaning-equation-label { color: #65617e; font-size: 11px; }
+.meaning-original-equation { padding: 6px 0; font-size: 19px; font-weight: 750; color: #4130ad; overflow-wrap: anywhere; }
+.meaning-original-equation mark { padding: 2px 6px; border-radius: 5px; background: transparent; color: inherit; }
+.meaning-focus, .meaning-original-equation mark.meaning-focus { background: #5140c7; color: white; border-radius: 6px; }
+.meaning-equation-sides { display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); gap: 6px; align-items: center; margin: 8px 0; color: #4130ad; font-size: 17px; font-weight: 700; }
+.meaning-equation-sides span { padding: 6px; overflow-wrap: anywhere; transition: transform 240ms ease; }
+.meaning-equation-sides.is-unbalanced span:first-child { transform: translateY(-6px); }
+.meaning-replacement { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 5px 0; font-weight: 750; color: #4130ad; }
+.meaning-replacement > span { padding: 5px 10px; }
+.meaning-replacement > span:nth-child(2) { transform: rotate(-90deg); }
+.meaning-x-slot { min-width: 40px; border: 2px dashed #8c7ee9; border-radius: 7px; }
+.meaning-replacement.is-placed .meaning-x-slot { border-style: solid; background: #e0f7ee; color: #17624b; }
+.meaning-result { min-height: 40px; visibility: hidden; }
+.meaning-result.is-visible { visibility: visible; }
+.meaning-result small, .meaning-result strong { display: block; }
+.meaning-result strong { font-size: 17px; color: #17624b; overflow-wrap: anywhere; }
+.meaning-result small { font-size: 10px; color: #65617e; }
+.meaning-live-cue { display: grid; gap: 3px; margin-top: 8px; min-height: 48px; align-content: center; color: #4130ad; line-height: 1.6; }
+.meaning-live-cue strong { font-size: 13px; }
+.meaning-live-cue small { color: #65617e; font-size: 11px; }
+.meaning-beat-progress { display: flex; justify-content: center; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.avatar-meaning-board .meaning-beat-progress button { display: grid; place-items: center; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 1px solid #c9c3f0; border-radius: 50%; background: white; color: #5140c7; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
+.meaning-beat-progress button:disabled { opacity: 1; cursor: default; }
+.meaning-beat-progress .is-active button { background: #5140c7; color: white; }
+.meaning-beat-progress .is-complete button { background: #ded9ff; }
+.meaning-beat-progress button:focus-visible { outline: 3px solid #24175d; outline-offset: 2px; }
+.meaning-symbol-comparison, .meaning-concept-symbol { padding: 8px; color: #4130ad; font-size: 21px; font-weight: 700; }
+.meaning-symbol-comparison span { color: #a0324d; }
+.student-workspace .avatar-panel:has(.avatar-meaning-board) .avatar-stage { height: 300px; margin: 12px 0; }
+.student-workspace .avatar-panel:has(.avatar-meaning-board) .avatar-teaching { padding: 12px; margin: 10px 0; }
+.student-workspace .avatar-panel:has(.avatar-meaning-board) .avatar-caption { font-size: 12px; line-height: 1.5; margin: 8px 0; }
+.student-workspace .avatar-panel:has(.avatar-meaning-board) .avatar-teaching > .sinhala-text { font-size: 14px; line-height: 1.65; margin: 8px 0; }
+@media (prefers-reduced-motion: reduce) { .meaning-equation-sides span { transition: none; } }
+
 .avatar-glow {
   position: absolute;
   z-index: 0;

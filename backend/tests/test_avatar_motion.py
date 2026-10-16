@@ -37,7 +37,15 @@ def test_canonical_master_and_validation_policy(rig):
     assert cues["cue_actions_added"] == 12
     assert cues["language_validation"] == "none"
     assert cues["review_required"] is True
-    assert len(rig.tracks) == 83
+    assert len(rig.tracks) == 153
+    flows = rig.doc["extras"]["explanation_flow_revision"]
+    assert flows["original_actions_preserved"] == 83
+    assert flows["actions_added"] == 70
+    assert flows["language_validation"] == "none"
+    number_revision = rig.doc["extras"]["slsl_number_handshape_revision"]
+    assert number_revision["actions_changed"] == ["NUMBER_6", "NUMBER_7", "NUMBER_8", "NUMBER_9"]
+    assert number_revision["language_validation"] == "none"
+    assert number_revision["review_required"] is True
     assert rig.doc["extras"]["composite_prototype_expansion"] == {
         "language_validation": "none",
         "review_required": True,
@@ -57,7 +65,7 @@ def test_full_motion_limits_and_consistent_neutral():
     assert report["errors"] == []
     for action in report["actions"]:
         assert action["max_wrist_swing_degrees"] <= 45.1
-        assert action["max_upper_arm_elevation_degrees"] < 36
+        assert action["max_upper_arm_elevation_degrees"] < (40 if action["action"].startswith("FLOW_") else 36)
         # Asset regression bound, not a medical/anatomical validity claim.
         assert action["max_elbow_bend_degrees"] < 140
         assert action["max_arm_rotation_degrees_per_second"] <= 161
@@ -124,6 +132,29 @@ def test_number_actions_keep_distinct_existing_finger_shapes(rig):
         )
     for a, b in zip(poses, poses[1:]):
         assert any(angle(a[i], b[i]) > 1 for i in nodes)
+
+
+def test_slsl_number_drafts_no_longer_count_six_to_nine_as_five_plus_n(rig):
+    # The cited reference videos have the left hand at rest. A second open hand
+    # would reintroduce the old generic 5+n counting gesture.
+    neutral = rig.pose("IDLE", 0)
+    for number in range(6, 10):
+        pose = rig.pose(f"NUMBER_{number}", 1.8)
+        for node, name in ((i, n.get("name", "")) for i, n in enumerate(rig.nodes)):
+            if "Left" in name:
+                assert angle(pose[node], neutral[node]) < 0.001
+    # Seven is the thumb/index L shape in the linked SLSL reference, while
+    # six extends the little finger. These must be visually distinguishable.
+    seven, six = rig.pose("NUMBER_7", 1.8), rig.pose("NUMBER_6", 1.8)
+    open_hand = rig.pose("NUMBER_5", 1.8)
+    for finger in ("Thumb", "Index"):
+        for joint in (1, 2, 3):
+            node = rig.names[f"mixamorig8:RightHand{finger}{joint}"]
+            assert angle(seven[node], open_hand[node]) < 0.001
+    index = rig.names["mixamorig8:RightHandIndex1"]
+    little = rig.names["mixamorig8:RightHandPinky1"]
+    assert angle(seven[index], six[index]) > 30
+    assert angle(seven[little], six[little]) > 30
 
 
 def test_repair_refuses_unknown_assets_or_overwriting_source(tmp_path):

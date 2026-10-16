@@ -16,10 +16,41 @@ STOP_WORDS = set("a an the is are do does why how i we you to of in on by at it 
 }
 
 
+class ExpressionSignToken(BaseModel):
+    text: str
+    start: int = Field(ge=0)
+    end: int = Field(gt=0)
+    action_index: int | None = None
+
+
+class MotionBeat(BaseModel):
+    role: str
+    start: float = Field(ge=0)
+    end: float = Field(gt=0)
+    text: str
+    text_si: str
+
+
+class ExplanationMotion(BaseModel):
+    clip: str
+    kind: str
+    beats: list[MotionBeat]
+    original_expression: str | None = None
+    current_expression: str | None = None
+    substituted_expression: str | None = None
+    value: str | None = None
+    language_status: str = "source_referenced_demonstration"
+
+
 class KnowledgeTeachingPart(BaseModel):
     text: str = Field(min_length=1)
     text_si: str = Field(min_length=1)
     sign_actions: list[str]
+    expression: str | None = None
+    expression_tokens: list[ExpressionSignToken] = Field(default_factory=list)
+    unsupported_tokens: list[str] = Field(default_factory=list)
+    support_kind: str = "key_terms"
+    motion: ExplanationMotion | None = None
 
 
 class KnowledgeSource(BaseModel):

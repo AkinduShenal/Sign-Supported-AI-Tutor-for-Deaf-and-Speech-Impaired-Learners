@@ -1,0 +1,46 @@
+{
+  "verification_kind": "read_only_live_data_engineering_check",
+  "model_version": "strategy-ml-v1",
+  "database_rows": {
+    "quiz_results": 16,
+    "game_results": 26,
+    "tutor_strategy_predictions": 2
+  },
+  "same_student_concept_pairs": 17,
+  "verified_pairs": 2,
+  "skipped_pairs": {
+    "different_cycle_or_phase": 15
+  },
+  "strategy_distribution": {
+    "step_by_step": 1,
+    "advanced_challenge": 1
+  },
+  "predictions": [
+    {
+      "pair_number": 1,
+      "primary_strategy": "step_by_step",
+      "confidence": 0.9168131288417967,
+      "prior_mastery_source": "explicit_test_assumption",
+      "prior_mastery_score": 0.5,
+      "cycle_linkage": "legacy_missing_cycle",
+      "unseen_categories": {},
+      "matches_original_pipeline": true
+    },
+    {
+      "pair_number": 2,
+      "primary_strategy": "advanced_challenge",
+      "confidence": 0.749951599434533,
+      "prior_mastery_source": "explicit_test_assumption",
+      "prior_mastery_score": 0.5,
+      "cycle_linkage": "legacy_missing_cycle",
+      "unseen_categories": {},
+      "matches_original_pipeline": true
+    }
+  ],
+  "writes_performed": false,
+  "notes": [
+    "Test-assumed priors do not establish a real learner's prior mastery.",
+    "This checks integration, not model accuracy against teacher labels.",
+    "Unknown categories use the exported OneHotEncoder(handle_unknown='ignore')."
+  ]
+}
