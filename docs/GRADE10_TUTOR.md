@@ -31,13 +31,15 @@ curriculum knowledge base is not implemented. See the
    numerical attempts, hints, avatar interactions, request timing and content/model
    versions, but not the diagnostic payload, real names or student identifiers.
 
-The workspace starts with an always-visible **Worked example**, including its
-steps and navigation, beside the avatar. Practice questions, the answer field
-and **Show hint** button follow below. The worked example cannot be collapsed.
-Teaching/review details and session evidence are collapsed below the workspace;
-playback speed and sign details are collapsed under the avatar. On mobile, the
-worked example comes first, followed by the avatar and practice question. Avatar
-context follows the worked-example step or the selected practice question/hint.
+The workspace shows a large avatar beside an always-visible **Worked example**,
+including its steps and navigation. The main instruction is highlighted; the
+opening step uses its concise teaching segment, with the full explanation under
+**More explanation**. The follow-along instructions, equation visuals and part
+navigation stay visible below the avatar. Questions for the tutor, playback
+settings and review details start collapsed. Practice questions, the answer field and
+**Show hint** button follow below. On mobile, the avatar comes first, followed by
+the worked example and practice question. Avatar context follows the
+worked-example step or the selected practice question/hint.
 
 Questions, explanation steps, progressive hints and answer feedback display
 English followed by Sinhala (`lang="en"` / `lang="si"`). The frontend's

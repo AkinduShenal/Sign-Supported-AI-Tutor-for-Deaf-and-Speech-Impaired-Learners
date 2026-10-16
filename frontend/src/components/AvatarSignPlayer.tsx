@@ -398,19 +398,11 @@ export function AvatarSignPlayer({
     }
   }, [approvedForPlaybackSet, availableAnimations, modelState, requestedSigns])
 
-  return (
-    <aside className={`avatar-panel ${compact ? 'avatar-compact' : ''}`} aria-labelledby="avatar-title">
-      <div className="avatar-heading">
-        <div>
-          {!compact && <span className="eyebrow">Sign support</span>}
-          <h2 id="avatar-title">{compact ? 'Avatar' : 'Tutor Avatar'}</h2>
-        </div>
-      </div>
-
-      {teachingSegments.length > 0 && !reviewSign && <div className="avatar-teaching" aria-live="polite">
-        <div className="avatar-teaching-heading"><strong>{teachingApproach ?? 'Explanation'}</strong><span>{teachingIndex + 1} / {teachingSegments.length}</span></div>
+  const teachingPanel = teachingSegments.length > 0 && !reviewSign && <div className="avatar-teaching" aria-live="polite" aria-label={teachingApproach ? `${teachingApproach} explanation` : 'Explanation'}>
+        <div className="avatar-teaching-heading"><strong>Follow along <span lang="si">· බලමින් ඉගෙන ගනිමු</span></strong><span className="avatar-part-count">{teachingIndex + 1} / {teachingSegments.length}</span></div>
         {caption && <p className="avatar-caption" lang="en">{caption}</p>}
         {captionSi ? <p className="sinhala-text" lang="si">{captionSi}</p> : caption && <SinhalaText text={caption} />}
+        <div className="avatar-visual-explanation">
         {motion && <AvatarMeaningBoard motion={motion} beatIndex={beatIndex} expression={expression} clipTime={clipTime}
           onSeek={modelState === 'ready' && playableSigns.some(sign => sign.name === motion.clip) ? seekMeaningBeat : undefined} />}
         {!motion && expression && <p className="avatar-expression" aria-label={`Current equation: ${expression}`}>
@@ -426,11 +418,21 @@ export function AvatarSignPlayer({
           }) : expression}
         </p>}
         {!!currentSegment?.unsupported_tokens?.length && <p className="avatar-token-fallback" role="status">Read these in the equation / සමීකරණයෙන් කියවන්න: {currentSegment.unsupported_tokens.join(', ')}</p>}
+        </div>
         <div className="avatar-part-controls">
           <button type="button" className="secondary-button" disabled={teachingIndex === 0} onClick={() => selectTeachingPart(teachingIndex - 1)}>Previous part / පෙර කොටස</button>
           <button type="button" className="secondary-button" disabled={teachingIndex + 1 >= teachingSegments.length} onClick={() => selectTeachingPart(teachingIndex + 1)}>Next part / ඊළඟ කොටස</button>
         </div>
-      </div>}
+      </div>
+
+  return (
+    <aside className={`avatar-panel ${compact ? 'avatar-compact' : ''}`} aria-labelledby="avatar-title">
+      <div className="avatar-heading">
+        <div>
+          {!compact && <span className="eyebrow">Sign support</span>}
+          <h2 id="avatar-title">{compact ? 'Your tutor' : 'Tutor Avatar'}</h2>{compact && <span className="avatar-title-si" lang="si">ඔබේ ගුරුවරයා</span>}
+        </div>
+      </div>
 
       {!compact && teachingSegments.length === 0 && caption && <p className="avatar-caption" lang="en">{caption}</p>}
       {!compact && teachingSegments.length === 0 && caption && <SinhalaText text={caption} />}
@@ -495,7 +497,7 @@ export function AvatarSignPlayer({
       )}
       {compact && allowPrototype && <p className="avatar-preview-note">Demo gestures · not yet validated sign language.</p>}
       {compact && activeSign && <p className="avatar-current-token" role="status">{motion ? motion.beats[beatIndex]?.text_si : expressionTokens.find(token => token.action_index === activeSignIndex)?.text ?? activeSign.replaceAll('_', ' ')} <span>· {motion ? `${beatIndex + 1} / ${motion.beats.length}` : `${(activeSignIndex ?? 0) + 1} / ${effectiveSignActions.length}`}</span></p>}
-      <label className="avatar-close-view"><input type="checkbox" checked={closeView} onChange={event => setCloseView(event.target.checked)} /> Closer view of hands / අත් සමීපව බලන්න</label>
+      {teachingPanel}
       {relevantReferences.length > 0 && <details className="avatar-source-references">
         <summary>Watch SLSL references / මූලාශ්‍ර සංඥා බලන්න</summary>
         <p>Compare the human sign demonstrations. Avatar clips still need SLSL review.</p>
@@ -531,6 +533,7 @@ export function AvatarSignPlayer({
             </select>
           </label>
         )}
+        <label className="avatar-close-view"><input type="checkbox" checked={closeView} onChange={event => setCloseView(event.target.checked)} /> Closer view of hands / අත් සමීපව බලන්න</label>
         <div className="avatar-playback-controls">
           <label>Speed <select aria-label="Avatar playback speed" value={speed} onChange={(event) => {
             const value = Number(event.target.value)
