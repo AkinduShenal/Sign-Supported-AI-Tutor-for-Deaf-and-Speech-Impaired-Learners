@@ -1,0 +1,54 @@
+.sprinkle-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sprinkle-burst {
+  position: absolute;
+  bottom: clamp(12px, 3vh, 30px);
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  filter: drop-shadow(0 3px 5px rgb(48 38 116 / 18%));
+}
+
+.sprinkle-burst--left { left: clamp(10px, 2vw, 24px); }
+.sprinkle-burst--right { right: clamp(10px, 2vw, 24px); }
+
+.sprinkle-piece {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sprinkle-spray 1250ms cubic-bezier(.19, .7, .34, 1) var(--delay) both;
+}
+
+.sprinkle-celebration--win .sprinkle-piece { animation-duration: 1650ms; }
+
+.sprinkle-flash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sprinkle-flash 720ms ease-out both;
+}
+
+.sprinkle-burst--right .sprinkle-flash { animation-delay: 45ms; }
+
+@keyframes sprinkle-spray {
+  0% { opacity: 0; transform: translate(0, 0) scale(.4) rotate(0deg); }
+  8% { opacity: 1; }
+  52% { opacity: 1; transform: translate(var(--mid-x), var(--mid-y)) scale(1) rotate(var(--mid-spin)); }
+  100% { opacity: 0; transform: translate(var(--end-x), var(--end-y)) scale(.75) rotate(var(--spin)); }
+}
+
+@keyframes sprinkle-flash {
+  0% { opacity: 0; transform: scale(.3) rotate(-20deg); }
+  18% { opacity: 1; transform: scale(1.55) rotate(5deg); }
+  100% { opacity: 0; transform: scale(2.6) rotate(20deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprinkle-piece { display: none; }
+  .sprinkle-flash { animation: none; opacity: 1; }
+}

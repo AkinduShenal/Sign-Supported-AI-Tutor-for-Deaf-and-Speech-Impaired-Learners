@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
+import { showSprinkles } from './sprinkleEvent'
 import { checkPractice, getAdaptiveLesson, getGrade10Preview } from '../api/tutor'
 import type { AdaptiveLesson, LearningLevel, TeachingStrategy, TutorQuestionAnswer } from '../types/tutor'
 import { AvatarSignPlayer } from './AvatarSignPlayer'
@@ -200,6 +201,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
       const result = await checkPractice(question.question_id, answer)
       if (!mounted.current) return
       setFeedback(result)
+      if (result.correct) showSprinkles('answer')
       const prior = attempts[question.question_id]
       setAttempts(current => ({ ...current, [question.question_id]: { count: (prior?.count ?? 0) + 1, independent: prior?.independent ?? (result.correct && hintCount === 0 && !solutionsViewed[question.question_id] && !tutorHelpUsed.current[question.question_id]) } }))
       const numericAnswer = answer.replaceAll(' ', '').replaceAll('−', '-')
