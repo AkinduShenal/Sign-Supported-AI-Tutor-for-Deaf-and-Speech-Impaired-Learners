@@ -181,7 +181,7 @@ def test_question_fetch_filters_phase_and_hides_answer_metadata(quiz_db):
     assert pre.json()[0]["id"] == str(first_id)
     assert len(pre.json()[0]["options"]) == 2
     assert not (
-        {"is_correct", "misconception_code", "correct_answer_text"} & set(pre.json()[0])
+        {"is_correct", "correct_option", "misconception_code", "correct_answer_text"} & set(pre.json()[0])
     )
     for option in pre.json()[0]["options"]:
         assert "is_correct" not in option
@@ -219,6 +219,7 @@ def test_correct_response_derives_result_and_stores_evidence(quiz_db):
     saved = client.post(f"/api/v1/quiz/sessions/{session_id}/responses", json=payload)
     assert saved.status_code == 201, saved.text
     assert saved.json()["is_correct"] is True
+    assert saved.json()["correct_option"] is None
     assert "misconception_code" not in saved.json()
     assert "feedback" not in saved.json()
     with factory() as database:
@@ -235,7 +236,7 @@ def test_correct_response_derives_result_and_stores_evidence(quiz_db):
 
 def test_incorrect_response_uses_option_mapping_not_client_claim(quiz_db):
     client, factory = quiz_db
-    question_id, _, _, wrong_id, _ = seed_questions(factory)
+    question_id, _, correct_id, wrong_id, _ = seed_questions(factory)
     session_id = create_session(client)["quiz_session_id"]
     payload = answer_payload(question_id, wrong_id, confidence_level="medium")
     payload["is_correct"] = True
@@ -249,6 +250,12 @@ def test_incorrect_response_uses_option_mapping_not_client_claim(quiz_db):
     saved = client.post(f"/api/v1/quiz/sessions/{session_id}/responses", json=payload)
     assert saved.status_code == 201
     assert saved.json()["is_correct"] is False
+    assert saved.json()["correct_option"]["id"] == str(correct_id)
+    assert saved.json()["correct_option"]["option_text_en"] == "7"
+    replayed = client.post(f"/api/v1/quiz/sessions/{session_id}/responses", json=payload)
+    assert replayed.status_code == 201
+    assert replayed.json()["response_id"] == saved.json()["response_id"]
+    assert replayed.json()["correct_option"] == saved.json()["correct_option"]
     with factory() as database:
         stored = database.scalar(select(QuizResponse))
         assert stored is not None

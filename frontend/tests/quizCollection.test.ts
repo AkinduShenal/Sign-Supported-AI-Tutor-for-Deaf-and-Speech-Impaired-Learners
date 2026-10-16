@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { PendingQuizWrites } from '../src/quiz/pendingQuizWrites.ts'
+import { PendingQuizWrites, QUIZ_STORAGE_KEY, quizAttemptState } from '../src/quiz/pendingQuizWrites.ts'
 import type { CreateQuizSessionInput } from '../src/quiz/api.ts'
 import type { QuizAnswer, QuizAnswerSaved, QuizSession } from '../src/quiz/types.ts'
 
@@ -42,7 +42,10 @@ test('Quiz queue preserves exact answer across response loss, refresh, and learn
         question_id: body.question_id, question_order: body.question_order,
         selected_option_id: body.selected_option_id, response_time_sec: body.response_time_sec,
         confidence_level: body.confidence_level, answered_at: body.client_action_at,
-        is_correct: body.selected_option_id === 'option-A', saved: true }
+        is_correct: body.selected_option_id === 'option-A',
+        correct_option: body.selected_option_id === 'option-A' ? null : {
+          id: 'option-A', option_code: 'A', option_text_en: '7', option_text_si: '7',
+        }, saved: true }
     },
     complete: async (_id: string) => savedSession(source, 'completed'),
   }
@@ -71,11 +74,18 @@ test('Quiz queue preserves exact answer across response loss, refresh, and learn
   assert.equal(await reloaded.flush(id), true)
   assert.equal(reloaded.session(id).completed, true)
   assert.equal(reloaded.session(id).responses[1].is_correct, false)
+  assert.equal(reloaded.session(id).responses[1].correct_option?.option_text_en, '7')
   assert.equal(reloaded.status(id), 'Saved')
-  assert.equal(answerCalls, 3)
+  const oldSnapshot = JSON.parse(storage.getItem(QUIZ_STORAGE_KEY)!)
+  delete oldSnapshot.sessions[0].responses[1].correct_option
+  storage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(oldSnapshot))
+  const recoveredFeedback = new PendingQuizWrites(storage, transport, 'http://isolated.test/api/v1')
+  assert.equal(await recoveredFeedback.flush(id), true)
+  assert.equal(recoveredFeedback.session(id).responses[1].correct_option?.option_text_en, '7')
+  assert.equal(answerCalls, 4)
   assert.equal(saved.size, 2)
-  reloaded.close(id)
-  assert.equal(reloaded.start(learner('STU_002', '11b2760e-656c-40bc-9f82-2dabfafc6870'), ['question-1']), 'QUIZ-11b2760e-656c-40bc-9f82-2dabfafc6870')
+  recoveredFeedback.close(id)
+  assert.equal(recoveredFeedback.start(learner('STU_002', '11b2760e-656c-40bc-9f82-2dabfafc6870'), ['question-1']), 'QUIZ-11b2760e-656c-40bc-9f82-2dabfafc6870')
 })
 
 test('Quiz queue rejects a mismatched answer acknowledgment and retains the write', async () => {
@@ -87,7 +97,7 @@ test('Quiz queue rejects a mismatched answer acknowledgment and retains the writ
       question_id: body.question_id, question_order: body.question_order,
       selected_option_id: 'different-option', response_time_sec: body.response_time_sec,
       confidence_level: body.confidence_level, answered_at: body.client_action_at,
-      is_correct: true, saved: true }),
+      is_correct: true, correct_option: null, saved: true }),
     complete: async () => savedSession(source, 'completed'),
   }, 'http://isolated.test/api/v1')
   const id = queue.start(source, ['question-1'])
@@ -97,4 +107,65 @@ test('Quiz queue rejects a mismatched answer acknowledgment and retains the writ
   assert.equal(queue.status(id), 'Failed')
   assert.equal(queue.session(id).responses[0].saved, false)
   assert.equal(queue.session(id).completed, false)
+})
+
+test('three tries stay with one learner and only first answers reach the research backend', async () => {
+  const storage = memoryStorage()
+  const source = learner('STU_001', '7e4142e1-4784-4cfd-9d8a-4fc22250b2b1')
+  const optionIds = ['option-A', 'option-B', 'option-C', 'option-D']
+  const backendAnswers: QuizAnswer[] = []
+  const transport = {
+    create: async (input: CreateQuizSessionInput) => savedSession(input),
+    answer: async (id: string, body: QuizAnswer): Promise<QuizAnswerSaved> => {
+      backendAnswers.push(structuredClone(body))
+      return { response_id: `response-${body.question_order}`, quiz_session_id: id,
+        question_id: body.question_id, question_order: body.question_order,
+        selected_option_id: body.selected_option_id, response_time_sec: body.response_time_sec,
+        confidence_level: body.confidence_level, answered_at: body.client_action_at,
+        is_correct: false, correct_option: { id: 'option-A', option_code: 'A',
+          option_text_en: '7', option_text_si: '7' }, saved: true }
+    },
+    complete: async () => savedSession(source, 'completed'),
+  }
+  const first = new PendingQuizWrites(storage, transport, 'http://isolated.test/api/v1')
+  const id = first.start(source, ['question-1', 'question-2'])
+  const answer: QuizAnswer = { question_id: 'question-1', question_order: 1,
+    selected_option_id: 'option-B', response_time_sec: 4.5,
+    confidence_level: 'high', client_action_at: '2026-10-13T08:00:00.000Z' }
+  first.answer(id, answer)
+  assert.equal(await first.flush(id), true)
+  assert.deepEqual(quizAttemptState(first.session(id).responses[0]), {
+    attemptNumber: 1, selectedOptionId: 'option-B', correct: false,
+    canRetry: true, revealCorrectAnswer: false,
+  })
+  assert.throws(() => first.acknowledgeFeedback(id, 0))
+  assert.throws(() => first.practiceAnswer(id, 0, 'option-B', optionIds))
+  first.practiceAnswer(id, 0, 'option-C', optionIds)
+  const reopened = new PendingQuizWrites(storage, transport, 'http://isolated.test/api/v1')
+  assert.deepEqual(quizAttemptState(reopened.session(id).responses[0]), {
+    attemptNumber: 2, selectedOptionId: 'option-C', correct: false,
+    canRetry: true, revealCorrectAnswer: false,
+  })
+  reopened.practiceAnswer(id, 0, 'option-D', optionIds)
+  assert.deepEqual(quizAttemptState(reopened.session(id).responses[0]), {
+    attemptNumber: 3, selectedOptionId: 'option-D', correct: false,
+    canRetry: false, revealCorrectAnswer: true,
+  })
+  assert.throws(() => reopened.practiceAnswer(id, 0, 'option-A', optionIds))
+  reopened.acknowledgeFeedback(id, 0)
+  reopened.answer(id, { ...answer, question_id: 'question-2', question_order: 2,
+    client_action_at: '2026-10-13T08:01:00.000Z' })
+  assert.equal(await reopened.flush(id), true)
+  assert.equal(reopened.session(id).completed, true)
+  reopened.practiceAnswer(id, 1, 'option-A', optionIds)
+  assert.deepEqual(quizAttemptState(reopened.session(id).responses[1]), {
+    attemptNumber: 2, selectedOptionId: 'option-A', correct: true,
+    canRetry: false, revealCorrectAnswer: false,
+  })
+  reopened.acknowledgeFeedback(id, 1)
+  assert.equal(backendAnswers.length, 2)
+  assert.deepEqual(backendAnswers.map(item => item.selected_option_id), ['option-B', 'option-B'])
+  reopened.close(id)
+  const next = reopened.start(learner('STU_002', '11b2760e-656c-40bc-9f82-2dabfafc6870'), ['question-1'])
+  assert.deepEqual(reopened.session(next).responses, [])
 })

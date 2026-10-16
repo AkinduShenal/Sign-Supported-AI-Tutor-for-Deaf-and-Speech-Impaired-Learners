@@ -114,7 +114,8 @@ def test_ten_question_api_flow_stores_responses_and_completes_session():
             )
             assert saved.status_code == 201, saved.text
             assert saved.json()["saved"] is True
-            assert "is_correct" not in saved.json()
+            assert isinstance(saved.json()["is_correct"], bool)
+            assert (saved.json()["correct_option"] is None) == saved.json()["is_correct"]
         completed = client.post(f"/api/v1/quiz/sessions/{session_id}/complete")
         assert completed.status_code == 200
         assert completed.json()["status"] == "completed"

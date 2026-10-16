@@ -57,6 +57,7 @@ export interface QuizAnswerSaved {
   confidence_level: ConfidenceLevel
   answered_at: string
   is_correct: boolean
+  correct_option: QuizOption | null
   saved: true
 }
 
