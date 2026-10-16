@@ -90,7 +90,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1050, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: 'http://127.0.0.1:5176/' })
   await until("document.querySelector('model-viewer')?.loaded")
-  await until("document.querySelector('#avatar-title')?.textContent === 'Avatar'")
+  await until("document.querySelector('#avatar-title')?.textContent === 'Your tutor'")
   // Every current level's teaching text must have Sinhala wording; math tokens
   // still come from the same backend equation rather than a separate answer.
   const untranslated = await evaluate(`(async () => {
@@ -107,7 +107,7 @@ try {
     ]).filter(text => !sinhalaLessonText(text));
   })()`)
   assert.deepEqual(untranslated, [])
-  assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent.includes('සමීකරණයක්')"), true)
+  assert.equal(await evaluate("document.querySelector('.bilingual-instruction .sinhala-text').textContent.includes('සමීකරණයක්')"), true)
   assert.equal(await evaluate("document.querySelector('.bilingual-question [lang=si]').textContent.includes('x + 5 = 12')"), true)
   assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 153)
   assert.equal(await evaluate("document.querySelector('.sign-chip.is-active') === null"), true)
@@ -120,6 +120,10 @@ try {
   assert.equal(await evaluate("document.querySelector('.practice-evidence').open"), false)
   assert.equal(await evaluate("document.querySelector('.worked-example').tagName"), 'ARTICLE')
   assert.equal(await evaluate("document.querySelector('.avatar-options').open"), false)
+  assert.equal(await evaluate("document.querySelector('.ask-tutor-panel').open"), false)
+  assert.equal(await evaluate("document.querySelector('.avatar-visual-explanation').checkVisibility()"), true)
+  assert.equal(await evaluate("document.querySelector('.avatar-stage').getBoundingClientRect().bottom <= document.querySelector('.avatar-teaching').getBoundingClientRect().top"), true)
+  assert.equal(await evaluate("document.querySelector('.avatar-stage').getBoundingClientRect().height >= 440"), true)
   await screenshot('strict-default')
   assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < window.innerHeight * 0.6 && document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.practice-section').getBoundingClientRect().top"), true)
   assert.equal(await evaluate("document.querySelector('.avatar-expression, .meaning-equation-sides, .meaning-original-equation').textContent === document.querySelector('.adaptive-equation').textContent"), true)
@@ -135,8 +139,8 @@ try {
       const example = document.querySelector('.worked-example').getBoundingClientRect();
       const avatar = document.querySelector('.avatar-panel').getBoundingClientRect();
       const practice = document.querySelector('.practice-section').getBoundingClientRect();
-      return { desktop: Math.abs(example.top-avatar.top)<=3 && example.right<avatar.left && example.width>avatar.width,
-        stacked: example.top<avatar.top && avatar.top<practice.top };
+      return { desktop: Math.abs(example.top-avatar.top)<=3 && example.right<avatar.left && avatar.width>=example.width,
+        stacked: avatar.top<example.top && example.top<practice.top };
     })()`)
     assert.equal(width > 900 ? layout.desktop : layout.stacked, true, `Layout at ${width}px`)
     await screenshot(`redesign-${width}`)
@@ -150,7 +154,7 @@ try {
   await delay(450)
   assert.equal(await evaluate("document.querySelector('model-viewer').currentTime"), pausedTime)
   await click('Resume')
-  await until("document.querySelector('.avatar-teaching-heading span').textContent.startsWith('2 /')")
+  await until("document.querySelector('.avatar-part-count').textContent.startsWith('2 /')")
   // Equation reading is a complete ordered sequence, with clickable token
   // positions. A single-symbol replay must not advance the explanation.
   for (let part = 0; part < 7; part++) await click('Next part / ඊළඟ කොටස')
@@ -162,13 +166,13 @@ try {
   await until("document.querySelector('model-viewer').currentTime > 1.6")
   await click('Pause')
   await screenshot('equation-token-seven')
-  await evaluate("document.querySelector('.avatar-close-view input').click()")
+  await evaluate("document.querySelector('.avatar-options').open=true; document.querySelector('.avatar-close-view input').click()")
   await delay(400)
   await screenshot('closer-hands')
   await click('Resume')
   await until("document.querySelector('.sign-chip.is-active') === null")
   assert.equal(await evaluate("document.querySelectorAll('.equation-token').length"), 5)
-  await evaluate("document.querySelector('.avatar-options > summary').click()")
+  await evaluate("document.querySelector('.avatar-options').open=true")
   assert.equal(await evaluate("document.querySelector('[aria-label=\"New animation example\"]').options.length"), 62)
   await evaluate(`(() => {
     const select = document.querySelector('[aria-label="New animation example"]');
@@ -181,7 +185,7 @@ try {
   await evaluate("document.querySelector('.avatar-options > summary').click()")
   await click('Next step'); await until("document.querySelector('.instruction').innerText.startsWith('Identify')")
   await click('Next step'); await until("document.querySelector('.instruction').innerText.startsWith('Subtract 3')")
-  assert.equal(await evaluate("document.querySelector('.bilingual-instruction [lang=si]').textContent"), 'දෙපසින්ම 3 අඩු කරන්න.')
+  assert.equal(await evaluate("document.querySelector('.bilingual-instruction .sinhala-text').textContent"), 'දෙපසින්ම 3 අඩු කරන්න.')
   await until("document.querySelector('model-viewer').animationName.startsWith('FLOW_SUBTRACT_BOTH')")
   await delay(950); await click('Pause'); await screenshot('prototype-subtraction')
   // Whole-instruction choreography uses the original equation, includes the
@@ -237,7 +241,7 @@ try {
   await until("document.querySelector('.hint-button').disabled")
   // Every supported Q&A answer is routed to the avatar as soon as it arrives.
   // Local retrieval only: this test must never contact a generation provider.
-  await evaluate("document.querySelector('#tutor-question-input').value = ''")
+  await evaluate("document.querySelector('.ask-tutor-panel').open=true; document.querySelector('#tutor-question-input').value = ''")
   await evaluate("document.querySelector('.question-suggestions button').click()")
   await until("document.querySelector('.tutor-question-answer .answer-paragraph')")
   await until("document.querySelector('.avatar-caption').textContent.includes('Both sides')")
@@ -248,7 +252,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
   await delay(300)
   assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true)
-  assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.avatar-panel').getBoundingClientRect().top && document.querySelector('.avatar-panel').getBoundingClientRect().top < document.querySelector('.practice-section').getBoundingClientRect().top"), true)
+  assert.equal(await evaluate("document.querySelector('.avatar-panel').getBoundingClientRect().top < document.querySelector('.worked-example').getBoundingClientRect().top && document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.practice-section').getBoundingClientRect().top"), true)
   await evaluate("document.querySelector('model-viewer').scrollIntoView({block:'center'})")
   await delay(500)
   await screenshot('mobile-avatar')

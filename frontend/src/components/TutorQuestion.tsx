@@ -57,8 +57,6 @@ export function TutorQuestion({ level, strategy, exampleProblem, stepIndex, onHe
 
   return <section className="tutor-question" aria-labelledby="tutor-question-title">
     <h3 id="tutor-question-title">Ask about this step / <span lang="si">මේ පියවර ගැන අසන්න</span></h3>
-    <p>Ask in English or Sinhala. The answer uses the lesson notes and the current worked-example step.</p>
-    <p lang="si" className="sinhala-text">English හෝ සිංහලෙන් අසන්න. පිළිතුරට පාඩමේ සටහන් සහ දැනට ඇති උදාහරණයේ පියවර යොදාගන්නවා.</p>
     <div className="question-suggestions">{SUGGESTIONS.map(([en, si]) => <button key={en} type="button" className="secondary-button" disabled={loading} onClick={() => { void ask(en) }}><span>{en}</span><span lang="si">{si}</span></button>)}</div>
     <form onSubmit={submit}>
       <label htmlFor="tutor-question-input">Your question / <span lang="si">ඔබේ ප්‍රශ්නය</span></label>
