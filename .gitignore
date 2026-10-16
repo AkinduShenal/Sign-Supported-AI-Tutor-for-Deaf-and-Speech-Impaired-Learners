@@ -1,6 +1,4 @@
 # Environment files
-.env
-.env.*
 !.env.example
 
 # Python
@@ -27,7 +25,6 @@ tmp/
 /exports/
 
 # IDE
-.vscode/
 .idea/
 
 # macOS / Windows
@@ -36,3 +33,5 @@ Thumbs.db
 
 # Logs
 *.log
+config.bat
+node_modules

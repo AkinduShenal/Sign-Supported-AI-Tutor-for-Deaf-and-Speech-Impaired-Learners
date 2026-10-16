@@ -92,28 +92,24 @@ export function AdaptiveTutor({ onAssessment }: { onAssessment?: (view: 'quiz' |
     </details>
   return <main className="lesson-page student-workspace">
     <a className="skip-lesson" href="#lesson-content">Skip to lesson</a>
-    <nav className="workspace-bar" aria-label="Learning space">
-      <span className="workspace-brand"><img className="brand-mark" src="/connected-learning-emblem.png" alt="" width="48" height="48" /> Sign & learn</span>
-      <span className="course-label"><span>Mathematics</span><span>Grade 10</span></span>
-    </nav>
+    <div className="lesson-overview">
     <header className="lesson-header">
       <div className="topic-mark" aria-hidden="true">x</div>
       <div className="header-copy">
-        <span className="lesson-kicker">Today&apos;s maths mission</span>
+        <span className="lesson-kicker">Grade 10 · Mathematics</span>
         <h1>Linear equations</h1>
         <p className="lesson-title-si" lang="si">රේඛීය සමීකරණ</p>
       </div>
     </header>
     <section className="teaching-selector" aria-labelledby="teaching-selector-title">
       <div>
-        <h2 id="teaching-selector-title">Your teaching approach <span lang="si">ඔබට ගැළපෙන ඉගෙනීමේ ක්‍රමය</span></h2>
-        <p>Selected automatically from your Quiz and Game results.</p>
-        <p lang="si">ඔබේ Quiz සහ Game ප්‍රතිඵල අනුව තෝරා දෙනු ලැබේ.</p>
+        <h2 id="teaching-selector-title">Your learning approach <span lang="si">ඉගෙනීමේ ක්‍රමය</span></h2>
       </div>
       <div className="recommended-approach" aria-live="polite">
         {approach ? <><strong>{approach.title}</strong><span lang="si">{approach.titleSi}</span></> : <span>{loading ? 'Finding your learning approach…' : 'Complete your assessments to get started.'}</span>}
       </div>
     </section>
+    </div>
     {!context && learnerSettings}
     {loading ? <p role="status">Preparing your lesson…</p> : error ? <div className="lesson-card" role="alert"><h2>Lesson unavailable</h2><p>{error}</p>{context && <button className="primary-button" onClick={() => setRetry(n => n + 1)}>Try again</button>}</div> : lesson ?
       <LearningSession key={session} lesson={lesson} requestMs={requestMs} /> : context && status &&
@@ -158,6 +154,8 @@ function LearningSession({ lesson, requestMs }: { lesson: AdaptiveLesson; reques
   const example = lesson.worked_examples[exampleIndex]
   const steps = useMemo(() => [{ instruction: lesson.simple_explanation.text, expression: example.problem, sign_actions: lesson.simple_explanation.sign_actions, avatar_segments: example.avatar_intro_segments ?? lesson.simple_explanation.avatar_segments, knowledge_notes: lesson.simple_explanation.knowledge_notes }, ...example.steps], [example, lesson])
   const step = steps[stepIndex]
+  const mainInstruction = stepIndex === 0 ? step.avatar_segments?.[0]?.text ?? step.instruction : step.instruction
+  const mainInstructionSi = stepIndex === 0 ? step.avatar_segments?.[0]?.text_si : undefined
   const question = lesson.practice_questions[questionIndex]
   const hintCount = hintCounts[question.question_id] ?? 0
   const hint = question.progressive_hints[Math.max(0, hintCount - 1)]
@@ -246,14 +244,15 @@ function LearningSession({ lesson, requestMs }: { lesson: AdaptiveLesson; reques
   }
 
   const workedExampleCard = <article className="lesson-card worked-example">
-          <div className="card-heading"><h2>{stepIndex === 0 ? 'Key idea' : `Step ${stepIndex}`}</h2><span className="step-count">{stepIndex + 1} / {steps.length}</span></div>
+          <div className="card-heading"><h2>{stepIndex === 0 ? 'Let’s learn' : `Step ${stepIndex}`} <span lang="si">{stepIndex === 0 ? 'ඉගෙන ගනිමු' : 'පියවර'}</span></h2><span className="step-count">{stepIndex + 1} / {steps.length}</span></div>
           <div className="step-rail" role="progressbar" aria-label="Worked example progress" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={stepIndex + 1}>{steps.map((_, index) => <span key={index} className={index <= stepIndex ? 'reached' : ''} />)}</div>
           <label className="example-picker"><span><span className="picker-icon" aria-hidden="true">✦</span> Choose an example</span><select value={exampleIndex} onChange={event => { setRagAvatar(undefined); setExampleIndex(Number(event.target.value)); setStepIndex(0); setStepCheck(null); setFocusHint(false); record('example_selected', { item: event.target.value }) }}>{lesson.worked_examples.map((item, index) => <option key={item.problem} value={index}>{item.problem}</option>)}</select></label>
-          <p className="original-equation">Original equation: <strong>{example.problem}</strong></p>
+          {stepIndex > 0 && <p className="original-equation">Original: <strong>{example.problem}</strong></p>}
           <div className="equation adaptive-equation" aria-label={step.expression}>{step.expression}</div>
-          <div className="bilingual-instruction" aria-live="polite"><p className="instruction" lang="en">{step.instruction}</p><SinhalaText text={step.instruction} /></div>
+          <div className="bilingual-instruction" aria-live="polite"><span className="instruction-label">{stepIndex === 0 ? 'The idea' : 'Your next move'} <span lang="si">· {stepIndex === 0 ? 'මූලික අදහස' : 'කළ යුතු දේ'}</span></span><p className="instruction" lang="en">{mainInstruction}</p>{mainInstructionSi ? <p className="sinhala-text" lang="si">{mainInstructionSi}</p> : <SinhalaText text={mainInstruction} />}</div>
           {!!step.avatar_segments?.length && <details key={`${exampleIndex}:${stepIndex}`} className="step-explanation" aria-label="Detailed explanation">
-            <summary>{stepIndex === 0 ? 'How we will learn' : 'Why this step works'} / <span lang="si">{stepIndex === 0 ? 'ඉගෙන ගන්නා ආකාරය' : 'මේ පියවරේ හේතුව'}</span></summary>
+            <summary>More explanation / <span lang="si">තව පැහැදිලි කරන්න</span></summary>
+            {stepIndex === 0 && mainInstruction !== step.instruction && <div><p lang="en">{step.instruction}</p><SinhalaText text={step.instruction} /></div>}
             {step.avatar_segments.filter(segment => segment.text !== step.instruction).map((segment, index) => <div key={index}><p lang="en">{segment.text}</p>{segment.text_si ? <p lang="si" className="sinhala-text">{segment.text_si}</p> : <SinhalaText text={segment.text} />}</div>)}
           </details>}
           {strategy === 'conceptual_explanation' && rightSide !== undefined && <figure className="balance-visual">
@@ -272,9 +271,11 @@ function LearningSession({ lesson, requestMs }: { lesson: AdaptiveLesson; reques
             if (practiceSectionRef.current) practiceSectionRef.current.open = true
             document.getElementById('practice')?.scrollIntoView({ block: 'start' })
           }}>Try a similar question / සමාන ප්‍රශ්නයක් විසඳන්න</button>}
+          <details className="ask-tutor-panel"><summary>Ask your tutor / <span lang="si">ගුරුවරයාගෙන් අසන්න</span></summary>
           <TutorQuestion key={`${lesson.plan.level}:${strategy}:${example.problem}:${stepIndex}`} level={lesson.plan.level} strategy={strategy} exampleProblem={example.problem} stepIndex={stepIndex}
             onHelpUsed={() => { tutorHelpUsed.current[question.question_id] = true; record('tutor_help_viewed', { item: question.question_id }) }}
             onAvatarSupport={answer => { setShowAvatar(true); setRagAvatar({ id: crypto.randomUUID(), answer }); record('tutor_avatar_support', { item: answer.sources.map(source => source.id).join(',') }) }} />
+          </details>
           {!!step.knowledge_notes?.length && <details className="lesson-knowledge-notes"><summary>Related lesson notes / <span lang="si">අදාළ පාඩම් සටහන්</span></summary>{step.knowledge_notes.map(source => <div key={source.id}><strong>{source.title_en}</strong><p lang="en">{source.text_en}</p><p lang="si" className="sinhala-text">{source.text_si}</p></div>)}<small>Draft content · teacher review pending.</small></details>}
         </article>
 
@@ -311,16 +312,16 @@ function LearningSession({ lesson, requestMs }: { lesson: AdaptiveLesson; reques
 
   return <>
     <section id="lesson-content" tabIndex={-1} data-strategy={strategy} className={`lesson-grid ${!showAvatar ? 'text-only-grid' : ''}`}>
+      {showAvatar && <AvatarSignPlayer compact signReferences={lesson.sign_glossary} signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} teachingSegments={avatarContent.avatar_segments} teachingKey={avatarTeachingKey} teachingApproach={approach.title} initialPlaybackSpeed={lesson.plan.avatar_playback_speed} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
       <div className="learning-column">
         {workedExampleCard}
       </div>
-      {showAvatar && <AvatarSignPlayer compact signReferences={lesson.sign_glossary} signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} teachingSegments={avatarContent.avatar_segments} teachingKey={avatarTeachingKey} teachingApproach={approach.title} initialPlaybackSpeed={lesson.plan.avatar_playback_speed} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
     </section>
     <details ref={practiceSectionRef} className="practice-section">
-      <summary>Practice questions / <span lang="si">පුහුණු ප්‍රශ්න</span></summary>
+      <summary>Try it yourself <span lang="si">· දැන් ඔබ විසඳන්න</span><span className="practice-open-icon" aria-hidden="true">↗</span></summary>
       {practiceCard}
     </details>
-    <details className="lesson-card reviewer-settings"><summary>Teaching & review settings</summary>
+    <details className="lesson-card reviewer-settings"><summary>Learning settings / <span lang="si">ඉගෙනීමේ සැකසුම්</span></summary>
       <div className="avatar-playback-controls">
         <label><input type="checkbox" checked={showAvatar} onChange={event => { setShowAvatar(event.target.checked); record(event.target.checked ? 'avatar_enabled' : 'text_visual_baseline') }} /> Show avatar support</label>
         <label><input type="checkbox" checked={allowPrototype} onChange={event => previewGestures(event.target.checked)} /> Preview unvalidated gestures (reviewers only)</label>
