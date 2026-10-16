@@ -5,6 +5,7 @@ import { QuizAssessment } from './quiz/QuizAssessment'
 import { NonImprovementSection } from './components/NonImprovementSection'
 import { NonImprovementSectionStartScreen } from './components/NonImprovementSectionStartScreen'
 import type { EvaluationResponse } from './types/nonImprovementSection'
+import { QuizCollectionGate } from './quiz/QuizCollectionGate'
 import './App.css'
 
 type AppView = 'quiz' | 'game' | 'tutor' | 'remedial'
@@ -75,14 +76,18 @@ function App() {
         </div>
       </nav>
 
-      {view === 'quiz' && <QuizAssessment />}
+      {view === 'quiz' && <QuizCollectionGate onContinue={() => setView('tutor')} />}
       {view === 'game' && (
         <main className="game-page">
-          <PhaserGame />
+          <PhaserGame onContinue={() => setView('tutor')} />
         </main>
       )}
       {view === 'tutor' && <AdaptiveTutor />}
       {view === 'remedial' && <RemedialGateway />}
+      {view === 'tutor' && <AdaptiveTutor onAssessment={setView} />}
+      {view === 'remedial' && (
+        <PendingGateway title="Remedial Support" teamName="Remedial Support" />
+      )}
     </>
   )
 }

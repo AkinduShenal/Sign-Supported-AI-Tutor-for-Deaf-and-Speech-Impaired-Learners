@@ -1,0 +1,33 @@
+{
+  "model_version": "strategy-ml-v1",
+  "model_type": "LogisticRegression",
+  "target": "final_primary_strategy",
+  "classes": [
+    "step_by_step",
+    "worked_example_based",
+    "conceptual_explanation",
+    "progressive_hints",
+    "advanced_challenge"
+  ],
+  "numeric_features": [
+    "quiz_mastery_score",
+    "quiz_hint_rate",
+    "game_mastery_score",
+    "game_avg_attempts_per_task",
+    "hint_dependency",
+    "prior_mastery_score"
+  ],
+  "categorical_features": [
+    "misconception_code",
+    "quiz_difficulty_level",
+    "recommended_support_level",
+    "game_difficulty_level",
+    "engagement_level"
+  ],
+  "total_training_rows": 200,
+  "held_out_test_accuracy": 0.907,
+  "held_out_test_macro_f1": 0.8992,
+  "group_cv_macro_f1_mean": 0.9354,
+  "group_cv_macro_f1_std": 0.0472,
+  "training_date": "2026-10-16T09:23:14.315595"
+}

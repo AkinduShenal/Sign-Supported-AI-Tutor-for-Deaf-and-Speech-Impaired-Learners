@@ -3,10 +3,10 @@ import { GAME_MODES } from '../../gameModes'
 import { getCollectionStore } from '../../api/collectionStore'
 import type { GameModeDefinition } from '../../gameModes'
 import type { GameType } from '../../types'
-import { FONT_FAMILY, GAME_TEXT, GAME_TYPE_TEXT, SINHALA_TEXT } from '../gameText'
+import { GAME_TEXT, GAME_TYPE_TEXT } from '../gameText'
 import { designSize, fitCameraToDesign, isCompactScreen } from '../viewport'
 import { GAME_THEME as T, cssColor } from '../theme/gameTheme'
-import { RoundedPanel, backgroundTouchScroll, crispSceneText, gameButton, watchViewportSize } from '../theme/gameUi'
+import { RoundedPanel, backgroundTouchScroll, bilingualPair, crispSceneText, gameButton, watchViewportSize } from '../theme/gameUi'
 
 // Only presentation lives here. Available modes and scene/session creation
 // continue to come from the existing registry and startMode callback.
@@ -29,14 +29,10 @@ export class GameSelectionScene extends Phaser.Scene {
 
   private drawTitle(): void {
     const { width } = designSize(this.compact)
-    this.add.text(width / 2, 48, GAME_TEXT.chooseGame.en, {
-      fontFamily: FONT_FAMILY, fontSize: this.compact ? 30 : 36,
-      fontStyle: 'bold', color: cssColor(T.color.text),
-    }).setOrigin(0.5)
-    this.add.text(width / 2, 92, GAME_TEXT.chooseGame.si, {
-      fontFamily: FONT_FAMILY, fontSize: T.font.subtitle,
-      color: cssColor(T.color.muted), ...SINHALA_TEXT,
-    }).setOrigin(0.5)
+    bilingualPair(this, { x: width / 2, primaryY: 48, secondaryY: 92,
+      text: GAME_TEXT.chooseGame, width: width - 40,
+      primarySize: this.compact ? 30 : 36, secondarySize: T.font.subtitle,
+      color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted) })
   }
 
   private drawCard(mode: GameModeDefinition, index: number): void {
@@ -56,22 +52,12 @@ export class GameSelectionScene extends Phaser.Scene {
     const nameY = this.compact ? -112 : -62
     const children: Phaser.GameObjects.GameObject[] = [background, icon]
     children.push(
-      this.add.text(textX, nameY, text.name.en, {
-        fontFamily: FONT_FAMILY, fontSize: this.compact ? 23 : 25,
-        fontStyle: 'bold', color: cssColor(T.color.text), align: 'center',
-      }).setOrigin(0.5),
-      this.add.text(textX, nameY + 36, text.name.si, {
-        fontFamily: FONT_FAMILY, fontSize: T.font.body,
-        color: cssColor(T.color.muted), ...SINHALA_TEXT,
-      }).setOrigin(0.5),
-      this.add.text(textX, this.compact ? -16 : 27, text.description.en, {
-        fontFamily: FONT_FAMILY, fontSize: T.font.body, color: cssColor(T.color.text),
-        align: 'center', wordWrap: { width: textWidth },
-      }).setOrigin(0.5),
-      this.add.text(textX, this.compact ? 40 : 72, text.description.si, {
-        fontFamily: FONT_FAMILY, fontSize: T.font.caption, color: cssColor(T.color.muted),
-        align: 'center', wordWrap: { width: textWidth }, ...SINHALA_TEXT,
-      }).setOrigin(0.5),
+      ...bilingualPair(this, { x: textX, primaryY: nameY, secondaryY: nameY + 36,
+        text: text.name, width: textWidth, primarySize: this.compact ? 23 : 25,
+        secondarySize: T.font.body, color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted) }),
+      ...bilingualPair(this, { x: textX, primaryY: this.compact ? -16 : 27, secondaryY: this.compact ? 40 : 72,
+        text: text.description, width: textWidth, primarySize: T.font.body,
+        secondarySize: T.font.caption, color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted), wrap: true }),
     )
     const actionY = this.compact ? 110 : 151
     const status = mode.available ? GAME_TEXT.play : GAME_TEXT.comingNext

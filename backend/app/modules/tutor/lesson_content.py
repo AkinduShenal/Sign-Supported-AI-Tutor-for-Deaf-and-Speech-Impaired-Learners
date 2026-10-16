@@ -72,6 +72,7 @@ def _sign(
             if is_validated
             else SignValidationStatus.PENDING
         ),
+        reference_videos=manifest_entry.get("reference_videos", []) if manifest_entry else [],
     )
 
 

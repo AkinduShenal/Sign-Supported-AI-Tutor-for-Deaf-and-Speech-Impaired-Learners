@@ -1,29 +1,89 @@
+from datetime import UTC
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.modules.game.models import GameResult as GameResultModel
 from app.modules.quiz.models import QuizResult as QuizResultModel
 from app.modules.tutor.models import TutorStrategyPrediction
-from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse
-from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
+from app.modules.tutor.schemas import (
+    GameResult, QuizResult, TutorStrategyFromResultsRequest,
+    TutorStrategyRequest, TutorStrategyResponse,
+)
+from app.modules.tutor.strategy_model import StrategyPredictor, get_strategy_model
 
 
 class DuplicateSessionConflictError(ValueError):
     pass
 
 
+class MissingDiagnosticResultsError(ValueError):
+    pass
+
+
 class TutorStrategyService:
     def __init__(self, model: StrategyPredictor | None = None) -> None:
-        self.model = model or RuleBasedStrategyModel()
+        self.model = model if model is not None else get_strategy_model()
+
+    def request_from_results(
+        self, request: TutorStrategyFromResultsRequest, database: Session,
+    ) -> TutorStrategyRequest:
+        """Read diagnostic evidence; Tutor owns predictions, never Quiz/Game rows."""
+        quiz = database.scalar(select(QuizResultModel).where(
+            QuizResultModel.quiz_session_id == request.quiz_session_id
+        ))
+        game = database.scalar(select(GameResultModel).where(
+            GameResultModel.game_session_id == request.game_session_id
+        ))
+        if quiz is None or game is None:
+            raise MissingDiagnosticResultsError(
+                "Completed Quiz and Game results are required; finish both assessments first"
+            )
+        if any(
+            result.student_id != request.student_id or result.concept_id != request.concept_id
+            for result in (quiz, game)
+        ):
+            raise DuplicateSessionConflictError("Quiz/Game results belong to a different student or concept")
+        if (
+            quiz.learning_cycle_id is not None and game.learning_cycle_id is not None
+            and quiz.learning_cycle_id != game.learning_cycle_id
+        ) or (
+            quiz.assessment_phase is not None and game.assessment_phase is not None
+            and quiz.assessment_phase != game.assessment_phase
+        ):
+            raise DuplicateSessionConflictError("Quiz/Game results belong to different learning cycles or phases")
+
+        def diagnostic(result, schema):
+            values = {name: getattr(result, name) for name in schema.model_fields}
+            # SQLite drops timezone info; represent the persisted instant consistently.
+            completed = values["completed_at"]
+            if completed is not None and completed.tzinfo is None:
+                values["completed_at"] = completed.replace(tzinfo=UTC)
+            return schema.model_validate(values)
+
+        return TutorStrategyRequest(
+            student_id=request.student_id, concept_id=request.concept_id,
+            quiz=diagnostic(quiz, QuizResult), game=diagnostic(game, GameResult),
+            learner=request.learner,
+        )
+
+    def recommend_from_results(
+        self, request: TutorStrategyFromResultsRequest, database: Session,
+    ) -> TutorStrategyResponse:
+        return self.recommend(self.request_from_results(request, database), database)
 
     def recommend(
         self,
         request: TutorStrategyRequest,
         database: Session,
     ) -> TutorStrategyResponse:
-        input_snapshot = request.model_dump(mode="json")
-
         try:
+            stored_request = self.request_from_results(TutorStrategyFromResultsRequest(
+                student_id=request.student_id, concept_id=request.concept_id,
+                quiz_session_id=request.quiz.quiz_session_id,
+                game_session_id=request.game.game_session_id, learner=request.learner,
+            ), database)
+            input_snapshot = stored_request.model_dump(mode="json")
             quiz_result = database.scalar(
                 select(QuizResultModel).where(
                     QuizResultModel.quiz_session_id == request.quiz.quiz_session_id
@@ -34,20 +94,6 @@ class TutorStrategyService:
                     GameResultModel.game_session_id == request.game.game_session_id
                 )
             )
-
-            if quiz_result is not None and game_result is not None:
-                existing_prediction = database.scalar(
-                    select(TutorStrategyPrediction).where(
-                        TutorStrategyPrediction.quiz_result_id == quiz_result.id,
-                        TutorStrategyPrediction.game_result_id == game_result.id,
-                    )
-                )
-                if existing_prediction is not None:
-                    if existing_prediction.input_snapshot != input_snapshot:
-                        raise DuplicateSessionConflictError(
-                            "The supplied session IDs already belong to a different payload"
-                        )
-                    return self._to_response(existing_prediction)
 
             if quiz_result is not None and not self._quiz_result_matches(
                 quiz_result, request
@@ -62,15 +108,21 @@ class TutorStrategyService:
                     "game_session_id already belongs to a different game result"
                 )
 
-            if quiz_result is None:
-                quiz_result = self._create_quiz_result(request)
-                database.add(quiz_result)
-            if game_result is None:
-                game_result = self._create_game_result(request)
-                database.add(game_result)
+            existing_prediction = database.scalar(
+                select(TutorStrategyPrediction).where(
+                    TutorStrategyPrediction.quiz_result_id == quiz_result.id,
+                    TutorStrategyPrediction.game_result_id == game_result.id,
+                    TutorStrategyPrediction.model_version == self.model.version,
+                ).order_by(TutorStrategyPrediction.created_at.desc())
+            )
+            if existing_prediction is not None:
+                if existing_prediction.input_snapshot != input_snapshot:
+                    raise DuplicateSessionConflictError(
+                        "The supplied session IDs already belong to a different payload"
+                    )
+                return self._to_response(existing_prediction)
 
-            database.flush()
-            strategy_prediction = self.model.predict(request)
+            strategy_prediction = self.model.predict(stored_request)
             prediction_record = TutorStrategyPrediction(
                 student_id=request.student_id,
                 concept_id=request.concept_id,
@@ -95,52 +147,6 @@ class TutorStrategyService:
         except Exception:
             database.rollback()
             raise
-
-    @staticmethod
-    def _create_quiz_result(request: TutorStrategyRequest) -> QuizResultModel:
-        quiz = request.quiz
-        return QuizResultModel(
-            quiz_session_id=quiz.quiz_session_id,
-            student_id=request.student_id,
-            concept_id=request.concept_id,
-            weak_concept=quiz.weak_concept,
-            quiz_mastery_score=quiz.quiz_mastery_score,
-            recommended_support_level=quiz.recommended_support_level.value,
-            questions_total=quiz.questions_total,
-            questions_attempted=quiz.questions_attempted,
-            correct_answers=quiz.correct_answers,
-            quiz_accuracy=quiz.quiz_accuracy,
-            quiz_avg_response_time_sec=quiz.quiz_avg_response_time_sec,
-            quiz_hint_rate=quiz.quiz_hint_rate,
-            misconception_code=quiz.misconception_code.value,
-            quiz_difficulty_level=quiz.quiz_difficulty_level.value,
-            quiz_attempt_count=quiz.quiz_attempt_count,
-            completed_at=quiz.completed_at,
-        )
-
-    @staticmethod
-    def _create_game_result(request: TutorStrategyRequest) -> GameResultModel:
-        game = request.game
-        return GameResultModel(
-            game_session_id=game.game_session_id,
-            student_id=request.student_id,
-            concept_id=request.concept_id,
-            engagement_level=game.engagement_level.value,
-            behavioral_difficulty=game.behavioral_difficulty.value,
-            hint_dependency=game.hint_dependency,
-            game_mastery_score=game.game_mastery_score,
-            tasks_total=game.tasks_total,
-            tasks_attempted=game.tasks_attempted,
-            tasks_completed=game.tasks_completed,
-            successful_tasks=game.successful_tasks,
-            game_success_rate=game.game_success_rate,
-            game_completion_rate=game.game_completion_rate,
-            game_avg_attempts_per_task=game.game_avg_attempts_per_task,
-            game_hint_rate=game.game_hint_rate,
-            game_difficulty_level=game.game_difficulty_level.value,
-            game_active_time_sec=game.game_active_time_sec,
-            completed_at=game.completed_at,
-        )
 
     @staticmethod
     def _quiz_result_matches(

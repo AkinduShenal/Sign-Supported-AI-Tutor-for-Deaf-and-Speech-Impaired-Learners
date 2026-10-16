@@ -55,6 +55,13 @@ body:has(.student-workspace) {
 .student-workspace .teaching-selector p { margin: 8px 0 0; font-size: 13px; color: var(--text-muted); }
 .student-workspace .teaching-selector label { display: block; min-width: 0; font-size: 13px; font-weight: 600; }
 .student-workspace .teaching-selector select { display: block; width: 100%; min-width: 0; margin-top: 8px; }
+.student-workspace .recommended-approach { display: flex; flex-direction: column; gap: 8px; padding: 16px 18px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface); overflow-wrap: anywhere; }
+.student-workspace .recommended-approach strong { font-size: 18px; }
+.student-workspace .recommended-approach [lang=si] { color: var(--text-muted); }
+.student-workspace .learner-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding-top: 16px; }
+.student-workspace .learner-form input { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.student-workspace .learner-form p { flex-basis: 100%; }
+.student-workspace .learner-settings { margin-bottom: 20px; }
 .student-workspace .approach-guidance { padding: 16px 18px; margin: 16px 0; border-left: 3px solid var(--cyan); border-radius: 10px; background: var(--cyan-soft); }
 .student-workspace .approach-guidance p { margin: 6px 0; font-size: 15px; }
 .student-workspace .approach-guidance strong { color: var(--primary-dark); }

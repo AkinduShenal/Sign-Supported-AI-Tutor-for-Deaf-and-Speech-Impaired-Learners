@@ -1,63 +1,95 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
-import { checkPractice, getAdaptiveLesson, getGrade10Preview } from '../api/tutor'
-import type { AdaptiveLesson, LearningLevel, TeachingStrategy, TutorQuestionAnswer } from '../types/tutor'
+import type { FormEvent } from 'react'
+import { checkPractice, getAutomaticLesson, getTutorLearningStatus } from '../api/tutor'
+import { readLearningContext, selectLearningStudent } from '../learningContext'
+import type { LearningContext } from '../learningContext'
+import type { AdaptiveLesson, TutorLearningStatus, TutorQuestionAnswer } from '../types/tutor'
 import { AvatarSignPlayer } from './AvatarSignPlayer'
 import { SinhalaText } from './SinhalaText'
 import { TEACHING_APPROACHES } from './teachingApproaches'
 import { TutorQuestion } from './TutorQuestion'
 import './TutorWorkspace.css'
 
-const LEVELS: LearningLevel[] = ['foundation', 'one_step', 'two_step', 'extended']
 const label = (value: string) => value.replaceAll('_', ' ')
 type Interaction = { at: string; type: string; item?: string; correct?: boolean; hints?: number; elapsed_ms?: number; answer?: string; solution_viewed?: boolean }
 
-/** Read-only diagnostic preview. No automatic writes to the shared student DB. */
-export function AdaptiveTutor() {
-  const [level, setLevel] = useState<LearningLevel>('foundation')
-  const [strategy, setStrategy] = useState<TeachingStrategy | null>('step_by_step')
-  const [payload, setPayload] = useState<unknown>()
+/** Student lessons use persisted assessments and the trained strategy model. */
+export function AdaptiveTutor({ onAssessment }: { onAssessment?: (view: 'quiz' | 'game') => void } = {}) {
+  const [initial] = useState(() => {
+    try { return { context: readLearningContext(), error: '' } }
+    catch { return { context: null, error: 'Your saved learning session could not be opened. Please ask your teacher for help.' } }
+  })
+  const [context, setContext] = useState<LearningContext | null>(initial.context)
+  const [studentCode, setStudentCode] = useState(initial.context?.studentId ?? '')
+  const [status, setStatus] = useState<TutorLearningStatus>()
   const [lesson, setLesson] = useState<AdaptiveLesson>()
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(initial.error)
+  const [loading, setLoading] = useState(!!initial.context)
   const [retry, setRetry] = useState(0)
   const [session, setSession] = useState(0)
   const [requestMs, setRequestMs] = useState(0)
 
   useEffect(() => {
+    const changed = () => {
+      try {
+        const next = readLearningContext()
+        setContext(current => current?.studentId === next?.studentId && current?.learningCycleId === next?.learningCycleId ? current : next)
+        setStudentCode(next?.studentId ?? '')
+      } catch { setContext(null); setError('Your saved learning session could not be opened. Please ask your teacher for help.') }
+    }
+    const focused = () => { if (!lesson) setRetry(n => n + 1) }
+    window.addEventListener('learning-context-changed', changed)
+    window.addEventListener('storage', changed)
+    window.addEventListener('focus', focused)
+    return () => {
+      window.removeEventListener('learning-context-changed', changed)
+      window.removeEventListener('storage', changed)
+      window.removeEventListener('focus', focused)
+    }
+  }, [lesson])
+
+  useEffect(() => {
+    setLesson(undefined)
+    setStatus(undefined)
+    if (!context) { setLoading(false); return }
     const controller = new AbortController()
     setLoading(true)
     setError('')
     const requestStarted = performance.now()
-    const request = payload !== undefined && strategy === null
-      ? getAdaptiveLesson(payload, controller.signal)
-      : getGrade10Preview(level, controller.signal, strategy ?? 'step_by_step')
-    request.then((data) => {
-      if (controller.signal.aborted) return
-      setLesson(data)
-      setRequestMs(Math.round(performance.now() - requestStarted))
-      setSession(value => value + 1)
-    }).catch((e: unknown) => {
-      if (!controller.signal.aborted) setError(e instanceof Error ? e.message : 'Unable to load lesson.')
-    }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
+    void (async () => {
+      try {
+        const progress = await getTutorLearningStatus(context, controller.signal)
+        if (controller.signal.aborted) return
+        setStatus(progress)
+        if (!progress.ready) return
+        const data = await getAutomaticLesson(context, controller.signal)
+        if (controller.signal.aborted) return
+        setLesson(data)
+        setRequestMs(Math.round(performance.now() - requestStarted))
+        setSession(value => value + 1)
+      } catch (cause) {
+        if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'Unable to load lesson.')
+      } finally { if (!controller.signal.aborted) setLoading(false) }
+    })()
     return () => controller.abort()
-  }, [level, payload, retry, strategy])
+  }, [context, retry])
 
-  async function importDiagnostics(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    if (file.size > 100_000) { setError('Choose a diagnostic JSON file smaller than 100 KB.'); return }
-    try {
-      const data: unknown = JSON.parse(await file.text())
-      if (!data || typeof data !== 'object' || !('quiz' in data) || !('game' in data) || !('learner' in data)) {
-        throw new Error('Expected a /tutor/strategy JSON payload with quiz, game and learner fields.')
-      }
-      setPayload(data)
-      setStrategy(null)
-    } catch (e) { setError(e instanceof Error ? e.message : 'Invalid diagnostic file.') }
+  function chooseStudent(event: FormEvent) {
+    event.preventDefault()
+    try { setContext(selectLearningStudent(studentCode)); setError('') }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Your learning session could not be saved.') }
   }
 
+  const approach = lesson ? TEACHING_APPROACHES[lesson.plan.primary_strategy] : undefined
+  const learnerSettings = <details className="lesson-card learner-settings" open={!context}>
+      <summary>{context ? `Student: ${context.studentId}` : 'Your student code / ශිෂ්‍ය කේතය'}</summary>
+      <form onSubmit={chooseStudent} className="learner-form">
+        <label htmlFor="tutor-student">Assigned student code / <span lang="si">ශිෂ්‍ය කේතය</span></label>
+        <input id="tutor-student" value={studentCode} onChange={event => setStudentCode(event.target.value)} placeholder="STU_001" autoComplete="off" maxLength={10} required />
+        <button type="submit" className="secondary-button">Use this student / මෙම කේතය භාවිත කරන්න</button>
+        <p>Use the same student code in your Quiz and Game. Changing learners clears the current practice session.</p>
+      </form>
+    </details>
   return <main className="lesson-page student-workspace">
     <a className="skip-lesson" href="#lesson-content">Skip to lesson</a>
     <nav className="workspace-bar" aria-label="Learning space">
@@ -74,40 +106,32 @@ export function AdaptiveTutor() {
     </header>
     <section className="teaching-selector" aria-labelledby="teaching-selector-title">
       <div>
-        <h2 id="teaching-selector-title">Choose a teaching approach <span lang="si">ඉගෙන ගන්නා ක්‍රමය තෝරන්න</span></h2>
-        <p id="teaching-selector-note">{strategy === null ? 'Using the imported Quiz + Game recommendation.' : 'Manual preview · choose how you want the lesson explained.'}</p>
+        <h2 id="teaching-selector-title">Your teaching approach <span lang="si">ඔබට ගැළපෙන ඉගෙනීමේ ක්‍රමය</span></h2>
+        <p>Selected automatically from your Quiz and Game results.</p>
+        <p lang="si">ඔබේ Quiz සහ Game ප්‍රතිඵල අනුව තෝරා දෙනු ලැබේ.</p>
       </div>
-      <label htmlFor="teaching-strategy">Teaching approach / <span lang="si">ඉගෙනීමේ ක්‍රමය</span>
-        <select id="teaching-strategy" value={strategy ?? 'diagnostic'} aria-describedby="teaching-selector-note" onChange={event => {
-          const selected = event.target.value
-          if (selected === 'diagnostic') { setStrategy(null); return }
-          setStrategy(selected as TeachingStrategy)
-          setLevel(selected === 'advanced_challenge' ? 'extended' : lesson?.plan.level ?? level)
-        }}>
-          {payload !== undefined && <option value="diagnostic">Use Quiz + Game recommendation</option>}
-          {Object.entries(TEACHING_APPROACHES).map(([value, approach]) => <option key={value} value={value}>{approach.title} — {approach.titleSi}</option>)}
-        </select>
-      </label>
+      <div className="recommended-approach" aria-live="polite">
+        {approach ? <><strong>{approach.title}</strong><span lang="si">{approach.titleSi}</span></> : <span>{loading ? 'Finding your learning approach…' : 'Complete your assessments to get started.'}</span>}
+      </div>
     </section>
-    {loading ? <p role="status">Preparing your lesson…</p> : error ? <div className="lesson-card" role="alert"><h2>Lesson unavailable</h2><p>{error}</p><button className="primary-button" onClick={() => setRetry(n => n + 1)}>Try again</button></div> : lesson &&
-      <LearningSession key={session} lesson={lesson} requestMs={requestMs} onNextTopic={() => {
-        setPayload(undefined)
-        if (strategy === null) setStrategy('step_by_step')
-        setLevel(LEVELS[Math.min(LEVELS.indexOf(lesson.plan.level) + 1, LEVELS.length - 1)])
-      }} />}
-    <details className="lesson-card tutor-setup">
-      <summary>Lesson settings</summary>
-      <p>Import the Quiz + Game <code>/tutor/strategy</code> JSON payload to select support. Use student codes, not names. Importing plans a lesson; it does not save records to Supabase.</p>
-      <label>Diagnostic JSON <input type="file" accept=".json,application/json" onChange={importDiagnostics} /></label>
-      <div className="lesson-actions">{LEVELS.map(item => <button type="button" className="secondary-button" key={item}
-        aria-pressed={strategy !== null && item === level}
-        onClick={() => { setPayload(undefined); if (strategy === null) setStrategy('step_by_step'); setLevel(item) }}>Preview: {label(item)}</button>)}</div>
-      <p className="settings-note">Preview levels are manually chosen, not ML predictions. Starting a new plan clears current browser-session practice evidence; export it first.</p>
-    </details>
+    {!context && learnerSettings}
+    {loading ? <p role="status">Preparing your lesson…</p> : error ? <div className="lesson-card" role="alert"><h2>Lesson unavailable</h2><p>{error}</p>{context && <button className="primary-button" onClick={() => setRetry(n => n + 1)}>Try again</button>}</div> : lesson ?
+      <LearningSession key={session} lesson={lesson} requestMs={requestMs} /> : context && status &&
+      <section className="lesson-card assessment-needed" aria-labelledby="assessment-needed-title">
+        <h2 id="assessment-needed-title">Complete your assessments</h2>
+        <p lang="si">ඔබේ පාඩම සකස් කිරීමට Quiz සහ Game සම්පූර්ණ කරන්න.</p>
+        <p>Quiz: {status.quiz_complete ? 'Complete ✓' : 'Not complete'} · Game: {status.game_complete ? 'Complete ✓' : 'Not complete'}</p>
+        <div className="lesson-actions">
+          {!status.quiz_complete && onAssessment && <button type="button" className="primary-button" onClick={() => onAssessment('quiz')}>Complete Quiz / Quiz කරන්න</button>}
+          {!status.game_complete && onAssessment && <button type="button" className="primary-button" onClick={() => onAssessment('game')}>Complete Game / Game කරන්න</button>}
+          <button type="button" className="secondary-button" onClick={() => setRetry(n => n + 1)}>Check results again / නැවත පරීක්ෂා කරන්න</button>
+        </div>
+      </section>}
+    {context && learnerSettings}
   </main>
 }
 
-function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveLesson; requestMs: number; onNextTopic: () => void }) {
+function LearningSession({ lesson, requestMs }: { lesson: AdaptiveLesson; requestMs: number }) {
   const [exampleIndex, setExampleIndex] = useState(0)
   const [stepIndex, setStepIndex] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -132,7 +156,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
   const mounted = useRef(true)
   useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
   const example = lesson.worked_examples[exampleIndex]
-  const steps = useMemo(() => [{ instruction: lesson.simple_explanation.text, expression: example.problem, sign_actions: lesson.simple_explanation.sign_actions, avatar_segments: lesson.simple_explanation.avatar_segments, knowledge_notes: lesson.simple_explanation.knowledge_notes }, ...example.steps], [example, lesson])
+  const steps = useMemo(() => [{ instruction: lesson.simple_explanation.text, expression: example.problem, sign_actions: lesson.simple_explanation.sign_actions, avatar_segments: example.avatar_intro_segments ?? lesson.simple_explanation.avatar_segments, knowledge_notes: lesson.simple_explanation.knowledge_notes }, ...example.steps], [example, lesson])
   const step = steps[stepIndex]
   const question = lesson.practice_questions[questionIndex]
   const hintCount = hintCounts[question.question_id] ?? 0
@@ -154,7 +178,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
       ? { sign_actions: solutionSegments.flatMap(segment => segment.sign_actions), instruction: question.prompt, expression: question.worked_solution.problem, avatar_segments: solutionSegments }
       : hintCount > 0
         ? { sign_actions: hint.sign_actions, instruction: hint.text, expression: question.worked_solution.problem, avatar_segments: hint.avatar_segments }
-        : { sign_actions: lesson.simple_explanation.sign_actions, instruction: lesson.simple_explanation.text, expression: question.worked_solution.problem, avatar_segments: lesson.simple_explanation.avatar_segments }
+        : { sign_actions: lesson.simple_explanation.sign_actions, instruction: lesson.simple_explanation.text, expression: question.worked_solution.problem, avatar_segments: question.worked_solution.avatar_intro_segments ?? lesson.simple_explanation.avatar_segments }
     : step
   const avatarContent = ragAvatar ? {
     sign_actions: ragAvatar.answer.avatar_segments.flatMap(segment => segment.sign_actions),
@@ -211,7 +235,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
   }
 
   function exportEvidence() {
-    const data = { schema_version: 1, session_id: sessionId.current, scope: 'local_preview_not_reassessment',
+    const data = { schema_version: 1, session_id: sessionId.current, scope: 'diagnostic_tutoring_not_reassessment',
       plan: lesson.plan, planning_request_ms: requestMs, independent_first_attempts: independent, total_questions: lesson.practice_questions.length,
       playback_policy_at_export: allowPrototype ? 'prototype_preview' : 'validated_only',
       retention: 'Most recent 1000 events in this browser session only. Includes numeric answer attempts. No student IDs, names or diagnostic payload included.', events }
@@ -290,7 +314,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
       <div className="learning-column">
         {workedExampleCard}
       </div>
-      {showAvatar && <AvatarSignPlayer compact signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} teachingSegments={avatarContent.avatar_segments} teachingKey={avatarTeachingKey} teachingApproach={approach.title} initialPlaybackSpeed={lesson.plan.avatar_playback_speed} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
+      {showAvatar && <AvatarSignPlayer compact signReferences={lesson.sign_glossary} signActions={avatarContent.sign_actions} caption={avatarContent.instruction} expression={avatarContent.expression} teachingSegments={avatarContent.avatar_segments} teachingKey={avatarTeachingKey} teachingApproach={approach.title} initialPlaybackSpeed={lesson.plan.avatar_playback_speed} validatedSignIds={validated} prototypeSignIds={prototypes} reviewSignIds={reviewAnimations} allowPrototype={allowPrototype} onEnablePrototype={() => previewGestures(true)} onInteraction={record} />}
     </section>
     <details ref={practiceSectionRef} className="practice-section">
       <summary>Practice questions / <span lang="si">පුහුණු ප්‍රශ්න</span></summary>
@@ -305,7 +329,7 @@ function LearningSession({ lesson, requestMs, onNextTopic }: { lesson: AdaptiveL
       <details><summary>Why this lesson?</summary><p>{lesson.plan.source === 'preview' ? 'Manually selected preview · no diagnostic data.' : 'Diagnostic-based support.'} {lesson.learning_objective}</p><p>{lesson.plan.rationale}</p><p>Strategy engine: <code>{lesson.plan.model_version}</code>. {lesson.plan.model_version.startsWith('rule-based') && 'This is a transparent baseline, not a trained ML model.'}</p><p>Content: {lesson.plan.content_version} · teacher review required.</p><p>Additional support: {lesson.plan.supporting_strategies.map(label).join(', ') || 'none'}. Preferred format: {lesson.plan.preferred_mode}.</p></details>
       <details className="practice-evidence"><summary>Session insights & export</summary><p>{independent} / {lesson.practice_questions.length} correct on the first attempt without hints, viewing the worked solution or Ask tutor help. Repeated tries do not increase this count.</p><p>{lesson.plan.reassessment_note}</p>
           <p>Evidence includes numeric answer attempts, hints, replay events and timing. It stays in memory until you export it. Reloading or changing the plan clears it; nothing here automatically updates mastery or Supabase.</p>
-          <div className="lesson-actions"><button className="secondary-button" onClick={exportEvidence}>Export session evidence</button>{independent === lesson.practice_questions.length && lesson.plan.level !== 'extended' && <button className="primary-button" onClick={onNextTopic}>Preview the next topic</button>}</div>
+          <div className="lesson-actions"><button className="secondary-button" onClick={exportEvidence}>Export session evidence</button></div>
       </details>
     </details>
   </>

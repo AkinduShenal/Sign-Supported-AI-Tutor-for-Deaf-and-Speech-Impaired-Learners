@@ -39,7 +39,10 @@ export function TutorQuestion({ level, strategy, exampleProblem, stepIndex, onHe
       const result = await askTutorQuestion(text.trim(), level, strategy, exampleProblem, stepIndex, pending.signal)
       if (pending.signal.aborted) return
       setAnswer(result)
-      if (result.supported) onHelpUsed()
+      if (result.supported) {
+        onHelpUsed()
+        if (result.avatar_segments.length > 0) onAvatarSupport(result)
+      }
     } catch (cause) {
       if (!pending.signal.aborted) setError(cause instanceof Error ? cause.message : 'Unable to answer. Try again.')
     } finally {

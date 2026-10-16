@@ -8,10 +8,39 @@ SLSL sentence translations. Numeric instructions come from the checked bank.
 import re
 from collections.abc import Callable
 
-from app.modules.tutor.content_schemas import AvatarTeachingSegment, LessonStep
+from app.modules.tutor.content_schemas import AvatarTeachingSegment, ExpressionSignToken, LessonStep
 from app.modules.tutor.schemas import TutoringStrategy
+from app.modules.tutor.sign_planner import MathSignPlanner, expression_units
 
 TeachingLine = tuple[str, str] | tuple[str, str, tuple[str, ...]]
+
+def expression_segment(expression: str) -> AvatarTeachingSegment:
+    """Ordered equation reading with an explicit visual slot for every token.
+
+    Existing clips are still prototypes. This is math-token alignment, not an
+    SLSL translation or an assertion that unknown tokens were signed.
+    """
+    planner = MathSignPlanner()
+    signs: list[str] = []
+    tokens: list[ExpressionSignToken] = []
+    unsupported: list[str] = []
+    for value, start, end in expression_units(expression):
+        plan = planner.plan(expression=value)
+        action = plan.sign_actions[0] if plan and len(plan.sign_actions) == 1 and not plan.unsupported_tokens else None
+        tokens.append(ExpressionSignToken(text=value, start=start, end=end,
+                                          action_index=len(signs) if action else None))
+        if action:
+            signs.append(action)
+            if plan.unavailable_actions:
+                unsupported.append(value)
+        else:
+            unsupported.append(value)
+    return AvatarTeachingSegment(
+        text="Read the equation from left to right, one symbol at a time.",
+        text_si="සමීකරණය වමේ සිට දකුණට, එක් සංකේතයක් බැගින් කියවමු.",
+        expression=expression, sign_actions=signs, expression_tokens=tokens,
+        unsupported_tokens=unsupported, support_kind="expression",
+    )
 
 
 def cue(en: str, si: str, *signs: str) -> TeachingLine:
@@ -19,7 +48,7 @@ def cue(en: str, si: str, *signs: str) -> TeachingLine:
 
 
 BALANCE = cue("An equation is like a balanced scale.", "සමීකරණයක් සමබර තුලාවක් වගේ.", "CUE_EQUATION_BALANCE")
-EQUALITY = cue("Both sides have the same value.", "දෙපසෙහි අගයන් සමානයි.", "CUE_EQUAL_SIDES")
+EQUALITY = cue("Both sides have the same value.", "දෙපසෙහි අගයන් සමානයි.", "BOTH_SIDES", "EQUATION")
 UNKNOWN = cue("x represents a number we do not know yet.", "x නියෝජනය කරන්නේ අපි තවම නොදන්නා සංඛ්‍යාවක්.", "VARIABLE")
 SMALL_STEP = cue("Work through one small step at a time.", "එක් වරකට එක් කුඩා පියවරක් බැගින් වැඩ කරමු.", "STEP")
 SAME_OPERATION = cue("Apply the same operation to both sides.", "දෙපසටම එකම ගණිත ක්‍රියාව සිදු කරමු.", "BOTH_SIDES")
@@ -105,7 +134,7 @@ def _core_parts(step: LessonStep) -> list[AvatarTeachingSegment]:
         elif divide:
             text_si = f"දෙපසම {divide.group(1)} න් බෙදන්න."
         elif substitute:
-            text_si = f"මුල් සමීකරණයේ x වෙනුවට {substitute.group(1)} ආදේශ කරන්න."
+            text_si = f"ඉහත දැක්වෙන මුල් සමීකරණයේ x වෙනුවට {substitute.group(1)} ආදේශ කරන්න."
         elif denominator:
             text_si = f"හරය ඉවත් කිරීමට දෙපසෙහි ඇති සෑම පදයක්ම {denominator.group(1)} න් ගුණ කරන්න."
         elif "inside the bracket" in instruction:
@@ -128,23 +157,27 @@ def _reason_parts(instruction: str) -> list[TeachingLine]:
     match = re.match(r"(Subtract|Add) (.+?) (?:from|to|on) both sides", instruction)
     if match:
         operation, amount = match.groups()
+        amount_plan = MathSignPlanner().plan(expression=amount)
+        amount_signs = amount_plan.sign_actions if not amount_plan.unsupported_tokens else ()
         if operation == "Subtract":
             return [
-                cue(f"Subtracting {amount} undoes the matching addition.", f"{amount} අඩු කිරීමෙන් ඊට අදාළ එකතු කිරීම ඉවත් වෙනවා.", "CUE_INVERSE_ADDITION"),
-                cue(f"Both sides lose the same amount: {amount}.", f"දෙපසින්ම එකම ප්‍රමාණය වන {amount} අඩු වෙනවා.", "CUE_SUBTRACT_BOTH"),
+                cue(f"Subtracting {amount} undoes the matching addition.", f"{amount} අඩු කිරීමෙන් ඊට අදාළ එකතු කිරීම ඉවත් වෙනවා.", "SUBTRACTION", *amount_signs, "ADDITION"),
+                cue(f"Both sides lose the same amount: {amount}.", f"දෙපසින්ම එකම ප්‍රමාණය වන {amount} අඩු වෙනවා.", "BOTH_SIDES", "SUBTRACTION", *amount_signs),
                 EQUALITY,
             ]
         return [
-            cue(f"Adding {amount} undoes the matching subtraction.", f"{amount} එකතු කිරීමෙන් ඊට අදාළ අඩු කිරීම ඉවත් වෙනවා.", "SUBTRACTION", "ADDITION"),
-            cue(f"Both sides gain the same amount: {amount}.", f"දෙපසටම එකම ප්‍රමාණය වන {amount} එකතු වෙනවා.", "CUE_ADD_BOTH"),
+            cue(f"Adding {amount} undoes the matching subtraction.", f"{amount} එකතු කිරීමෙන් ඊට අදාළ අඩු කිරීම ඉවත් වෙනවා.", "ADDITION", *amount_signs, "SUBTRACTION"),
+            cue(f"Both sides gain the same amount: {amount}.", f"දෙපසටම එකම ප්‍රමාණය වන {amount} එකතු වෙනවා.", "BOTH_SIDES", "ADDITION", *amount_signs),
             EQUALITY,
         ]
     match = re.match(r"Divide both sides by (.+)\.", instruction)
     if match:
         divisor = match.group(1)
+        divisor_plan = MathSignPlanner().plan(expression=divisor)
+        divisor_signs = divisor_plan.sign_actions if not divisor_plan.unsupported_tokens else ()
         return [
             cue("The coefficient multiplies x.", "සංගුණකය x ගුණ කරනවා.", "MULTIPLICATION", "VARIABLE"),
-            cue(f"Dividing both sides by {divisor} undoes that multiplication.", f"දෙපසම {divisor} න් බෙදීමෙන් එම ගුණ කිරීම ඉවත් වෙනවා.", "CUE_INVERSE_MULTIPLICATION"),
+            cue(f"Dividing both sides by {divisor} undoes that multiplication.", f"දෙපසම {divisor} න් බෙදීමෙන් එම ගුණ කිරීම ඉවත් වෙනවා.", "DIVISION", "BOTH_SIDES", *divisor_signs, "MULTIPLICATION"),
             cue("x is left by itself after simplifying.", "සරල කළ පසු x තනිව ඉතිරි වෙනවා.", "CUE_ISOLATE_VARIABLE"),
         ]
     if "inside the bracket" in instruction:
@@ -181,7 +214,7 @@ def _reason_parts(instruction: str) -> list[TeachingLine]:
 def explain_step(
     step: LessonStep, strategy: TutoringStrategy, actions: Callable[[str], list[str]],
 ) -> list[AvatarTeachingSegment]:
-    core = _core_parts(step)
+    core = _core_parts(step) + [expression_segment(step.expression)]
     reasoning = segments_from_lines(_reason_parts(step.instruction), actions, step.expression)
     if strategy == TutoringStrategy.CONCEPTUAL_EXPLANATION:
         return reasoning + core + segments_from_lines([
@@ -207,7 +240,7 @@ def explain_hint(
     elif index == 1:
         core = _core_parts(LessonStep(order=1, instruction=text, expression=expression,
                                     sign_actions=actions(text)))
-        return core + segments_from_lines([
+        return core + [expression_segment(expression)] + segments_from_lines([
             SAME_OPERATION,
             cue("Simplify, then try the question again.", "සරල කර, ප්‍රශ්නයට නැවත උත්සාහ කරන්න.", "TRY_AGAIN"),
         ], actions, expression)
@@ -219,7 +252,7 @@ def explain_hint(
         if separator:
             lines.append(cue("Divide" + division, "අවශ්‍ය නම් දක්වා ඇති සංගුණකයෙන් දෙපසම බෙදන්න.", *actions("Divide" + division)))
         collected_expression = collected.removeprefix("After collecting terms: ")
-        return segments_from_lines(lines, actions, collected_expression) + segments_from_lines(
+        return segments_from_lines(lines, actions, collected_expression) + [expression_segment(collected_expression)] + segments_from_lines(
             [SUBSTITUTE, VERIFY], actions, expression
         )
-    return segments_from_lines(lines, actions, expression)
+    return segments_from_lines(lines, actions, expression) + [expression_segment(expression)]

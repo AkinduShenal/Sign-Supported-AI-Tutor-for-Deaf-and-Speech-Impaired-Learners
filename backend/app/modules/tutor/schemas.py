@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -118,6 +119,28 @@ class TutorStrategyRequest(BaseModel):
     quiz: QuizResult
     game: GameResult
     learner: LearnerProfile
+
+
+class TutorStrategyFromResultsRequest(BaseModel):
+    student_id: str = Field(min_length=1)
+    concept_id: str = Field(min_length=1)
+    quiz_session_id: str = Field(min_length=1)
+    game_session_id: str = Field(min_length=1)
+    learner: LearnerProfile
+
+
+class AutomaticTutorRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    student_id: str = Field(min_length=1, max_length=100)
+    learning_cycle_id: uuid.UUID
+    concept_id: Literal["linear_equations"] = "linear_equations"
+
+
+class TutorLearningStatus(BaseModel):
+    quiz_complete: bool
+    game_complete: bool
+    ready: bool
 
 
 class TutorStrategyResponse(BaseModel):

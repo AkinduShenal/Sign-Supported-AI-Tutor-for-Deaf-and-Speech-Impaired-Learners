@@ -5,6 +5,8 @@ import { GameBackendSync } from '../../api/gameBackendSync'
 import { getVariantUsage } from '../../api/gameApi'
 import type { GameResultResponse } from '../../api/gameApi'
 import { requireCollectionStudent } from '../../collectionIdentity'
+import { primaryGameText } from '../../gameLanguage'
+import type { Bilingual } from '../gameText'
 import { GameSession } from '../../session/GameSession'
 import type { GameType } from '../../types'
 import { HangmanFigure } from '../HangmanFigure'
@@ -21,6 +23,7 @@ import { MAX_STARS_PER_TASK } from '../stars'
 import {
   FONT_FAMILY,
   GAME_TEXT,
+  GAME_TYPE_TEXT,
   SINHALA_TEXT,
   bilingualHint,
   difficultyText,
@@ -28,7 +31,7 @@ import {
   stacked,
 } from '../gameText'
 import { GAME_THEME as T, cssColor } from '../theme/gameTheme'
-import { RoundedPanel, backgroundTouchScroll, crispSceneText, gameButton, progressStepper, watchViewportSize } from '../theme/gameUi'
+import { RoundedPanel, backgroundTouchScroll, bilingualPair, bindLanguageText, crispSceneText, gameButton, progressStepper, watchViewportSize } from '../theme/gameUi'
 import { designSize, fitCameraToDesign, isCompactScreen, prefersReducedMotion } from '../viewport'
 
 const COLORS = {
@@ -49,7 +52,7 @@ const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '0', '⌫'] as c
 const LAYOUTS = {
   wide: {
     mathCenterX: 262, figureCenterX: 705, figureBaseY: 620, figureHeight: 403,
-    titleY: 39, progressY: 85, equationY: 200, equationSize: 35, instructionY: 244,
+    titleY: 24, titleSecondaryY: 62, progressY: 103, equationY: 200, equationSize: 35, instructionY: 244,
     answerY: 301, answerSize: 32,
     // attemptsY sits above feedbackY (not below, as it did before) because a
     // two-line hint in the feedback/hint slot could otherwise run into it —
@@ -59,11 +62,11 @@ const LAYOUTS = {
     submitY: 738, hintY: 807, nextY: 808,
   },
   compact: {
-    mathCenterX: 210, figureCenterX: 210, figureBaseY: 362, figureHeight: 154,
-    titleY: 92, progressY: 146, equationY: 390, equationSize: 34, instructionY: 437,
-    answerY: 505, answerSize: 32, feedbackY: 572, attemptsY: 622,
-    keyTopY: 677, keyW: 88, keyH: 68, keyGapX: 12, keyGapY: 4,
-    submitY: 976, hintY: 1060, nextY: 1060,
+    mathCenterX: 210, figureCenterX: 210, figureBaseY: 374, figureHeight: 154,
+    titleY: 92, titleSecondaryY: 128, progressY: 166, equationY: 402, equationSize: 34, instructionY: 449,
+    answerY: 517, answerSize: 32, feedbackY: 584, attemptsY: 634,
+    keyTopY: 689, keyW: 88, keyH: 68, keyGapX: 12, keyGapY: 4,
+    submitY: 988, hintY: 1072, nextY: 1072,
   },
 }
 
@@ -218,6 +221,7 @@ export class HangmanGameScene extends Phaser.Scene {
         ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
+    bindLanguageText(this.loadingText, () => stacked(GAME_TEXT.preparing))
   }
 
   // Same "maximum two uses" selection as Drag & Drop (Milestone 4 §2: no
@@ -250,14 +254,9 @@ export class HangmanGameScene extends Phaser.Scene {
     }
     this.createMenuButton()
 
-    this.add
-      .text(this.viewWidth / 2, this.layout.titleY, 'Hangman', {
-        fontFamily: FONT_FAMILY,
-        fontSize: `${T.font.title}px`,
-        fontStyle: 'bold',
-        color: COLORS.text,
-      })
-      .setOrigin(0.5)
+    bilingualPair(this, { x: this.viewWidth / 2, primaryY: this.layout.titleY, secondaryY: this.layout.titleSecondaryY,
+      text: GAME_TYPE_TEXT.hangman.name, width: this.viewWidth - 40,
+      primarySize: T.font.title, secondarySize: T.font.subtitle, color: COLORS.text })
 
     this.progressText = this.add
       .text(this.viewWidth / 2, this.layout.progressY, '', {
@@ -285,7 +284,7 @@ export class HangmanGameScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
 
-    this.add
+    const instruction = this.add
       .text(centerX, this.layout.instructionY, stacked(GAME_TEXT.solveForX), {
         fontFamily: FONT_FAMILY,
         fontSize: `${T.font.body}px`,
@@ -294,6 +293,7 @@ export class HangmanGameScene extends Phaser.Scene {
         ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
+    bindLanguageText(instruction, () => stacked(GAME_TEXT.solveForX))
 
     new RoundedPanel(this, centerX, this.layout.answerY, 350, 64,
       T.color.surface, T.color.borderStrong, T.radius.tile)
@@ -453,9 +453,9 @@ export class HangmanGameScene extends Phaser.Scene {
     this.updateProgressText()
     this.equationText.setText(variant.startingEquation)
     this.updateAnswerDisplay()
-    this.feedbackText.setText('')
+    bindLanguageText(this.feedbackText, () => '')
     this.feedbackText.setAlpha(0)
-    this.attemptsText.setText('')
+    bindLanguageText(this.attemptsText, () => '')
     this.setKeypadEnabled(true)
     this.submitButton.setAlpha(1)
     this.hintButton.setAlpha(1)
@@ -480,12 +480,12 @@ export class HangmanGameScene extends Phaser.Scene {
     const difficulty = difficultyText(this.currentVariant.difficulty)
     this.progressItems.forEach(item => item.destroy())
     this.progressItems = progressStepper(this, { x: this.viewWidth / 2,
-      y: this.isCompactLayout ? 200 : 128, width: this.viewWidth - 80,
+      y: this.isCompactLayout ? 212 : 146, width: this.viewWidth - 80,
       count: total, current: this.currentIndex, stars: this.stars })
-    this.progressText.setText(
-      `${GAME_TEXT.level.en} ${n} of ${total} · ${difficulty.en}\n` +
-        `${GAME_TEXT.level.si} ${n} / ${total} · ${difficulty.si}`,
-    )
+    bindLanguageText(this.progressText, () => stacked({
+      en: `${GAME_TEXT.level.en} ${n} of ${total} · ${difficulty.en}`,
+      si: `${GAME_TEXT.level.si} ${n} / ${total} · ${difficulty.si}`,
+    }))
   }
 
   private updateAnswerDisplay(): void {
@@ -529,6 +529,7 @@ export class HangmanGameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setAlpha(0)
     this.hintLine = hintLine
+    bindLanguageText(hintLine, () => bilingualHint(this.currentVariant.steps[0].hint))
     this.tweens.add({ targets: hintLine, alpha: 1, duration: 200 })
     // The hint shares the feedback slot's general area but must not block a
     // later submission's feedback from being readable, so it fades on its
@@ -616,13 +617,14 @@ export class HangmanGameScene extends Phaser.Scene {
     this.clearHintLine()
     this.answerBuffer = ''
     this.updateAnswerDisplay()
-    this.feedbackText.setText(inline(GAME_TEXT.tryAgain))
+    bindLanguageText(this.feedbackText, () => inline(GAME_TEXT.tryAgain))
     this.feedbackText.setColor(COLORS.incorrectText)
     this.feedbackText.setAlpha(0)
     this.tweens.add({ targets: this.feedbackText, alpha: 1, duration: 200 })
-    this.attemptsText.setText(
-      `${GAME_TEXT.attemptsLeft.en} / ${GAME_TEXT.attemptsLeft.si}: ${MAX_WRONG_SUBMISSIONS - outcome.wrongCount}`,
-    )
+    bindLanguageText(this.attemptsText, () => inline({
+      en: `${GAME_TEXT.attemptsLeft.en}: ${MAX_WRONG_SUBMISSIONS - outcome.wrongCount}`,
+      si: `${GAME_TEXT.attemptsLeft.si}: ${MAX_WRONG_SUBMISSIONS - outcome.wrongCount}`,
+    }))
   }
 
   // Shared setup for ending a question, whether solved or failed after the
@@ -640,7 +642,7 @@ export class HangmanGameScene extends Phaser.Scene {
     this.submitButton.setAlpha(0)
     this.hintButton.disableInteractive()
     this.hintButton.setAlpha(0)
-    this.attemptsText.setText('')
+    bindLanguageText(this.attemptsText, () => '')
     this.clearHintLine()
 
     const variant = this.currentVariant
@@ -681,7 +683,7 @@ export class HangmanGameScene extends Phaser.Scene {
   // happier face plus a brief confetti burst instead.
   private resolveCorrect(variant: EquationVariant, wrongCount: number): void {
     this.figure.celebrate(wrongCount)
-    this.feedbackText.setText(`${inline(GAME_TEXT.correct)}\nx = ${variant.finalAnswer}`)
+    bindLanguageText(this.feedbackText, () => `${inline(GAME_TEXT.correct)}\nx = ${variant.finalAnswer}`)
     this.feedbackText.setColor(COLORS.correctText)
     this.feedbackText.setAlpha(0)
     this.tweens.add({ targets: this.feedbackText, alpha: 1, duration: 300 })
@@ -696,7 +698,7 @@ export class HangmanGameScene extends Phaser.Scene {
   // the outcome away.
   private resolveFailed(variant: EquationVariant): void {
     const reveal = () => {
-      this.feedbackText.setText(
+      bindLanguageText(this.feedbackText, () =>
         `${inline(GAME_TEXT.questionFailed)}\n${inline(GAME_TEXT.correctAnswerLabel)}: x = ${variant.finalAnswer}`,
       )
       this.feedbackText.setColor(COLORS.incorrectText)
@@ -766,7 +768,7 @@ export class HangmanGameScene extends Phaser.Scene {
 
   private createSummaryScreen(): void {
     this.createLoadingScreen()
-    this.loadingText?.setText(stacked(GAME_TEXT.calculating))
+    if (this.loadingText) bindLanguageText(this.loadingText, () => stacked(GAME_TEXT.calculating))
     void this.loadAndShowResult()
   }
 
@@ -824,8 +826,10 @@ export class HangmanGameScene extends Phaser.Scene {
         backgroundColor: '#9b1c1c', align: 'center', wordWrap: { width: this.viewWidth - 48 },
         padding: { x: 12, y: 12 } })
       .setOrigin(0.5).setDepth(1000).setInteractive({ useHandCursor: true })
+    bindLanguageText(warning, () => stacked(GAME_TEXT.saveUnverified))
     warning.on('pointerdown', () => {
-      warning.disableInteractive().setText('Retrying save…')
+      warning.disableInteractive()
+      bindLanguageText(warning, () => stacked(GAME_TEXT.retryingSave))
       void this.backendSync.completeSession().then(() => {
         if (!this.isDestroyed) this.scene.restart({
           session: this.session, questionIndex: this.currentIndex, showSummary: true,
@@ -855,7 +859,7 @@ export class HangmanGameScene extends Phaser.Scene {
     const cardW = Math.min(this.viewWidth - 64, 420)
     const pad = 24
     const badgeH = 56
-    const titleH = compact ? 58 : 52
+    const titleH = compact ? 70 : 64
     const bannerH = 66
     const tileGap = 10
     const tileW = (cardW - pad * 2 - tileGap) / 2
@@ -880,16 +884,9 @@ export class HangmanGameScene extends Phaser.Scene {
       .setOrigin(0.5)
     y += badgeH + 12
 
-    this.add
-      .text(centerX, y + titleH / 2, stacked(GAME_TEXT.sessionComplete), {
-        fontFamily: FONT_FAMILY,
-        fontSize: compact ? '20px' : '22px',
-        fontStyle: 'bold',
-        color: COLORS.text,
-        align: 'center',
-        ...SINHALA_TEXT,
-      })
-      .setOrigin(0.5)
+    bilingualPair(this, { x: centerX, primaryY: y + titleH / 2 - 16, secondaryY: y + titleH / 2 + 16,
+      text: GAME_TEXT.sessionComplete, width: cardW - pad * 2,
+      primarySize: compact ? 20 : 22, secondarySize: 14, color: COLORS.text })
     y += titleH
 
     // "You didn't let him fall" is a claim about the whole session, so it
@@ -900,31 +897,32 @@ export class HangmanGameScene extends Phaser.Scene {
         this, centerX, y + bannerH / 2, cardW - pad * 2, bannerH - 16,
         T.color.successSoft, T.color.success, T.radius.tile,
       )
-      this.add
+      const banner = this.add
         .text(centerX, y + bannerH / 2, inline(GAME_TEXT.neverFell), {
           fontFamily: FONT_FAMILY,
           fontSize: compact ? '13px' : '14px',
-          fontStyle: 'bold',
+          fontStyle: '',
           color: COLORS.correctText,
           align: 'center',
           wordWrap: { width: cardW - pad * 2 - 16 },
         })
         .setOrigin(0.5)
+      bindLanguageText(banner, () => inline(GAME_TEXT.neverFell))
       y += bannerH
     }
 
     const earnedStars = this.stars.reduce((sum, value) => sum + value, 0)
     const possibleStars = this.levels.length * MAX_STARS_PER_TASK
-    const tiles: Array<{ icon: string; value: string; label: string; color: string }> = [
-      { icon: '✓', value: `${data.solved}/${this.levels.length}`, label: 'Solved', color: COLORS.correctText },
+    const tiles: Array<{ icon: string; value: string; label: Bilingual; color: string }> = [
+      { icon: '✓', value: `${data.solved}/${this.levels.length}`, label: GAME_TEXT.questionsSolved, color: COLORS.correctText },
       {
-        icon: '✕', value: `${data.failed}`, label: 'Failed',
+        icon: '✕', value: `${data.failed}`, label: GAME_TEXT.questionsFailed,
         color: data.failed > 0 ? COLORS.incorrectText : cssColor(T.color.muted),
       },
-      { icon: '↻', value: `${data.wrongAnswers}`, label: 'Wrong Answers', color: COLORS.text },
-      { icon: '💡', value: `${data.hintsUsed}`, label: 'Hints Used', color: cssColor(T.color.gold) },
-      { icon: '⏱', value: formatActiveTime(data.totalTimeSec), label: 'Total Time', color: COLORS.text },
-      { icon: '★', value: `${earnedStars}/${possibleStars}`, label: 'Stars Earned', color: cssColor(T.color.gold) },
+      { icon: '↻', value: `${data.wrongAnswers}`, label: GAME_TEXT.wrongAnswers, color: COLORS.text },
+      { icon: '💡', value: `${data.hintsUsed}`, label: GAME_TEXT.hintsUsed, color: cssColor(T.color.gold) },
+      { icon: '⏱', value: formatActiveTime(data.totalTimeSec), label: GAME_TEXT.totalTime, color: COLORS.text },
+      { icon: '★', value: `${earnedStars}/${possibleStars}`, label: GAME_TEXT.starsEarned, color: cssColor(T.color.gold) },
     ]
     tiles.forEach((tile, index) => {
       const col = index % 2
@@ -937,9 +935,9 @@ export class HangmanGameScene extends Phaser.Scene {
           fontFamily: FONT_FAMILY, fontSize: '16px', fontStyle: 'bold', color: tile.color,
         })
         .setOrigin(0.5)
-      this.add
-        .text(tx, ty + 13, tile.label, { fontFamily: FONT_FAMILY, fontSize: '11px', color: cssColor(T.color.muted) })
-        .setOrigin(0.5)
+      bindLanguageText(this.add
+        .text(tx, ty + 13, '', { fontFamily: FONT_FAMILY, fontSize: '11px', color: cssColor(T.color.muted) })
+        .setOrigin(0.5), () => primaryGameText(tile.label))
     })
     y += gridH + buttonGap
 

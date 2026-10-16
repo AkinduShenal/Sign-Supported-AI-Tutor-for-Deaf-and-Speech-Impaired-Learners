@@ -126,7 +126,42 @@ def test_reports_unknown_expression_tokens_without_inventing_signs() -> None:
 
     assert response.status_code == 200
     assert response.json()["unsupported_tokens"] == ["y"]
-    assert response.json()["sign_actions"] == ["ADDITION", "EQUATION"]
+    assert response.json()["sign_actions"] == ["ADDITION", "NUMBER_3", "EQUATION", "NUMBER_7"]
+
+
+def test_equations_keep_numbers_variables_order_and_repeated_occurrences():
+    planner = MathSignPlanner()
+    assert planner.plan(expression="x + 3 = 7").sign_actions == (
+        "VARIABLE", "ADDITION", "NUMBER_3", "EQUATION", "NUMBER_7",
+    )
+    assert planner.plan(expression="x = 4").sign_actions == (
+        "VARIABLE", "EQUATION", "NUMBER_4",
+    )
+    assert planner.plan(expression="x + 3 - 3 = 7 - 3").sign_actions == (
+        "VARIABLE", "ADDITION", "NUMBER_3", "SUBTRACTION", "NUMBER_3",
+        "EQUATION", "NUMBER_7", "SUBTRACTION", "NUMBER_3",
+    )
+
+
+@pytest.mark.parametrize("unit", ["12", "-4", "−4", "-5/2", "0.5", "3/4"])
+def test_unreviewed_numeric_units_are_not_misrepresented_as_single_digits(unit):
+    plan = MathSignPlanner().plan(expression=f"x = {unit}")
+    assert plan.sign_actions == ("VARIABLE", "EQUATION")
+    assert plan.unsupported_tokens == (unit,)
+    assert not plan.is_fully_supported
+
+
+def test_scope_delimiters_are_not_mapped_to_equal_sides_gestures():
+    plan = MathSignPlanner().plan(expression="(x + 3) = 7")
+    assert plan.unsupported_tokens == ("(", ")")
+    assert "BRACKET" not in plan.sign_actions
+
+
+def test_known_inaccurate_zero_motion_uses_the_reference_and_visual_fallback():
+    plan = MathSignPlanner().plan(expression="x = 0")
+    assert plan.sign_actions == ("VARIABLE", "EQUATION", "NUMBER_0")
+    assert plan.unavailable_actions == ("NUMBER_0",)
+    assert "NUMBER_0" not in plan.playable_actions
 
 
 def test_manifest_is_loaded_from_avatar_sign_package() -> None:

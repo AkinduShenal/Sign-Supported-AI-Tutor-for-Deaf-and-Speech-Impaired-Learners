@@ -7,20 +7,22 @@ workspace; the current working-tree default tab is Game. It uses the
 existing Louise master GLB, not any procedural IK script. The old static lesson
 endpoint and other component/database contracts remain intact.
 
-Status clarification, **2026-10-11**: Quiz and Game have their own UI/API/result
+Status clarification, **2026-10-16**: Quiz and Game have their own UI/API/result
 persistence. The intended integration is for Tutor to retrieve their results and
-persist only its predictions. Current `service.py` still inserts missing result
-records in `/strategy`; that fallback is an unresolved ownership defect and can
-fail Game's parent-session FK. `/adaptive-lesson` remains read-only and consumes
-the supplied diagnostic payload. Automatic shared-cycle handoff and consumption
-of the newly seeded curriculum knowledge base are not implemented. See the
+persist only its predictions. `/strategy/from-results` now retrieves saved
+results; `/strategy` checks supplied diagnostics against saved results. Missing
+results return 404 instead of being inserted. `/adaptive-lesson` remains read-only and consumes
+the supplied diagnostic payload. The student workspace now uses shared-cycle
+Quiz/Game handoff and automatic model-selected lessons; see the
+[automatic flow](TUTOR_AUTOMATIC_FLOW.md). Consumption of the newly seeded
+curriculum knowledge base is not implemented. See the
 [current project status](../STATUS_CHECKLIST.md).
 
-1. Open **Lesson settings** below the learning workspace.
-2. Import a JSON payload matching `POST /api/v1/tutor/strategy`, containing
-   `student_id`, `concept_id`, `quiz`, `game`, and `learner`.
-3. `POST /api/v1/tutor/adaptive-lesson` validates that same input and returns a
-   teaching plan. This endpoint is read-only and does not save diagnostic data.
+1. Select the same assigned student code in Quiz and Game.
+2. Complete both assessments for that learning cycle and open AI Tutor.
+3. `POST /api/v1/tutor/adaptive-lesson/from-results` reads saved diagnostics,
+   derives prior mastery from the pre-tutor Quiz, saves the model decision and
+   returns the teaching plan. Missing evidence leads to assessment actions.
 4. The frontend presents the selected examples, misconception support,
    progressively revealed hints, practice and corresponding `sign_actions`.
 5. `POST /api/v1/tutor/practice/check` grades the known question using exact
@@ -44,10 +46,10 @@ that preserve equation tokens, including negative numbers and fractions. New
 lesson wording needs a corresponding translation; unmatched text remains in
 English. The bilingual display uses the same equations and sign action IDs.
 
-Manual **Preview** buttons are for development/teacher review, not a diagnosis.
-They exercise the same content bank without inventing student records. Quiz/Game
-teammates can call the API directly or reuse `getAdaptiveLesson` from the frontend
-API module. Accepted concept identifiers are `linear_equations` and
+Manual preview endpoints remain available for developer/teacher checks, but are
+not offered by the student workspace. They exercise the same content bank
+without inventing student records. Quiz/Game teammates can call the APIs directly.
+Accepted diagnostic concept identifiers are `linear_equations` and
 `linear_equation_balancing`; out-of-scope concepts are rejected.
 
 ## Placement and teaching
@@ -79,12 +81,13 @@ learners retain access to examples and hints. Slower response times are **not**
 treated as lower mathematical ability. Text/equations never disappear when an
 avatar or preference changes.
 
-The current engine remains `rule-based-v2`, **not a trained ML model**. The shared
-`StrategyPredictor` boundary and `TutorStrategyService.model` allow an evaluated
-predictor to replace it consistently in `/strategy` and `/adaptive-lesson`.
-Training a model still requires independently labelled, consented data, a
-student-separated evaluation split, and comparison with this baseline. Do not
-train/evaluate on rules' own labels and describe that as learner evidence.
+The current engine is the supplied Colab `strategy-ml-v1` preprocessing and
+LogisticRegression pipeline, used consistently by `/strategy`,
+`/strategy/from-results` and `/adaptive-lesson`. The explicit `rule-based-v2`
+baseline remains available for comparisons. See [the model integration report](TUTOR_STRATEGY_MODEL.md)
+for feature mapping, API use, live database checks and evaluation limits.
+Supplied training metrics have not been independently reproduced here and do
+not establish learner effectiveness.
 
 Quiz/Game own incoming diagnosis/mastery. Tutor selects support, and records
 practice evidence. Two first-attempt unaided answers permit previewing the next

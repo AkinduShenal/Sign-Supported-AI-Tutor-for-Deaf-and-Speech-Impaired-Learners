@@ -8,8 +8,8 @@ import { CollectionGate } from '../CollectionGate'
 // Mounts a Phaser game into a plain <div>. Phaser manages everything inside
 // that div itself (it inserts its own <canvas>) — React never re-renders
 // into it, it just creates the Phaser.Game once and destroys it on cleanup.
-export function PhaserGame() {
-  return <CollectionGate><GameCanvas /></CollectionGate>
+export function PhaserGame({ onContinue }: { onContinue?: () => void }) {
+  return <CollectionGate onContinue={onContinue}><GameCanvas /></CollectionGate>
 }
 
 function GameCanvas() {

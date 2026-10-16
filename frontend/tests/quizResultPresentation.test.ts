@@ -16,15 +16,22 @@ const result: QuizDiagnosticResult = {
 test('learner result uses friendly labels in English and Sinhala', () => {
   assert.deepEqual(presentResult(result, 'en'), {
     score: '8 / 10', correctAnswers: 8, wrongAnswers: 2,
-    level: 'Developing', practice: 'Two-step Equations',
-    focus: 'Two-step Equations', support: 'Medium',
+    level: 'Developing Understanding', practice: 'Two-step Equations',
+    focus: 'Practising how to solve two-step equations',
   })
-  assert.equal(presentResult({ ...result, mastery_level: 'high' }, 'en').level, 'Strong')
-  assert.equal(presentResult({ ...result, mastery_level: 'low' }, 'en').level, 'Needs Support')
+  assert.equal(presentResult({ ...result, mastery_level: 'high' }, 'en').level, 'Strong Understanding')
+  assert.equal(presentResult({ ...result, mastery_level: 'low' }, 'en').level, 'Needs More Practice')
   assert.equal(presentResult(result, 'si').practice, 'පියවර දෙකක සමීකරණ')
+  assert.equal(presentResult(result, 'si').level, 'වර්ධනය වෙමින් පවතින අවබෝධයක්')
   assert.equal(presentResult(result, 'si').correctAnswers, 8)
   assert.equal(presentResult(result, 'bilingual').wrongAnswers, 2)
-  assert.equal(presentResult({ ...result, weak_subconcept: null }, 'en').practice, 'No clear area identified')
+  assert.equal('support' in presentResult(result, 'en'), false)
+  assert.equal(presentResult({ ...result, recommended_focus: 'Equation Meaning' }, 'en').focus, 'Practising how to solve two-step equations')
+  const noWeak = { ...result, weak_subconcept: null, recommended_focus: 'Equation Meaning' }
+  assert.equal(presentResult(noWeak, 'en').practice, 'No single weak area identified')
+  assert.equal(presentResult(noWeak, 'en').focus, 'Continue practising all Linear Equation skills.')
+  assert.equal(presentResult(noWeak, 'si').practice, 'විශේෂිත දුර්වල ප්‍රදේශයක් හඳුනාගෙන නැත')
+  assert.equal(presentResult(noWeak, 'si').focus, 'රේඛීය සමීකරණවල සියලුම කුසලතා දිගටම පුහුණු කරන්න.')
 })
 
 test('confidence insight follows the backend signal in both languages', () => {

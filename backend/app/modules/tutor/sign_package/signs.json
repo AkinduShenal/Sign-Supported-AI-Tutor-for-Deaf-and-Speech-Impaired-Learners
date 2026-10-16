@@ -1,9 +1,9 @@
 {
   "package_name": "Sign-Supported AI Tutor Avatar Sign Package",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "architecture": "manifest_backed_clip_library",
   "master_avatar": "models/louise_signs_master.glb",
-  "master_avatar_sha256": "bc3aefd5a335199ec3936087060f9aaadb184b23a2246b288cd119d029ea2c4a",
+  "master_avatar_sha256": "dc6624627dd8b4f4a1ddc462a79fb9b6656983e65436a11297675de0f4e6ca4d",
   "notes": [
     "Composite prototype expansion adds 34 review-only actions assembled from the repaired core motions. These additions are not SLSL transcriptions and remain needs_validation until replaced or approved by a qualified reviewer.",
     "This package intentionally avoids procedural IK sign generation.",
@@ -13,7 +13,9 @@
     "The research scope is sign-supported key terms and avatar actions, not full automatic sign-language translation.",
     "Do not mark a lexical clip as validated until reviewed by a qualified Sri Lankan Sign Language reviewer/interpreter.",
     "15 longer teaching-demo clips reuse unchanged repaired movements. They are composite topic cues, not new lexical signs or SLSL phrase translations. All require human review.",
-    "12 short explanation-topic cues concatenate unchanged existing rotations at original speed. Not new lexical signs or full sentence translations; human review required."
+    "12 short explanation-topic cues concatenate unchanged existing rotations at original speed. Not new lexical signs or full sentence translations; human review required.",
+    "Numbers 6–9 now use source-referenced one-handed thumb-based shapes instead of generic two-hand 5+n counting; all remain needs_validation.",
+    "Connected explanation flows with actual-time semantic beats cover introductions, worked steps, hints and source-based Q&A. They remain draft demonstrations, not validated SLSL translations."
   ],
   "signs": [
     {
@@ -43,10 +45,19 @@
       "clip": "clips/NUMBER_0.glb",
       "animation_asset": "/models/louise_signs_master.glb",
       "animation_action": "NUMBER_0",
-      "prototype_ready": true,
+      "prototype_ready": false,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "Playback withheld: the legacy closed-fist gesture does not match the circular handshape in SLSL Dictionary 0.mp4. Reauthor and review before enabling.",
+      "reference_videos": [
+        {
+          "title": "0",
+          "url": "https://cdn.srilankansignlanguage.org/media/0.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_1",
@@ -63,7 +74,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_2",
@@ -80,7 +106,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "2",
+          "url": "https://cdn.srilankansignlanguage.org/media/2.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_3",
@@ -97,7 +138,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "3",
+          "url": "https://cdn.srilankansignlanguage.org/media/3.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_4",
@@ -114,7 +170,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "4",
+          "url": "https://cdn.srilankansignlanguage.org/media/4.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_5",
@@ -131,7 +202,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "5",
+          "url": "https://cdn.srilankansignlanguage.org/media/5.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_6",
@@ -146,9 +232,24 @@
       "animation_asset": "/models/louise_signs_master.glb",
       "animation_action": "NUMBER_6",
       "prototype_ready": true,
-      "animation_type": "educational_avatar_gesture",
+      "animation_type": "source_referenced_prototype_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "One-handed thumb-based handshape transcribed from SLSL Dictionary reference video. Existing audited right-arm motion reused. Orientation, placement, transitions and intelligibility still require SLSL reviewer approval.",
+      "reference_videos": [
+        {
+          "title": "6",
+          "url": "https://cdn.srilankansignlanguage.org/media/6.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_7",
@@ -163,9 +264,24 @@
       "animation_asset": "/models/louise_signs_master.glb",
       "animation_action": "NUMBER_7",
       "prototype_ready": true,
-      "animation_type": "educational_avatar_gesture",
+      "animation_type": "source_referenced_prototype_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "One-handed thumb-based handshape transcribed from SLSL Dictionary reference video. Existing audited right-arm motion reused. Orientation, placement, transitions and intelligibility still require SLSL reviewer approval.",
+      "reference_videos": [
+        {
+          "title": "7",
+          "url": "https://cdn.srilankansignlanguage.org/media/7.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_8",
@@ -180,9 +296,24 @@
       "animation_asset": "/models/louise_signs_master.glb",
       "animation_action": "NUMBER_8",
       "prototype_ready": true,
-      "animation_type": "educational_avatar_gesture",
+      "animation_type": "source_referenced_prototype_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "One-handed thumb-based handshape transcribed from SLSL Dictionary reference video. Existing audited right-arm motion reused. Orientation, placement, transitions and intelligibility still require SLSL reviewer approval.",
+      "reference_videos": [
+        {
+          "title": "8",
+          "url": "https://cdn.srilankansignlanguage.org/media/8.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "NUMBER_9",
@@ -197,9 +328,24 @@
       "animation_asset": "/models/louise_signs_master.glb",
       "animation_action": "NUMBER_9",
       "prototype_ready": true,
-      "animation_type": "educational_avatar_gesture",
+      "animation_type": "source_referenced_prototype_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "One-handed thumb-based handshape transcribed from SLSL Dictionary reference video. Existing audited right-arm motion reused. Orientation, placement, transitions and intelligibility still require SLSL reviewer approval.",
+      "reference_videos": [
+        {
+          "title": "9",
+          "url": "https://cdn.srilankansignlanguage.org/media/9.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "ADDITION",
@@ -219,7 +365,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "SUBTRACTION",
@@ -239,7 +400,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "MULTIPLICATION",
@@ -260,7 +436,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "DIVISION",
@@ -281,7 +472,22 @@
       "prototype_ready": true,
       "animation_type": "educational_avatar_gesture",
       "validation_status": "needs_validation",
-      "notes": ""
+      "notes": "",
+      "reference_videos": [
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "reference_review_status": "source_identified_avatar_not_validated"
     },
     {
       "id": "EQUATION",
@@ -1413,6 +1619,4094 @@
       "animation_type": "composite_prototype_educational_gesture",
       "validation_status": "needs_validation",
       "notes": "Review-only topic cue: VARIABLE → BOTH_SIDES. Exact source rotations and neutral joins preserved; not a validated phrase."
+    },
+    {
+      "id": "FLOW_READ",
+      "label": "Read",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_READ.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_READ",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "look",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "reference",
+          "start": 2.955978,
+          "end": 4.505978
+        },
+        {
+          "role": "equation",
+          "start": 4.505978,
+          "end": 7.705599
+        }
+      ],
+      "duration_seconds": 9.134340286254883,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_EQUALITY",
+      "label": "Equality",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_EQUALITY.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_EQUALITY",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "left",
+          "start": 0.0,
+          "end": 1.958508
+        },
+        {
+          "role": "right",
+          "start": 1.958508,
+          "end": 4.285098
+        },
+        {
+          "role": "equal",
+          "start": 4.285098,
+          "end": 7.484719
+        }
+      ],
+      "duration_seconds": 8.913460731506348,
+      "reference_videos": [],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_BALANCE",
+      "label": "Balance",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_BALANCE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_BALANCE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "balanced",
+          "start": 2.989185,
+          "end": 5.239185
+        },
+        {
+          "role": "equal",
+          "start": 5.239185,
+          "end": 8.634726
+        }
+      ],
+      "duration_seconds": 10.063467979431152,
+      "reference_videos": [],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_UNBALANCED",
+      "label": "Unbalanced",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_UNBALANCED.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_UNBALANCED",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "one_side",
+          "start": 2.989185,
+          "end": 4.539185
+        },
+        {
+          "role": "compare",
+          "start": 4.539185,
+          "end": 7.918709
+        }
+      ],
+      "duration_seconds": 9.347451210021973,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_VARIABLE",
+      "label": "Variable",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_VARIABLE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_VARIABLE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "variable",
+          "start": 2.955978,
+          "end": 4.505978
+        },
+        {
+          "role": "unknown",
+          "start": 4.505978,
+          "end": 6.755978
+        }
+      ],
+      "duration_seconds": 8.543863296508789,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_VARIABLE_NOT_MULTIPLY",
+      "label": "Variable Not Multiply",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_VARIABLE_NOT_MULTIPLY.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_VARIABLE_NOT_MULTIPLY",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "variable",
+          "start": 0.0,
+          "end": 2.32659
+        },
+        {
+          "role": "not_multiply",
+          "start": 2.32659,
+          "end": 5.004163
+        },
+        {
+          "role": "variable",
+          "start": 5.004163,
+          "end": 7.030906
+        }
+      ],
+      "duration_seconds": 8.507495880126953,
+      "reference_videos": [
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ISOLATE",
+      "label": "Isolate",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ISOLATE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ISOLATE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "variable",
+          "start": 0.0,
+          "end": 3.349389
+        },
+        {
+          "role": "one_side",
+          "start": 3.349389,
+          "end": 5.987274
+        },
+        {
+          "role": "isolate",
+          "start": 5.987274,
+          "end": 9.000843
+        }
+      ],
+      "duration_seconds": 10.659940719604492,
+      "reference_videos": [],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH",
+      "label": "Add Both",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "add",
+          "start": 2.989185,
+          "end": 5.513471
+        },
+        {
+          "role": "equal",
+          "start": 5.513471,
+          "end": 8.997172
+        }
+      ],
+      "duration_seconds": 10.42591381072998,
+      "reference_videos": [
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH",
+      "label": "Subtract Both",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "subtract",
+          "start": 2.989185,
+          "end": 5.976013
+        },
+        {
+          "role": "equal",
+          "start": 5.976013,
+          "end": 8.500299
+        }
+      ],
+      "duration_seconds": 9.929040908813477,
+      "reference_videos": [
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH",
+      "label": "Multiply Both",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "multiply",
+          "start": 2.989185,
+          "end": 5.513471
+        },
+        {
+          "role": "equal",
+          "start": 5.513471,
+          "end": 8.982659
+        }
+      ],
+      "duration_seconds": 10.41140079498291,
+      "reference_videos": [
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH",
+      "label": "Divide Both",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "divide",
+          "start": 2.989185,
+          "end": 5.513471
+        },
+        {
+          "role": "equal",
+          "start": 5.513471,
+          "end": 8.868324
+        }
+      ],
+      "duration_seconds": 10.297064781188965,
+      "reference_videos": [
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_INVERSE_ADD",
+      "label": "Inverse Add",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_INVERSE_ADD.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_INVERSE_ADD",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "add",
+          "start": 0.0,
+          "end": 3.423041
+        },
+        {
+          "role": "undo_subtract",
+          "start": 3.423041,
+          "end": 6.194964
+        },
+        {
+          "role": "isolate",
+          "start": 6.194964,
+          "end": 9.507766
+        }
+      ],
+      "duration_seconds": 11.166864395141602,
+      "reference_videos": [
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_INVERSE_SUBTRACT",
+      "label": "Inverse Subtract",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_INVERSE_SUBTRACT.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_INVERSE_SUBTRACT",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "subtract",
+          "start": 0.0,
+          "end": 3.066617
+        },
+        {
+          "role": "undo_add",
+          "start": 3.066617,
+          "end": 6.185332
+        },
+        {
+          "role": "isolate",
+          "start": 6.185332,
+          "end": 8.709618
+        }
+      ],
+      "duration_seconds": 10.3687162399292,
+      "reference_videos": [
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_INVERSE_MULTIPLY",
+      "label": "Inverse Multiply",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_INVERSE_MULTIPLY.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_INVERSE_MULTIPLY",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "multiply",
+          "start": 0.0,
+          "end": 3.357316
+        },
+        {
+          "role": "undo_divide",
+          "start": 3.357316,
+          "end": 5.855559
+        },
+        {
+          "role": "isolate",
+          "start": 5.855559,
+          "end": 8.379845
+        }
+      ],
+      "duration_seconds": 10.038944244384766,
+      "reference_videos": [
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE",
+      "label": "Substitute",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.544593
+        },
+        {
+          "role": "place",
+          "start": 6.544593,
+          "end": 9.117507
+        },
+        {
+          "role": "replaced",
+          "start": 9.117507,
+          "end": 10.990422
+        }
+      ],
+      "duration_seconds": 12.467011451721191,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_CHECK",
+      "label": "Check",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_CHECK.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_CHECK",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "left",
+          "start": 2.955978,
+          "end": 5.282568
+        },
+        {
+          "role": "right",
+          "start": 5.282568,
+          "end": 7.609159
+        },
+        {
+          "role": "equal",
+          "start": 7.609159,
+          "end": 10.80878
+        }
+      ],
+      "duration_seconds": 12.237521171569824,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_COLLECT",
+      "label": "Collect",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_COLLECT.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_COLLECT",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "left",
+          "start": 0.0,
+          "end": 1.958508
+        },
+        {
+          "role": "right",
+          "start": 1.958508,
+          "end": 4.285098
+        },
+        {
+          "role": "collect",
+          "start": 4.285098,
+          "end": 7.687767
+        },
+        {
+          "role": "isolate",
+          "start": 7.687767,
+          "end": 10.731229
+        }
+      ],
+      "duration_seconds": 12.390327453613281,
+      "reference_videos": [],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_EXPAND",
+      "label": "Expand",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_EXPAND.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_EXPAND",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "group",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "multiply",
+          "start": 2.989185,
+          "end": 5.513471
+        },
+        {
+          "role": "each_term",
+          "start": 5.513471,
+          "end": 8.051887
+        },
+        {
+          "role": "each_term",
+          "start": 8.051887,
+          "end": 10.378477
+        }
+      ],
+      "duration_seconds": 11.855067253112793,
+      "reference_videos": [
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_STEP",
+      "label": "Step",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_STEP.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_STEP",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "one_step",
+          "start": 2.955978,
+          "end": 5.205978
+        },
+        {
+          "role": "continue",
+          "start": 5.205978,
+          "end": 6.755978
+        }
+      ],
+      "duration_seconds": 8.232568740844727,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_PRACTICE",
+      "label": "Practice",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_PRACTICE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_PRACTICE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "variable",
+          "start": 2.955978,
+          "end": 4.505978
+        },
+        {
+          "role": "try",
+          "start": 4.505978,
+          "end": 7.164768
+        },
+        {
+          "role": "check",
+          "start": 7.164768,
+          "end": 10.530214
+        }
+      ],
+      "duration_seconds": 11.958955764770508,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_HINT",
+      "label": "Hint",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_HINT.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_HINT",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "variable",
+          "start": 2.955978,
+          "end": 4.505978
+        },
+        {
+          "role": "one_step",
+          "start": 4.505978,
+          "end": 6.755978
+        }
+      ],
+      "duration_seconds": 8.232568740844727,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_COMPARE",
+      "label": "Compare",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_COMPARE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_COMPARE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "left",
+          "start": 0.0,
+          "end": 1.958508
+        },
+        {
+          "role": "right",
+          "start": 1.958508,
+          "end": 4.285098
+        },
+        {
+          "role": "compare",
+          "start": 4.285098,
+          "end": 6.931247
+        }
+      ],
+      "duration_seconds": 8.599344253540039,
+      "reference_videos": [],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_NEGATIVE",
+      "label": "Negative",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_NEGATIVE.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_NEGATIVE",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "negative",
+          "start": 2.955978,
+          "end": 6.129478
+        },
+        {
+          "role": "keep_sign",
+          "start": 6.129478,
+          "end": 8.787731
+        }
+      ],
+      "duration_seconds": 10.264320373535156,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_RETRY",
+      "label": "Retry",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_RETRY.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_RETRY",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "reference",
+          "start": 0.0,
+          "end": 2.955978
+        },
+        {
+          "role": "one_step",
+          "start": 2.955978,
+          "end": 5.205978
+        },
+        {
+          "role": "try",
+          "start": 5.205978,
+          "end": 7.864768
+        }
+      ],
+      "duration_seconds": 9.523866653442383,
+      "reference_videos": [
+        {
+          "title": "look at",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_look_at.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ANSWER",
+      "label": "Answer",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ANSWER.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ANSWER",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "variable",
+          "start": 0.0,
+          "end": 2.32659
+        },
+        {
+          "role": "value",
+          "start": 2.32659,
+          "end": 4.850876
+        },
+        {
+          "role": "check",
+          "start": 4.850876,
+          "end": 8.075847
+        }
+      ],
+      "duration_seconds": 9.50458812713623,
+      "reference_videos": [],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_1",
+      "label": "Substitute 1",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_1",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.544593
+        },
+        {
+          "role": "place",
+          "start": 6.544593,
+          "end": 9.117507
+        },
+        {
+          "role": "replaced",
+          "start": 9.117507,
+          "end": 10.990422
+        }
+      ],
+      "duration_seconds": 12.467011451721191,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_1",
+      "label": "Add Both 1",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_1",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_1",
+      "label": "Subtract Both 1",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_1",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_1",
+      "label": "Multiply Both 1",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_1",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_1",
+      "label": "Divide Both 1",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_1.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_1",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "1",
+          "url": "https://cdn.srilankansignlanguage.org/media/1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "1",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_2",
+      "label": "Substitute 2",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_2",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://cdn.srilankansignlanguage.org/media/2.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_2",
+      "label": "Add Both 2",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_2",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "2",
+          "url": "https://cdn.srilankansignlanguage.org/media/2.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_2",
+      "label": "Subtract Both 2",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_2",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "2",
+          "url": "https://cdn.srilankansignlanguage.org/media/2.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_2",
+      "label": "Multiply Both 2",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_2",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "2",
+          "url": "https://cdn.srilankansignlanguage.org/media/2.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_2",
+      "label": "Divide Both 2",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_2.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_2",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "2",
+          "url": "https://cdn.srilankansignlanguage.org/media/2.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "2",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_3",
+      "label": "Substitute 3",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_3",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://cdn.srilankansignlanguage.org/media/3.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_3",
+      "label": "Add Both 3",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_3",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "3",
+          "url": "https://cdn.srilankansignlanguage.org/media/3.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_3",
+      "label": "Subtract Both 3",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_3",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "3",
+          "url": "https://cdn.srilankansignlanguage.org/media/3.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_3",
+      "label": "Multiply Both 3",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_3",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "3",
+          "url": "https://cdn.srilankansignlanguage.org/media/3.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_3",
+      "label": "Divide Both 3",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_3.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_3",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "3",
+          "url": "https://cdn.srilankansignlanguage.org/media/3.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "3",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_4",
+      "label": "Substitute 4",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_4",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://cdn.srilankansignlanguage.org/media/4.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_4",
+      "label": "Add Both 4",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_4",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "4",
+          "url": "https://cdn.srilankansignlanguage.org/media/4.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_4",
+      "label": "Subtract Both 4",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_4",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "4",
+          "url": "https://cdn.srilankansignlanguage.org/media/4.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_4",
+      "label": "Multiply Both 4",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_4",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "4",
+          "url": "https://cdn.srilankansignlanguage.org/media/4.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_4",
+      "label": "Divide Both 4",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_4.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_4",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "4",
+          "url": "https://cdn.srilankansignlanguage.org/media/4.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "4",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_5",
+      "label": "Substitute 5",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_5",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://cdn.srilankansignlanguage.org/media/5.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_5",
+      "label": "Add Both 5",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_5",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "5",
+          "url": "https://cdn.srilankansignlanguage.org/media/5.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_5",
+      "label": "Subtract Both 5",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_5",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "5",
+          "url": "https://cdn.srilankansignlanguage.org/media/5.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_5",
+      "label": "Multiply Both 5",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_5",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "5",
+          "url": "https://cdn.srilankansignlanguage.org/media/5.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_5",
+      "label": "Divide Both 5",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_5.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_5",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "5",
+          "url": "https://cdn.srilankansignlanguage.org/media/5.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "5",
+          "url": "https://www.youtube.com/watch?v=5-f1lsP1EKY",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_6",
+      "label": "Substitute 6",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_6",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://cdn.srilankansignlanguage.org/media/6.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_6",
+      "label": "Add Both 6",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_6",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "6",
+          "url": "https://cdn.srilankansignlanguage.org/media/6.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_6",
+      "label": "Subtract Both 6",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_6",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "6",
+          "url": "https://cdn.srilankansignlanguage.org/media/6.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_6",
+      "label": "Multiply Both 6",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_6",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "6",
+          "url": "https://cdn.srilankansignlanguage.org/media/6.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_6",
+      "label": "Divide Both 6",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_6.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_6",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "6",
+          "url": "https://cdn.srilankansignlanguage.org/media/6.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "6",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_7",
+      "label": "Substitute 7",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_7",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.544593
+        },
+        {
+          "role": "place",
+          "start": 6.544593,
+          "end": 9.117507
+        },
+        {
+          "role": "replaced",
+          "start": 9.117507,
+          "end": 10.990422
+        }
+      ],
+      "duration_seconds": 12.467011451721191,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://cdn.srilankansignlanguage.org/media/7.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_7",
+      "label": "Add Both 7",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_7",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "7",
+          "url": "https://cdn.srilankansignlanguage.org/media/7.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_7",
+      "label": "Subtract Both 7",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_7",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "7",
+          "url": "https://cdn.srilankansignlanguage.org/media/7.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_7",
+      "label": "Multiply Both 7",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_7",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "7",
+          "url": "https://cdn.srilankansignlanguage.org/media/7.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_7",
+      "label": "Divide Both 7",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_7.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_7",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "7",
+          "url": "https://cdn.srilankansignlanguage.org/media/7.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "7",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_8",
+      "label": "Substitute 8",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_8",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://cdn.srilankansignlanguage.org/media/8.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_8",
+      "label": "Add Both 8",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_8",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "8",
+          "url": "https://cdn.srilankansignlanguage.org/media/8.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_8",
+      "label": "Subtract Both 8",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_8",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "8",
+          "url": "https://cdn.srilankansignlanguage.org/media/8.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_8",
+      "label": "Multiply Both 8",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_8",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "8",
+          "url": "https://cdn.srilankansignlanguage.org/media/8.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_8",
+      "label": "Divide Both 8",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_8.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_8",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "8",
+          "url": "https://cdn.srilankansignlanguage.org/media/8.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "8",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBSTITUTE_9",
+      "label": "Substitute 9",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBSTITUTE_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBSTITUTE_9",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "original",
+          "start": 0.0,
+          "end": 2.38337
+        },
+        {
+          "role": "variable",
+          "start": 2.38337,
+          "end": 4.294593
+        },
+        {
+          "role": "value",
+          "start": 4.294593,
+          "end": 6.818879
+        },
+        {
+          "role": "place",
+          "start": 6.818879,
+          "end": 9.391793
+        },
+        {
+          "role": "replaced",
+          "start": 9.391793,
+          "end": 11.264708
+        }
+      ],
+      "duration_seconds": 12.741297721862793,
+      "reference_videos": [
+        {
+          "title": "above",
+          "url": "https://cdn.srilankansignlanguage.org/media/2026_Voc_above_kJTR0sL.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "put",
+          "url": "https://cdn.srilankansignlanguage.org/media/SLCFD_Verbs_Put.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://cdn.srilankansignlanguage.org/media/9.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_ADD_BOTH_9",
+      "label": "Add Both 9",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_ADD_BOTH_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_ADD_BOTH_9",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "add",
+          "start": 5.616602,
+          "end": 8.238216
+        },
+        {
+          "role": "equal",
+          "start": 8.238216,
+          "end": 11.721917
+        }
+      ],
+      "duration_seconds": 13.15065860748291,
+      "reference_videos": [
+        {
+          "title": "9",
+          "url": "https://cdn.srilankansignlanguage.org/media/9.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "addition",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Addition.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "addition",
+          "url": "https://www.youtube.com/watch?v=c0BTeMrbC7I",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_SUBTRACT_BOTH_9",
+      "label": "Subtract Both 9",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_SUBTRACT_BOTH_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_SUBTRACT_BOTH_9",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "subtract",
+          "start": 5.616602,
+          "end": 8.790101
+        },
+        {
+          "role": "equal",
+          "start": 8.790101,
+          "end": 11.314387
+        }
+      ],
+      "duration_seconds": 12.743128776550293,
+      "reference_videos": [
+        {
+          "title": "9",
+          "url": "https://cdn.srilankansignlanguage.org/media/9.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Subraction.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "subtraction",
+          "url": "https://www.youtube.com/watch?v=SzMytTC6Akk",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_MULTIPLY_BOTH_9",
+      "label": "Multiply Both 9",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_MULTIPLY_BOTH_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_MULTIPLY_BOTH_9",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "multiply",
+          "start": 5.616602,
+          "end": 8.294174
+        },
+        {
+          "role": "equal",
+          "start": 8.294174,
+          "end": 11.763363
+        }
+      ],
+      "duration_seconds": 13.19210433959961,
+      "reference_videos": [
+        {
+          "title": "9",
+          "url": "https://cdn.srilankansignlanguage.org/media/9.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Multiplication.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "multiplication",
+          "url": "https://www.youtube.com/watch?v=C0TR5M5wHGM",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
+    },
+    {
+      "id": "FLOW_DIVIDE_BOTH_9",
+      "label": "Divide Both 9",
+      "category": "explanation_flow",
+      "priority": 160,
+      "required_for_research": false,
+      "aliases": [],
+      "clip": "clips/FLOW_DIVIDE_BOTH_9.glb",
+      "animation_asset": "/models/louise_signs_master.glb",
+      "animation_action": "FLOW_DIVIDE_BOTH_9",
+      "prototype_ready": true,
+      "animation_type": "source_referenced_teaching_demonstration",
+      "validation_status": "needs_validation",
+      "teaching_beats": [
+        {
+          "role": "both",
+          "start": 0.0,
+          "end": 2.989185
+        },
+        {
+          "role": "value",
+          "start": 2.989185,
+          "end": 5.616602
+        },
+        {
+          "role": "divide",
+          "start": 5.616602,
+          "end": 8.27511
+        },
+        {
+          "role": "equal",
+          "start": 8.27511,
+          "end": 11.629962
+        }
+      ],
+      "duration_seconds": 13.058703422546387,
+      "reference_videos": [
+        {
+          "title": "9",
+          "url": "https://cdn.srilankansignlanguage.org/media/9.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "9",
+          "url": "https://www.youtube.com/watch?v=qSz2nmgGelc",
+          "language": "sqs",
+          "source": "Sign Math"
+        },
+        {
+          "title": "division",
+          "url": "https://cdn.srilankansignlanguage.org/media/B5_Numbers_Division1.mp4",
+          "language": "sqs",
+          "source": "SLSL Dictionary"
+        },
+        {
+          "title": "division",
+          "url": "https://www.youtube.com/watch?v=MDOSezSyWW4",
+          "language": "sqs",
+          "source": "Sign Math"
+        }
+      ],
+      "notes": "Connected semantic demonstration. Look/above/put are source-referenced manual adaptations; math motions reuse unvalidated drafts. Not certified SLSL sentence grammar."
     }
   ]
 }
