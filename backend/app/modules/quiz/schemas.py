@@ -107,7 +107,6 @@ class QuizAnswerSavedResponse(BaseModel):
     confidence_level: ConfidenceLevel
     answered_at: datetime
     is_correct: bool
-    correct_option: QuizQuestionOptionResponse | None = None
     saved: Literal[True] = True
 
 

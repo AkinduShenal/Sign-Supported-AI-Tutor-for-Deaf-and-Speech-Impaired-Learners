@@ -6,12 +6,10 @@ interface QuizQuestionCardProps {
   selectedOptionId: string | null
   disabled: boolean
   feedback?: boolean
-  correctOptionId?: string
-  excludedOptionIds?: string[]
   onSelect: (optionId: string) => void
 }
 
-export function QuizQuestionCard({ question, language, selectedOptionId, disabled, feedback, correctOptionId, excludedOptionIds = [], onSelect }: QuizQuestionCardProps) {
+export function QuizQuestionCard({ question, language, selectedOptionId, disabled, feedback, onSelect }: QuizQuestionCardProps) {
   const showEnglish = language !== 'si'
   const showSinhala = language !== 'en'
 
@@ -27,12 +25,11 @@ export function QuizQuestionCard({ question, language, selectedOptionId, disable
       </div>
       <div className="quiz-options">
         {question.options.map(option => (
-          <label className={`quiz-option${selectedOptionId === option.id ? ' is-selected' : ''}${selectedOptionId === option.id && feedback !== undefined ? (feedback ? ' is-correct' : ' is-incorrect') : ''}${feedback === false && correctOptionId === option.id ? ' is-answer-key' : ''}${excludedOptionIds.includes(option.id) ? ' is-tried' : ''}`} key={option.id}>
+          <label className={`quiz-option${selectedOptionId === option.id ? ' is-selected' : ''}${selectedOptionId === option.id && feedback !== undefined ? (feedback ? ' is-correct' : ' is-incorrect') : ''}`} key={option.id}>
             <input
               type="radio"
               name="quiz-answer"
               value={option.id}
-              disabled={excludedOptionIds.includes(option.id)}
               checked={selectedOptionId === option.id}
               onChange={() => onSelect(option.id)}
             />

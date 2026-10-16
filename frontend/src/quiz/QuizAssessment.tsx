@@ -12,7 +12,7 @@ import { QuizLevelTransition } from './QuizLevelTransition'
 import { QuizQuestionCard } from './QuizQuestionCard'
 import { QuizResultPlaceholder } from './QuizResultPlaceholder'
 import type { ConfidenceLevel, QuizDiagnosticResult as DiagnosticResult, QuizLanguage, QuizQuestion, QuizSession } from './types'
-import { quizAttemptState, type PendingQuizWrites } from './pendingQuizWrites'
+import type { PendingQuizWrites } from './pendingQuizWrites'
 import { elapsedQuestionSeconds, QUIZ_LENGTH, transitionAfterAnswers, validatePreQuestionBank } from './workflow'
 import './quiz.css'
 
@@ -70,13 +70,8 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
           setLanguage(row.request.display_language)
           const lastWrite = row.responses.at(-1)
           if (lastWrite?.saved && lastWrite.feedback_viewed === false && typeof lastWrite.is_correct === 'boolean') {
-            const attempt = quizAttemptState(lastWrite)
-            if (!attempt) {
-              setError(row.error || 'Quiz answer feedback is pending. Use Retry / Recover Quiz evidence.')
-              setPhase('recovery'); return
-            }
             setQuestionIndex(row.responses.length - 1)
-            setSelectedOptionId(attempt.selectedOptionId)
+            setSelectedOptionId(lastWrite.body.selected_option_id)
             setConfidence(lastWrite.body.confidence_level)
             setPhase('feedback'); return
           }
@@ -164,11 +159,10 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
 
   function showSavedFeedback(sessionId: string) {
     const write = store.session(sessionId).responses[questionIndex]
-    const attempt = quizAttemptState(write)
-    if (!attempt) {
+    if (!write?.saved || typeof write.is_correct !== 'boolean') {
       throw new Error('The saved answer feedback is not available. Recover Quiz evidence before continuing.')
     }
-    setSelectedOptionId(attempt.selectedOptionId)
+    setSelectedOptionId(write.body.selected_option_id)
     setConfidence(write.body.confidence_level)
     setPhase('feedback')
   }
@@ -176,13 +170,6 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
   async function continueAfterFeedback() {
     if (phase !== 'feedback' || !session) return
     try {
-      const attempt = quizAttemptState(store.session(session.quiz_session_id).responses[questionIndex])
-      if (attempt?.canRetry) {
-        setError(null)
-        setSelectedOptionId(null)
-        setPhase('active')
-        return
-      }
       store.acknowledgeFeedback(session.quiz_session_id, questionIndex)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Feedback could not be confirmed.')
@@ -203,33 +190,21 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
   async function submitAnswer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (busy.current || phase !== 'active' || !session) return
-    const sessionId = session.quiz_session_id
-    const question = questions[questionIndex]
-    const previousWrite = store.session(sessionId).responses[questionIndex]
-    const retrying = !!previousWrite?.saved && previousWrite.is_correct === false && previousWrite.feedback_viewed === false
-    if (!selectedOptionId || (!retrying && !confidence)) {
+    if (!selectedOptionId || !confidence) {
       setError('Select an answer and a confidence level before continuing.')
-      return
-    }
-    if (retrying) {
-      try {
-        store.practiceAnswer(sessionId, questionIndex, selectedOptionId, question.options.map(option => option.id))
-        setError(null)
-        setPhase('feedback')
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : 'The practice attempt could not be recorded.')
-      }
       return
     }
     busy.current = true
     setPhase('saving')
     setError(null)
+    const sessionId = session.quiz_session_id
+    const question = questions[questionIndex]
     try {
       store.answer(sessionId, {
         question_id: question.id,
         selected_option_id: selectedOptionId,
         response_time_sec: elapsedQuestionSeconds(questionStartedAt.current, performance.now()),
-        confidence_level: confidence!,
+        confidence_level: confidence,
         question_order: questionIndex + 1,
         client_action_at: new Date().toISOString(),
       })
@@ -257,14 +232,8 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
 
   const question = questions[questionIndex]
   const locked = phase !== 'active'
-  const currentWrite = session && questionIndex < QUIZ_LENGTH
-    ? store.session(session.quiz_session_id).responses[questionIndex] : undefined
-  const retrying = phase === 'active' && !!currentWrite?.saved && currentWrite.is_correct === false && currentWrite.feedback_viewed === false
-  const feedbackWrite = phase === 'feedback' && session
-    ? currentWrite : undefined
-  const feedbackAttempt = quizAttemptState(feedbackWrite)
-  const feedbackCorrect = feedbackAttempt?.correct
-  const feedbackCorrectOption = feedbackAttempt?.revealCorrectAnswer ? feedbackWrite?.correct_option ?? null : null
+  const feedbackCorrect = phase === 'feedback' && session
+    ? store.session(session.quiz_session_id).responses[questionIndex]?.is_correct : undefined
   const transition = transitionAfterAnswers(questionIndex)
 
   return (
@@ -296,8 +265,8 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
         <section className="quiz-panel quiz-intro" aria-labelledby="quiz-intro-title">
           <span className="quiz-kicker">{language === 'si' ? 'ප්‍රශ්න 10 · ආරම්භක 4 · අතරමැදි 4 · උසස් 2' : '10 Questions · 4 Beginner · 4 Intermediate · 2 Advanced'}</span>
           <h2 id="quiz-intro-title" lang={language === 'si' ? 'si' : 'en'}>{language === 'si' ? 'ඔබ සූදානම්ද?' : 'Ready to begin?'}</h2>
-          {language !== 'si' && <p lang="en">Choose one answer and tell us how confident you feel. You have up to three tries per question. If an answer is wrong, try a different option. Your first answer counts toward the assessment score; later tries are practice. After three wrong tries, we show the correct answer.</p>}
-          {language !== 'en' && <p lang="si">සෑම ප්‍රශ්නයකටම උත්සාහ තුනක් දක්වා ඇත. පළමු පිළිතුර පමණක් ඇගයීමේ ලකුණු සඳහා ගණන් කෙරේ. පසුව කරන උත්සාහ පුහුණුව සඳහාය. උත්සාහ තුනම වැරදි නම් නිවැරදි පිළිතුර පෙන්වයි.</p>}
+          {language !== 'si' && <p lang="en">Choose one answer and tell us how confident you feel for each question. After it is saved, you will see whether it was correct before continuing.</p>}
+          {language !== 'en' && <p lang="si">සෑම ප්‍රශ්නයකටම එක් පිළිතුරක් සහ ඔබගේ විශ්වාස මට්ටම තෝරන්න. පිළිතුර සුරැකුණු පසු එය නිවැරදිදැයි බලා ඉදිරියට යන්න.</p>}
           <p className="quiz-review-note">
             {language !== 'si' && <span lang="en">Development prototype questions · Teacher and Sinhala wording review pending</span>}
             {language === 'bilingual' && <br />}
@@ -327,16 +296,14 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
               selectedOptionId={selectedOptionId}
               disabled={locked}
               feedback={phase === 'feedback' ? feedbackCorrect : undefined}
-              correctOptionId={phase === 'feedback' ? feedbackCorrectOption?.id : undefined}
-              excludedOptionIds={retrying ? [currentWrite!.body.selected_option_id, ...(currentWrite!.practice_attempts ?? [])] : []}
               onSelect={setSelectedOptionId}
             />
-            {!retrying && (!feedbackAttempt || feedbackAttempt.attemptNumber === 1) && <ConfidenceSelector language={language} value={confidence} disabled={locked} onChange={setConfidence} />}
-            {feedbackAttempt && <QuizAnswerFeedback correct={feedbackAttempt.correct} correctOption={feedbackCorrectOption} language={language} attemptNumber={feedbackAttempt.attemptNumber} canRetry={feedbackAttempt.canRetry} />}
+            <ConfidenceSelector language={language} value={confidence} disabled={locked} onChange={setConfidence} />
+            {phase === 'feedback' && typeof feedbackCorrect === 'boolean' && <QuizAnswerFeedback correct={feedbackCorrect} language={language} />}
             {error && <p className="quiz-error" role="alert">{error}</p>}
             {phase === 'feedback' ? <button className="quiz-primary quiz-feedback-continue" type="button" onClick={() => void continueAfterFeedback()}>
-              {feedbackAttempt?.canRetry ? (language === 'si' ? 'නැවත උත්සාහ කරන්න' : 'Try again') : questionIndex + 1 === QUIZ_LENGTH ? (language === 'si' ? 'ප්‍රතිඵලය බලන්න' : 'See your result') : transitionAfterAnswers(questionIndex + 1) ? (language === 'si' ? 'ඉදිරියට යන්න' : 'Continue') : (language === 'si' ? 'ඊළඟ ප්‍රශ්නය' : 'Next question')}
-            </button> : <button className="quiz-primary quiz-submit" type="submit" disabled={locked || !selectedOptionId || (!retrying && !confidence)}>
+              {questionIndex + 1 === QUIZ_LENGTH ? (language === 'si' ? 'ප්‍රතිඵලය බලන්න' : 'See your result') : transitionAfterAnswers(questionIndex + 1) ? (language === 'si' ? 'ඉදිරියට යන්න' : 'Continue') : (language === 'si' ? 'ඊළඟ ප්‍රශ්නය' : 'Next question')}
+            </button> : <button className="quiz-primary quiz-submit" type="submit" disabled={locked || !selectedOptionId || !confidence}>
               {locked ? (language === 'si' ? 'පිළිතුර සුරකිමින්…' : 'Saving answer…') : (language === 'si' ? 'පිළිතුර යවන්න' : 'Submit answer')}
             </button>}
           </form>
