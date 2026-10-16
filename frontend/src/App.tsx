@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { AdaptiveTutor } from './components/AdaptiveTutor'
 import { PhaserGame } from './game/phaser/PhaserGame'
-import { QuizAssessment } from './quiz/QuizAssessment'
 import { NonImprovementSection } from './components/NonImprovementSection'
 import { NonImprovementSectionStartScreen } from './components/NonImprovementSectionStartScreen'
 import type { EvaluationResponse } from './types/nonImprovementSection'
@@ -82,12 +81,8 @@ function App() {
           <PhaserGame onContinue={() => setView('tutor')} />
         </main>
       )}
-      {view === 'tutor' && <AdaptiveTutor />}
       {view === 'remedial' && <RemedialGateway />}
       {view === 'tutor' && <AdaptiveTutor onAssessment={setView} />}
-      {view === 'remedial' && (
-        <PendingGateway title="Remedial Support" teamName="Remedial Support" />
-      )}
     </>
   )
 }
