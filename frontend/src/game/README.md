@@ -1,5 +1,19 @@
 # Game component (frontend)
 
+Sinhala is the primary language by default in Drag & Drop, Hangman and the Game
+selection screen. The **ප්‍රධාන භාෂාව / Primary language** control above the canvas
+switches between Sinhala and English. Main headings and buttons give the selected
+language greater prominence while retaining the other language; hints, feedback,
+progress and summary labels follow the selection. Switching updates existing text
+objects without restarting scenes, changing questions, resetting answer buffers
+or writing new gameplay events. The choice is shared across modes for the current
+page and resets to Sinhala on a fresh page load. Researcher collection/export
+controls are unchanged. Sinhala wording remains draft and requires teacher review.
+
+Run `node tests/gameLanguage.e2e.mjs` from `frontend/` for the local mocked-API
+browser check of default language, live switching, state preservation, full
+desktop sessions/summaries and compact layouts in both modes.
+
 **Owner:** RehanOP007 (Game component). Coordinate edits here with the owner.
 
 For researcher-assigned learner codes, durable pending-write recovery, and the

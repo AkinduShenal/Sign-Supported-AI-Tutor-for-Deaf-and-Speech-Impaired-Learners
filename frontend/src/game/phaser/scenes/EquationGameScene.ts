@@ -1,12 +1,14 @@
 import Phaser from 'phaser'
 import type { LevelStep, OperationChoice } from '../../data/equationLevels'
-import type { EquationVariant } from '../../data/equationVariants'
+import type { DifficultyLevel, EquationVariant } from '../../data/equationVariants'
 import { equationBeforeStep, expectedOperationOf, orderedChoices } from '../../data/variantAccess'
 import type { GameSessionTracker } from '../../analytics/GameSessionTracker'
 import { GameBackendSync } from '../../api/gameBackendSync'
 import { getVariantUsage } from '../../api/gameApi'
 import type { GameResultResponse } from '../../api/gameApi'
 import { requireCollectionStudent } from '../../collectionIdentity'
+import { formatGameLanguages, primaryGameText } from '../../gameLanguage'
+import type { Bilingual } from '../gameText'
 import { GameSession } from '../../session/GameSession'
 import type { GameType } from '../../types'
 import { BalanceScale } from '../BalanceScale'
@@ -21,7 +23,7 @@ import {
   stacked,
 } from '../gameText'
 import { GAME_THEME as T, cssColor } from '../theme/gameTheme'
-import { RoundedPanel, backgroundTouchScroll, crispSceneText, gameButton, progressStepper, watchViewportSize } from '../theme/gameUi'
+import { RoundedPanel, backgroundTouchScroll, bilingualPair, bindLanguageText, crispSceneText, gameButton, progressStepper, watchViewportSize } from '../theme/gameUi'
 import { designSize, fitCameraToDesign, isCompactScreen, prefersReducedMotion } from '../viewport'
 
 const COLORS = {
@@ -37,16 +39,16 @@ const COLORS = {
 // The balance scale sits between the progress path and the drop zone.
 const LAYOUTS = {
   wide: {
-    titleY: 44, titleSize: '32px', subtitleY: 96, indicatorY: 150, pathY: 196,
+    titleY: 28, titleSize: '32px', titleSinhalaY: 66, subtitleY: 112, indicatorY: 166, pathY: 210,
     scaleY: 250, equationY: 390, equationSize: 36, dropY: 466, dropH: 76,
     cardsY: 568, cardH: 82, hintY: 680, hintTextY: 766, feedbackY: 766,
     doneFeedbackY: 680, rewardY: 730, nextY: 790, nextH: 64,
   },
   compact: {
-    titleY: 92, titleSize: '30px', subtitleY: 170, indicatorY: 254, pathY: 300,
-    scaleY: 354, equationY: 484, equationSize: 34, dropY: 564, dropH: 88,
-    cardsY: 674, cardH: 88, hintY: 886, hintTextY: 988, feedbackY: 988,
-    doneFeedbackY: 886, rewardY: 952, nextY: 1024, nextH: 68,
+    titleY: 92, titleSize: '30px', titleSinhalaY: 128, subtitleY: 206, indicatorY: 290, pathY: 336,
+    scaleY: 390, equationY: 520, equationSize: 34, dropY: 600, dropH: 88,
+    cardsY: 710, cardH: 88, hintY: 922, hintTextY: 1024, feedbackY: 1024,
+    doneFeedbackY: 922, rewardY: 988, nextY: 1060, nextH: 68,
   },
 }
 
@@ -243,6 +245,7 @@ export class EquationGameScene extends Phaser.Scene {
         ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
+    bindLanguageText(this.loadingText, () => stacked(GAME_TEXT.preparing))
   }
 
   // Milestone 3 Steps 12-13: ask the backend how many times this student
@@ -282,7 +285,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.loadingText?.destroy()
     this.loadingText = null
 
-    new RoundedPanel(this, this.viewWidth / 2, this.isCompactLayout ? 470 : 365,
+    new RoundedPanel(this, this.viewWidth / 2, this.isCompactLayout ? 506 : 365,
       this.viewWidth - 40, this.isCompactLayout ? 300 : 292,
       T.color.surfaceSoft, T.color.border, T.radius.panel)
     gameButton(this, { x: 76, y: this.isCompactLayout ? 34 : 44,
@@ -306,16 +309,11 @@ export class EquationGameScene extends Phaser.Scene {
     const centerX = this.viewWidth / 2
     const layout = this.layout
 
-    this.add
-      .text(centerX, layout.titleY, 'Balance the Equation', {
-        fontFamily: FONT_FAMILY,
-        fontSize: layout.titleSize,
-        fontStyle: 'bold',
-        color: COLORS.text,
-      })
-      .setOrigin(0.5)
+    bilingualPair(this, { x: centerX, primaryY: layout.titleY, secondaryY: layout.titleSinhalaY,
+      text: GAME_TEXT.balanceEquation, width: this.viewWidth - 40,
+      primarySize: parseInt(layout.titleSize), secondarySize: T.font.subtitle, color: COLORS.text })
 
-    this.add
+    const instruction = this.add
       .text(centerX, layout.subtitleY, stacked(GAME_TEXT.instruction), {
         fontFamily: FONT_FAMILY,
         fontSize: `${T.font.body}px`,
@@ -325,6 +323,7 @@ export class EquationGameScene extends Phaser.Scene {
         ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
+    bindLanguageText(instruction, () => stacked(GAME_TEXT.instruction))
   }
 
   private createLevelIndicator(): void {
@@ -354,9 +353,9 @@ export class EquationGameScene extends Phaser.Scene {
       sinhala += ` · ${GAME_TEXT.step.si} ${stepNumber} / ${stepCount}`
     }
     // Wide screens have room for one line; phones stack the two languages.
-    this.levelIndicatorText.setText(
-      this.isCompactLayout ? `${english}\n${sinhala}` : `${english}   |   ${sinhala}`,
-    )
+    bindLanguageText(this.levelIndicatorText, () => formatGameLanguages(
+      { en: english, si: sinhala }, this.isCompactLayout ? '\n' : '   |   ',
+    ))
   }
 
   // The row of six task nodes: filled gold when finished (with its stars
@@ -453,6 +452,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.dropZone = this.add
       .zone(this.dropZoneX, this.dropZoneY, width, height)
       .setRectangleDropZone(width, height)
+    bindLanguageText(this.dropZoneLabel, () => stacked(GAME_TEXT.dropHere))
   }
 
   // Destroys any operation cards from the previous step and builds a fresh
@@ -726,11 +726,11 @@ export class EquationGameScene extends Phaser.Scene {
 
     this.createOperationButtons()
 
-    this.feedbackText.setText('')
+    bindLanguageText(this.feedbackText, () => '')
     this.feedbackText.setAlpha(0)
     this.feedbackText.setY(this.layout.feedbackY)
 
-    this.hintText.setText('')
+    bindLanguageText(this.hintText, () => '')
     this.hintText.setAlpha(0)
     this.hintButton.setInteractive()
     this.tweens.add({ targets: this.hintButton, alpha: 1, duration: 150 })
@@ -803,7 +803,7 @@ export class EquationGameScene extends Phaser.Scene {
     // time: a later answer's feedback replaces the hint (press Hint again
     // to see it).
     this.feedbackText.setAlpha(0)
-    this.hintText.setText(bilingualHint(this.currentStep.hint))
+    bindLanguageText(this.hintText, () => bilingualHint(this.currentStep.hint))
     this.tweens.add({ targets: this.hintText, alpha: 1, duration: 200 })
   }
 
@@ -839,7 +839,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.tweens.add({ targets: this.dropZoneLabel, alpha: 0, duration: 150 })
 
     this.hintText.setAlpha(0)
-    this.feedbackText.setText(inline(GAME_TEXT.correct))
+    bindLanguageText(this.feedbackText, () => inline(GAME_TEXT.correct))
     this.feedbackText.setColor(COLORS.correctText)
     this.tweens.add({ targets: this.feedbackText, alpha: 1, duration: 300 })
 
@@ -919,8 +919,8 @@ export class EquationGameScene extends Phaser.Scene {
 
     this.balanceScale.celebrate()
     this.updateProgressPath()
-    const praise = inline(earned === MAX_STARS_PER_TASK ? GAME_TEXT.perfect : GAME_TEXT.wellDone)
-    this.rewardText.setText(`${formatStars(earned)}  ${praise}`)
+    const praise = earned === MAX_STARS_PER_TASK ? GAME_TEXT.perfect : GAME_TEXT.wellDone
+    bindLanguageText(this.rewardText, () => `${formatStars(earned)}  ${inline(praise)}`)
     this.rewardText.setScale(this.reducedMotion ? 1 : 0.6)
     this.tweens.add({
       targets: this.rewardText,
@@ -935,7 +935,7 @@ export class EquationGameScene extends Phaser.Scene {
     this.balanceScale.tipWrong()
     this.hintText.setAlpha(0)
     this.feedbackText.setY(this.layout.feedbackY)
-    this.feedbackText.setText(inline(GAME_TEXT.tryAgain))
+    bindLanguageText(this.feedbackText, () => inline(GAME_TEXT.tryAgain))
     this.feedbackText.setColor(COLORS.incorrectText)
     this.tweens.add({ targets: this.feedbackText, alpha: 1, duration: 200 })
 
@@ -998,7 +998,7 @@ export class EquationGameScene extends Phaser.Scene {
   // in loadAssessmentVariants().
   private createSessionSummaryScreen(): void {
     this.createLoadingScreen()
-    this.loadingText?.setText(stacked(GAME_TEXT.calculating))
+    if (this.loadingText) bindLanguageText(this.loadingText, () => stacked(GAME_TEXT.calculating))
     void this.loadAndShowResult()
   }
 
@@ -1029,48 +1029,62 @@ export class EquationGameScene extends Phaser.Scene {
     }
   }
 
-  // The learner-facing part of the summary: a trophy, stars per task and a
-  // pointer to the next step. Returns the y just below it. The calculated
-  // rates are analytics, so they sit behind a "Show details" toggle.
-  private renderStarBoard(title: { en: string; si: string }): number {
+  // One centered card (badge, title, a score meter, a medal per task, the
+  // Tutor hand-off as a button) instead of a flat stack of lines pinned to
+  // the top with "Choose Another Game" pinned to the screen bottom — that
+  // older layout left a dead gap on tall screens and read as a report, not
+  // a game result. Mirrors the Hangman summary redesign for consistency
+  // across the Game component (GAME_MODAL_FILE_STRUCTURE.md). Returns the y
+  // just below the card, where the calculated rates sit behind a small
+  // "Show details" link — they're analytics, not the point of this screen.
+  private renderStarBoard(title: Bilingual): number {
     const centerX = this.viewWidth / 2
     const compact = this.isCompactLayout
-    let y = compact ? 50 : 28
 
-    this.add
-      .text(centerX, y, '🏆', { fontFamily: FONT_FAMILY, fontSize: compact ? '48px' : '34px' })
-      .setOrigin(0.5)
-    y += compact ? 56 : 40
+    const cardW = Math.min(this.viewWidth - 64, 420)
+    const pad = 24
+    const badgeH = 56
+    const titleH = compact ? 62 : 56
+    const meterH = 40
+    const cols = Math.min(3, this.levels.length)
+    const rows = Math.ceil(this.levels.length / cols)
+    const tileGap = 8
+    const tileW = (cardW - pad * 2 - tileGap * (cols - 1)) / cols
+    const tileH = 72
+    const gridH = rows * tileH + (rows - 1) * tileGap
+    const ctaH = 54
+    const buttonH = 52
+    const gap = 14
+    const contentH =
+      pad + badgeH + 12 + titleH + gap + meterH + gap + gridH + gap + ctaH + gap + buttonH + pad
 
+    const cardTop = Math.max(20, (this.viewHeight - contentH) / 2)
+    new RoundedPanel(
+      this, centerX, cardTop + contentH / 2, cardW, contentH,
+      T.color.surface, T.color.border, T.radius.panel, true,
+    )
+
+    let y = cardTop + pad
+
+    this.add.circle(centerX, y + badgeH / 2, badgeH / 2, T.color.primarySoft)
     this.add
-      .text(centerX, y, title.en, {
-        fontFamily: FONT_FAMILY,
-        fontSize: compact ? '24px' : '28px',
-        fontStyle: 'bold',
-        color: COLORS.text,
-        align: 'center',
-        wordWrap: { width: this.viewWidth - 32 },
-      })
+      .text(centerX, y + badgeH / 2, '🏆', { fontFamily: FONT_FAMILY, fontSize: compact ? '28px' : '26px' })
       .setOrigin(0.5)
-    y += compact ? 30 : 26
-    this.add
-      .text(centerX, y, title.si, {
-        fontFamily: FONT_FAMILY,
-        fontSize: '16px',
-        color: COLORS.text,
-        align: 'center',
-        wordWrap: { width: this.viewWidth - 32 },
-        ...SINHALA_TEXT,
-      })
-      .setOrigin(0.5)
-    y += compact ? 40 : 36
+    y += badgeH + 12
+
+    bilingualPair(this, {
+      x: centerX, primaryY: y + titleH / 2 - 11, secondaryY: y + titleH / 2 + 13,
+      text: title, width: cardW - pad * 2, primarySize: compact ? 21 : 22,
+      secondarySize: 15, color: COLORS.text,
+    })
+    y += titleH + gap
 
     const earned = this.stars.reduce((sum, value) => sum + value, 0)
     const possible = this.levels.length * MAX_STARS_PER_TASK
     const total = this.add
-      .text(centerX, y, `★ ${earned} / ${possible}`, {
+      .text(centerX, y + 15, `★ ${earned} / ${possible}`, {
         fontFamily: FONT_FAMILY,
-        fontSize: compact ? '34px' : '38px',
+        fontSize: compact ? '30px' : '32px',
         fontStyle: 'bold',
         color: cssColor(T.color.gold),
       })
@@ -1079,107 +1093,128 @@ export class EquationGameScene extends Phaser.Scene {
       total.setScale(0.5)
       this.tweens.add({ targets: total, scale: 1, duration: 500, ease: 'Back.easeOut' })
     }
-    y += compact ? 44 : 38
+    const meterW = cardW - pad * 2
+    const meter = this.add.graphics()
+    meter.fillStyle(T.color.track, 1)
+    meter.fillRoundedRect(centerX - meterW / 2, y + meterH - 8, meterW, 8, 4)
+    meter.fillStyle(T.color.gold, 1)
+    meter.fillRoundedRect(centerX - meterW / 2, y + meterH - 8, Math.max(8, meterW * (possible > 0 ? earned / possible : 0)), 8, 4)
+    y += meterH + gap
 
-    // One row per task: its number, difficulty and stars.
+    // One medal per task: its number, difficulty and stars — scannable at a
+    // glance instead of a line of text read top to bottom.
     this.levels.forEach((level, index) => {
-      const difficulty = difficultyText(level.difficulty)
+      const col = index % cols
+      const row = Math.floor(index / cols)
+      const tx = centerX - cardW / 2 + pad + tileW / 2 + col * (tileW + tileGap)
+      const ty = y + row * (tileH + tileGap) + tileH / 2
+      new RoundedPanel(this, tx, ty, tileW, tileH, T.color.surfaceSoft, T.color.border, T.radius.tile)
       this.add
-        .text(
-          centerX,
-          y,
-          `${index + 1}. ${difficulty.en} · ${difficulty.si}   ${formatStars(this.stars[index] ?? 0)}`,
-          { fontFamily: FONT_FAMILY, fontSize: '17px', color: COLORS.text, padding: { top: 3, bottom: 3 } },
-        )
+        .text(tx, ty - 23, `${index + 1}`, { fontFamily: FONT_FAMILY, fontSize: '10px', fontStyle: 'bold', color: cssColor(T.color.muted) })
         .setOrigin(0.5)
-      y += compact ? 28 : 22
+      const difficulty = difficultyText(level.difficulty)
+      const chip = difficultyChipColors(level.difficulty)
+      new RoundedPanel(this, tx, ty - 3, Math.min(tileW - 10, 64), 18, chip.fill, chip.fill, 9)
+      const chipText = this.add
+        .text(tx, ty - 3, '', { fontFamily: FONT_FAMILY, fontSize: '10px', fontStyle: 'bold', color: chip.text })
+        .setOrigin(0.5)
+      bindLanguageText(chipText, () => primaryGameText(difficulty))
+      this.add
+        .text(tx, ty + 18, formatStars(this.stars[index] ?? 0), { fontFamily: FONT_FAMILY, fontSize: '13px', color: cssColor(T.color.gold) })
+        .setOrigin(0.5)
     })
-    y += compact ? 10 : 8
+    y += gridH + gap
 
-    this.add
-      .text(centerX, y + 14, stacked(GAME_TEXT.nextTutor), {
+    new RoundedPanel(this, centerX, y + ctaH / 2, cardW - pad * 2, ctaH, T.color.successSoft, T.color.success, T.radius.tile)
+    const nextTutor = this.add
+      .text(centerX, y + ctaH / 2, '', {
         fontFamily: FONT_FAMILY,
-        fontSize: '16px',
+        fontSize: '14px',
+        fontStyle: 'bold',
         color: COLORS.correctText,
         align: 'center',
-        wordWrap: { width: this.viewWidth - 24 },
+        wordWrap: { width: cardW - pad * 2 - 16 },
         ...SINHALA_TEXT,
       })
       .setOrigin(0.5)
-    return y + (compact ? 60 : 52)
+    bindLanguageText(nextTutor, () => `👉 ${inline(GAME_TEXT.nextTutor)}`)
+    y += ctaH + gap
+
+    this.createButton(
+      centerX, y + buttonH / 2, cardW - pad * 2, buttonH,
+      GAME_TEXT.chooseAnother.en, () => this.scene.start('GameSelectionScene'),
+      COLORS.buttonFill, GAME_TEXT.chooseAnother.si,
+    )
+
+    return cardTop + contentH + 20
   }
 
-  private renderDetailsToggle(top: number, lines: string[]): void {
+  private renderDetailsToggle(top: number, lines: Array<[Bilingual, string]>): void {
     const centerX = this.viewWidth / 2
-    const lineHeight = this.isCompactLayout ? 21 : 17
-    const detailsTexts = lines.map((line, index) =>
-      this.add
-        .text(centerX, top + 52 + index * lineHeight, line, {
-          fontFamily: FONT_FAMILY,
-          fontSize: '16px',
-          color: COLORS.text,
-        })
-        .setOrigin(0.5)
-        .setVisible(false),
-    )
+    const cardW = Math.min(this.viewWidth - 64, 420)
+    const cols = 2
+    const rows = Math.ceil(lines.length / cols)
+    const cellW = (cardW - 24) / cols
+    const rowH = 34
+    const gridH = rows * rowH + 16
 
     let open = false
     const toggleLabel = this.add
-      .text(0, 0, stacked(GAME_TEXT.showDetails), {
-        fontFamily: FONT_FAMILY,
-        fontSize: '14px',
-        color: COLORS.text,
-        align: 'center',
-        lineSpacing: 4,
-        padding: { top: 3, bottom: 3 },
-      })
+      .text(0, 0, '', { fontFamily: FONT_FAMILY, fontSize: '13px', fontStyle: 'bold', color: cssColor(T.color.muted), align: 'center' })
       .setOrigin(0.5)
+    bindLanguageText(toggleLabel, () => inline(open ? GAME_TEXT.hideDetails : GAME_TEXT.showDetails))
     const toggle = this.add.container(centerX, top + 14, [
-      new RoundedPanel(this, 0, 0, 240, 64, COLORS.buttonFill, COLORS.buttonBorder),
+      new RoundedPanel(this, 0, 0, 220, 44, COLORS.buttonFill, COLORS.buttonBorder, T.radius.button),
       toggleLabel,
     ])
     toggle.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-120, -32, 240, 64),
+      hitArea: new Phaser.Geom.Rectangle(-110, -22, 220, 44),
       hitAreaCallback: Phaser.Geom.Rectangle.Contains,
       useHandCursor: true,
     })
+
+    const panelY = top + 38 + gridH / 2
+    const panel = new RoundedPanel(this, centerX, panelY, cardW, gridH, T.color.surfaceSoft, T.color.border, T.radius.tile)
+    panel.setVisible(false)
+
+    const detailTexts = lines.map(([label, value], index) => {
+      const col = index % cols
+      const row = Math.floor(index / cols)
+      const tx = centerX - cardW / 2 + 12 + cellW / 2 + col * cellW
+      const ty = panelY - gridH / 2 + 8 + row * rowH + rowH / 2
+      const labelText = bindLanguageText(
+        this.add.text(tx, ty - 8, '', { fontFamily: FONT_FAMILY, fontSize: '10.5px', color: cssColor(T.color.muted), align: 'center' })
+          .setOrigin(0.5).setVisible(false),
+        () => primaryGameText(label),
+      )
+      const valueText = this.add
+        .text(tx, ty + 9, value, { fontFamily: FONT_FAMILY, fontSize: '13px', fontStyle: 'bold', color: COLORS.text, align: 'center' })
+        .setOrigin(0.5).setVisible(false)
+      return [labelText, valueText] as const
+    })
+
     toggle.on('pointerup', () => {
       open = !open
-      toggleLabel.setText(stacked(open ? GAME_TEXT.hideDetails : GAME_TEXT.showDetails))
-      detailsTexts.forEach((text) => text.setVisible(open))
+      bindLanguageText(toggleLabel, () => inline(open ? GAME_TEXT.hideDetails : GAME_TEXT.showDetails))
+      panel.setVisible(open)
+      detailTexts.forEach(([labelText, valueText]) => { labelText.setVisible(open); valueText.setVisible(open) })
     })
-  }
-
-  // Returns to the Game Selection screen. Nothing is carried over: the
-  // next game creates a new session.
-  private renderChooseAnotherButton(): void {
-    this.createButton(
-      this.viewWidth / 2,
-      this.viewHeight - 40,
-      this.isCompactLayout ? 300 : 280,
-      52,
-      GAME_TEXT.chooseAnother.en,
-      () => this.scene.start('GameSelectionScene'),
-      COLORS.buttonFill,
-      GAME_TEXT.chooseAnother.si,
-    )
   }
 
   private renderResultSummary(result: GameResultResponse): void {
     const top = this.renderStarBoard(GAME_TEXT.assessmentComplete)
     this.renderDetailsToggle(top, [
-      `Tasks: ${result.tasks_total}`,
-      `Successful: ${result.successful_tasks}`,
-      `Success Rate: ${formatPercent(result.game_success_rate)}`,
-      `Completion Rate: ${formatPercent(result.game_completion_rate)}`,
-      `Average Attempts: ${result.game_avg_attempts_per_task.toFixed(1)}`,
-      `Hint Rate: ${formatPercent(result.game_hint_rate)}`,
-      `Wrong Attempts: ${result.wrong_attempt_count}`,
-      `Retries: ${result.retry_count}`,
-      `Hints Used: ${result.total_hint_count}`,
-      `Active Time: ${formatActiveTime(result.game_active_time_sec)}`,
+      [GAME_TEXT.tasks, `${result.tasks_total}`],
+      [GAME_TEXT.successful, `${result.successful_tasks}`],
+      [GAME_TEXT.successRate, formatPercent(result.game_success_rate)],
+      [GAME_TEXT.completionRate, formatPercent(result.game_completion_rate)],
+      [GAME_TEXT.averageAttempts, result.game_avg_attempts_per_task.toFixed(1)],
+      [GAME_TEXT.hintRate, formatPercent(result.game_hint_rate)],
+      [GAME_TEXT.wrongAnswers, `${result.wrong_attempt_count}`],
+      [GAME_TEXT.retries, `${result.retry_count}`],
+      [GAME_TEXT.hintsUsed, `${result.total_hint_count}`],
+      [GAME_TEXT.activeTime, formatActiveTime(result.game_active_time_sec)],
     ])
-    this.renderChooseAnotherButton()
   }
 
   private renderFallbackSummary(): void {
@@ -1188,20 +1223,21 @@ export class EquationGameScene extends Phaser.Scene {
 
     const top = this.renderStarBoard(GAME_TEXT.sessionComplete)
     this.renderDetailsToggle(top, [
-      `Levels Completed: ${summary.levelsCompleted} / ${this.levels.length}`,
-      `Wrong Attempts: ${summary.totalWrongAttempts}`,
-      `Hints Used: ${summary.totalHintsUsed}`,
-      `Total Time: ${totalTime}`,
+      [GAME_TEXT.levelsCompleted, `${summary.levelsCompleted} / ${this.levels.length}`],
+      [GAME_TEXT.wrongAnswers, `${summary.totalWrongAttempts}`],
+      [GAME_TEXT.hintsUsed, `${summary.totalHintsUsed}`],
+      [GAME_TEXT.totalTime, totalTime],
     ])
-    this.renderChooseAnotherButton()
     const warning = this.add.text(this.viewWidth / 2, this.viewHeight / 2,
       'Save unverified. Tap to retry. / සුරැකීම තහවුරු නැත. නැවත උත්සාහ කරන්න.',
       { ...SINHALA_TEXT, fontFamily: FONT_FAMILY, fontSize: '18px', color: '#ffffff',
         backgroundColor: '#9b1c1c', align: 'center', wordWrap: { width: this.viewWidth - 48 },
         padding: { x: 12, y: 12 } })
       .setOrigin(0.5).setDepth(1000).setInteractive({ useHandCursor: true })
+    bindLanguageText(warning, () => stacked(GAME_TEXT.saveUnverified))
     warning.on('pointerdown', () => {
-      warning.disableInteractive().setText('Retrying save…')
+      warning.disableInteractive()
+      bindLanguageText(warning, () => stacked(GAME_TEXT.retryingSave))
       void this.backendSync.completeSession().then(() => {
         if (!this.isDestroyed) this.scene.restart({
           session: this.session, stepIndex: this.currentStepIndex, showSummary: true,
@@ -1213,6 +1249,20 @@ export class EquationGameScene extends Phaser.Scene {
 
 // A soft tint per operation type. Colour only supplements the symbol on the
 // card, which always stays visible.
+// A soft, color-coded badge per difficulty on the summary screen's
+// per-task medals — distinct from operationFill() below, which tints the
+// draggable operation cards during play, not the results screen.
+function difficultyChipColors(difficulty: DifficultyLevel): { fill: number; text: string } {
+  switch (difficulty) {
+    case 'easy':
+      return { fill: T.color.successSoft, text: cssColor(T.color.success) }
+    case 'medium':
+      return { fill: T.color.goldSoft, text: cssColor(T.color.gold) }
+    case 'hard':
+      return { fill: T.color.primarySoft, text: cssColor(T.color.primaryText) }
+  }
+}
+
 function operationFill(label: string): number {
   switch (label.trim().charAt(0)) {
     case '+':

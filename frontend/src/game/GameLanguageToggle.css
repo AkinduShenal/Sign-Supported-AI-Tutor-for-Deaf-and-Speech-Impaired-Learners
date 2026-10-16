@@ -1,0 +1,4 @@
+.game-language-toggle { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; width: 100%; max-width: 1100px; box-sizing: border-box; padding: 8px 12px; color: #172c44; }
+.game-language-toggle button { min-height: 44px; padding: 8px 16px; border: 1px solid #aabac9; border-radius: 8px; background: #fff; color: #172c44; font: inherit; cursor: pointer; }
+.game-language-toggle button[aria-pressed=true] { background: #5745e8; color: #fff; border-color: #5745e8; }
+.game-language-toggle button:focus-visible { outline: 3px solid #172c44; outline-offset: 2px; }
