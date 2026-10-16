@@ -1,6 +1,15 @@
-import type { QuizQuestion } from './types'
+import type { DifficultyLevel, QuizQuestion } from './types'
 
 export const QUIZ_LENGTH = 10
+export const QUIZ_LEVELS: Record<DifficultyLevel, { en: string; si: string }> = {
+  easy: { en: 'Beginner Level', si: 'ආරම්භක මට්ටම' },
+  medium: { en: 'Intermediate Level', si: 'අතරමැදි මට්ටම' },
+  hard: { en: 'Advanced Level', si: 'උසස් මට්ටම' },
+}
+
+export function transitionAfterAnswers(answeredCount: number): 'easy' | 'medium' | null {
+  return answeredCount === 4 ? 'easy' : answeredCount === 8 ? 'medium' : null
+}
 
 export function validatePreQuestionBank(questions: QuizQuestion[]): QuizQuestion[] {
   const counts = { easy: 0, medium: 0, hard: 0 }
@@ -27,7 +36,10 @@ export function validatePreQuestionBank(questions: QuizQuestion[]): QuizQuestion
   ) {
     throw new Error('The ten-question assessment is not ready. Please contact your teacher.')
   }
-  return questions
+  // Preserve the bank's order inside each difficulty group while enforcing the
+  // official Beginner -> Intermediate -> Advanced learner progression.
+  const tier = { easy: 0, medium: 1, hard: 2 }
+  return [...questions].sort((left, right) => tier[left.difficulty_level] - tier[right.difficulty_level])
 }
 
 export function elapsedQuestionSeconds(startedAt: number, submittedAt: number): number {

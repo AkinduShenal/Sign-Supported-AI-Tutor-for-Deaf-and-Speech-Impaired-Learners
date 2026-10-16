@@ -69,6 +69,7 @@ def test_diagnostic_calculates_evidence_and_requires_repetition():
     assert repeated.misconception_code == "inverse_operation"
     assert repeated.repeated_error_count == 2
     assert repeated.weak_subconcept == "two_step_equations"
+    assert repeated.recommended_focus == "Two-step Equations"
     assert repeated.confidence_pattern == "high_confidence_incorrect"
     assert (
         repeated.diagnostic_evidence["selected_pattern_status"]
@@ -83,6 +84,24 @@ def test_diagnostic_calculates_evidence_and_requires_repetition():
     assert repeated.mastery_level in {"low", "medium", "high"}
     assert repeated.recommended_support_level in {"low", "medium", "high"}
     assert repeated.quiz_difficulty_level in {"beginner", "intermediate", "advanced"}
+
+
+def test_no_unique_supported_weak_area_uses_general_focus_without_changing_misconception():
+    repeated_pattern = calculate_diagnostic(sample_responses((5, 6)), {
+        "inverse_operation": MappingEvidence(2, False),
+    })
+    assert repeated_pattern.weak_subconcept is None
+    assert repeated_pattern.misconception_code == "inverse_operation"
+    assert repeated_pattern.recommended_focus == "Continue Linear Equation Practice"
+
+    tied = sample_responses((5, 7))
+    tied[4] = replace(tied[4], subconcept_code="group_a")
+    tied[5] = replace(tied[5], subconcept_code="group_a")
+    tied[6] = replace(tied[6], subconcept_code="group_b")
+    tied[7] = replace(tied[7], subconcept_code="group_b")
+    tied_result = calculate_diagnostic(tied, {})
+    assert tied_result.weak_subconcept is None
+    assert tied_result.recommended_focus == "Continue Linear Equation Practice"
 
 
 def test_mapping_threshold_and_supported_weak_area():
@@ -229,7 +248,7 @@ def test_completed_session_analyzes_once_and_incomplete_or_empty_rejected():
             "quiz_session_id"
         ]
         assert client.post(f"{base}/{empty}/analyze").status_code == 409
-        assert client.post(f"{base}/{empty}/complete").status_code == 200
+        assert client.post(f"{base}/{empty}/complete").status_code == 409
         assert client.post(f"{base}/{empty}/analyze").status_code == 409
         assert client.get(f"{base}/{empty}/result").status_code == 404
 
@@ -253,6 +272,8 @@ def test_completed_session_analyzes_once_and_incomplete_or_empty_rejected():
         first = client.post(f"{base}/{session_id}/analyze")
         assert first.status_code == 200, first.text
         result = first.json()
+        assert result["recommended_support_level"] in {"low", "medium", "high"}
+        assert result["mastery_level"] in {"low", "medium", "high"}
         assert result["confidence_insight"]["kind"] == "neutral"
         assert len(result["diagnostic_evidence"]["question_evidence"]) == 10
         assert (
@@ -272,6 +293,11 @@ def test_completed_session_analyzes_once_and_incomplete_or_empty_rejected():
             )
             assert result["quiz_avg_response_time_sec"] == 5.5
             assert result["quiz_accuracy"] == result["correct_answers"] / 10
+            stored_result = database.scalar(
+                select(QuizResult).where(QuizResult.quiz_session_id == session_id)
+            )
+            assert stored_result.recommended_support_level == result["recommended_support_level"]
+            assert stored_result.mastery_level == result["mastery_level"]
             assert (
                 result["diagnostic_evidence"]["prototype_rule_version"] == "pp1-pre-v1"
             )

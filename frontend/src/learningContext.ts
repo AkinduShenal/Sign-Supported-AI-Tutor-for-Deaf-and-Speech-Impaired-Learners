@@ -60,3 +60,15 @@ export function rememberQuizSession(context: LearningContext, sessionId: string,
   current.quizSessionId = sessionId
   save(store, storage)
 }
+
+/** Reconnect durable Quiz evidence after a refresh without creating a new cycle. */
+export function restoreQuizContext(context: LearningContext, storage: StorageAccess = localStorage): void {
+  const studentId = validateStudentCode(context.studentId)
+  if (!/^[0-9a-f-]{36}$/i.test(context.learningCycleId) || !context.quizSessionId) {
+    throw new Error('The saved Quiz learning cycle could not be restored.')
+  }
+  const store = readStore(storage)
+  store.learners[studentId] = { ...context, studentId }
+  store.activeStudentId = studentId
+  save(store, storage)
+}

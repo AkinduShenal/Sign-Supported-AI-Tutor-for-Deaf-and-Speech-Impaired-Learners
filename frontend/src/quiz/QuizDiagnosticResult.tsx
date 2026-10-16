@@ -13,15 +13,14 @@ export function QuizDiagnosticResult({ result, language }: { result: Diagnostic;
       <dl className="quiz-result-list">
         <div><dt>{showEnglish ? 'Score' : 'ලකුණු'}{language === 'bilingual' && <small lang="si">ලකුණු</small>}</dt><dd>{values.score}</dd></div>
         <div><dt>{showEnglish ? 'Correct Answers' : 'නිවැරදි පිළිතුරු'}{language === 'bilingual' && <small lang="si">නිවැරදි පිළිතුරු</small>}</dt><dd>{values.correctAnswers}</dd></div>
-        <div><dt>{showEnglish ? 'Wrong Answers' : 'වැරදි පිළිතුරු'}{language === 'bilingual' && <small lang="si">වැරදි පිළිතුරු</small>}</dt><dd>{values.wrongAnswers}</dd></div>
-        <div><dt>{showEnglish ? 'Learning Level' : 'ඉගෙනුම් මට්ටම'}{language === 'bilingual' && <small lang="si">ඉගෙනුම් මට්ටම</small>}</dt><dd>{values.level}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').level}</small>}</dd></div>
-        <div><dt>{showEnglish ? 'Needs More Practice' : 'තවත් පුහුණුව අවශ්‍ය'}{language === 'bilingual' && <small lang="si">තවත් පුහුණුව අවශ්‍ය</small>}</dt><dd>{values.practice}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').practice}</small>}</dd></div>
-        <div><dt>{showEnglish ? 'Recommended Focus' : 'නිර්දේශිත අවධානය'}{language === 'bilingual' && <small lang="si">නිර්දේශිත අවධානය</small>}</dt><dd>{values.focus}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').focus}</small>}</dd></div>
-        <div><dt>{showEnglish ? 'Recommended Support' : 'නිර්දේශිත සහාය'}{language === 'bilingual' && <small lang="si">නිර්දේශිත සහාය</small>}</dt><dd>{values.support}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').support}</small>}</dd></div>
+        <div><dt>{showEnglish ? 'Incorrect Answers' : 'වැරදි පිළිතුරු'}{language === 'bilingual' && <small lang="si">වැරදි පිළිතුරු</small>}</dt><dd>{values.wrongAnswers}</dd></div>
+        <div><dt>{showEnglish ? 'Understanding Level' : 'අවබෝධ මට්ටම'}{language === 'bilingual' && <small lang="si">අවබෝධ මට්ටම</small>}</dt><dd>{values.level}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').level}</small>}</dd></div>
+        <div><dt>{showEnglish ? 'Needs More Practice' : 'තවත් පුහුණුව අවශ්‍ය ප්‍රදේශය'}{language === 'bilingual' && <small lang="si">තවත් පුහුණුව අවශ්‍ය ප්‍රදේශය</small>}</dt><dd>{values.practice}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').practice}</small>}</dd></div>
+        <div><dt>{showEnglish ? 'Recommended Focus' : 'නිර්දේශිත පුහුණු අවධානය'}{language === 'bilingual' && <small lang="si">නිර්දේශිත පුහුණු අවධානය</small>}</dt><dd>{values.focus}{language === 'bilingual' && <small lang="si">{presentResult(result, 'si').focus}</small>}</dd></div>
       </dl>
       <div className="quiz-confidence-insight">
-        <h3>{showEnglish ? 'Confidence Insight' : 'විශ්වාස මට්ටම පිළිබඳ සාරාංශය'}</h3>
-        {language === 'bilingual' && <p lang="si" className="quiz-confidence-heading-si">විශ්වාස මට්ටම පිළිබඳ සාරාංශය</p>}
+        <h3>{showEnglish ? 'Confidence Insight' : 'පිළිතුරු පිළිබඳ විශ්වාසයේ සාරාංශය'}</h3>
+        {language === 'bilingual' && <p lang="si" className="quiz-confidence-heading-si">පිළිතුරු පිළිබඳ විශ්වාසයේ සාරාංශය</p>}
         {showEnglish && <p lang="en">{presentConfidenceInsight(result, 'en')}</p>}
         {language !== 'en' && <p lang="si">{presentConfidenceInsight(result, 'si')}</p>}
       </div>

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { prepareQuizContext, readLearningContext, rememberQuizSession, selectLearningStudent } from '../src/learningContext.ts'
+import { prepareQuizContext, readLearningContext, rememberQuizSession, restoreQuizContext, selectLearningStudent } from '../src/learningContext.ts'
 
 function storage() {
   const values = new Map<string, string>()
@@ -44,4 +44,16 @@ test('stale Quiz responses and storage failures cannot silently create disconnec
   prepareQuizContext('STU_001', saved)
   assert.throws(() => rememberQuizSession(old, 'QUIZ-stale', saved))
   assert.throws(() => selectLearningStudent('STU_001', { getItem: () => null, setItem: () => { throw Error('Full') } }))
+})
+
+test('recovering a queued Quiz restores its original learner cycle for Game and Tutor', () => {
+  const saved = storage()
+  const original = prepareQuizContext('STU_001', saved)
+  rememberQuizSession(original, 'QUIZ-durable', saved)
+  const durable = readLearningContext(saved)!
+  prepareQuizContext('STU_001', saved)
+  selectLearningStudent('STU_002', saved)
+  restoreQuizContext(durable, saved)
+  assert.deepEqual(readLearningContext(saved), durable)
+  assert.equal(selectLearningStudent('STU_001', saved).learningCycleId, original.learningCycleId)
 })

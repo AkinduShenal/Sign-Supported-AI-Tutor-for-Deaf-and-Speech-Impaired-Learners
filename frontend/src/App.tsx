@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AdaptiveTutor } from './components/AdaptiveTutor'
 import { PhaserGame } from './game/phaser/PhaserGame'
-import { QuizAssessment } from './quiz/QuizAssessment'
+import { QuizCollectionGate } from './quiz/QuizCollectionGate'
 import './App.css'
 
 type AppView = 'quiz' | 'game' | 'tutor' | 'remedial'
@@ -58,7 +58,7 @@ function App() {
         </div>
       </nav>
 
-      {view === 'quiz' && <QuizAssessment onContinue={() => setView('tutor')} />}
+      {view === 'quiz' && <QuizCollectionGate onContinue={() => setView('tutor')} />}
       {view === 'game' && (
         <main className="game-page">
           <PhaserGame onContinue={() => setView('tutor')} />

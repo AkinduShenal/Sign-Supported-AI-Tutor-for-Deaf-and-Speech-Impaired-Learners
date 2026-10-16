@@ -1,29 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { prepareQuizContext, readLearningContext, rememberQuizSession } from '../learningContext'
+import { prepareQuizContext, rememberQuizSession } from '../learningContext'
 import {
   analyzeQuizSession,
-  completeQuizSession,
-  createPreQuizSession,
   getPreQuizQuestions,
-  getQuizSession,
-  submitQuizAnswer,
 } from './api'
 import { ConfidenceSelector } from './ConfidenceSelector'
+import { QuizAnswerFeedback } from './QuizAnswerFeedback'
 import { QuizProgress } from './QuizProgress'
 import { QuizDiagnosticResult } from './QuizDiagnosticResult'
+import { QuizLevelTransition } from './QuizLevelTransition'
 import { QuizQuestionCard } from './QuizQuestionCard'
 import { QuizResultPlaceholder } from './QuizResultPlaceholder'
 import type { ConfidenceLevel, QuizDiagnosticResult as DiagnosticResult, QuizLanguage, QuizQuestion, QuizSession } from './types'
-import { elapsedQuestionSeconds, QUIZ_LENGTH, validatePreQuestionBank } from './workflow'
+import type { PendingQuizWrites } from './pendingQuizWrites'
+import { elapsedQuestionSeconds, QUIZ_LENGTH, transitionAfterAnswers, validatePreQuestionBank } from './workflow'
 import './quiz.css'
 
-type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'finalizing' | 'analyzing' | 'complete'
+type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'feedback' | 'transition' | 'finalizing' | 'analyzing' | 'complete' | 'recovery'
 
-export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
-  const [studentCode, setStudentCode] = useState(() => {
-    try { return readLearningContext()?.studentId ?? '' } catch { return '' }
-  })
+export function QuizExperience({ studentCode, store, onContinue }: { studentCode: string; store: PendingQuizWrites; onContinue?: () => void }) {
   const [phase, setPhase] = useState<QuizPhase>('loading')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [session, setSession] = useState<QuizSession | null>(null)
@@ -57,7 +53,41 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
       .then(bank => {
         if (controller.signal.aborted) return
         setQuestions(bank)
-        setPhase('ready')
+        const open = store.openSessions().find(row => row.request.student_id === studentCode)
+        if (!open) { setPhase('ready'); return }
+        const id = `QUIZ-${open.request.client_session_id}`
+        if (open.question_ids.join('|') !== bank.map(question => question.id).join('|')) {
+          setError('The question bank changed. Recover saved evidence and end this incomplete collection before starting a new Quiz.')
+          setPhase('recovery'); return
+        }
+        void store.flush(id).then(saved => {
+          if (controller.signal.aborted) return
+          const row = store.session(id)
+          if (!row.session) {
+            setError(row.error || 'Quiz evidence is pending. Use Retry / Recover Quiz evidence.')
+            setPhase('recovery'); return
+          }
+          setSession(row.session)
+          setLanguage(row.request.display_language)
+          const lastWrite = row.responses.at(-1)
+          if (lastWrite?.saved && lastWrite.feedback_viewed === false && typeof lastWrite.is_correct === 'boolean') {
+            setQuestionIndex(row.responses.length - 1)
+            setSelectedOptionId(lastWrite.body.selected_option_id)
+            setConfidence(lastWrite.body.confidence_level)
+            setPhase('feedback'); return
+          }
+          if (!saved) {
+            setError(row.error || 'Quiz evidence is pending. Use Retry / Recover Quiz evidence.')
+            setPhase('recovery'); return
+          }
+          if (row.completed) { setQuestionIndex(QUIZ_LENGTH); void loadResult(id); return }
+          if (row.responses.length === QUIZ_LENGTH) {
+            setError('All answers are queued. Confirm completion with Retry / Recover Quiz evidence.')
+            setPhase('recovery'); return
+          }
+          setQuestionIndex(row.responses.length)
+          setPhase(transitionAfterAnswers(row.responses.length) ? 'transition' : 'active')
+        })
       })
       .catch(cause => {
         if (controller.signal.aborted) return
@@ -65,11 +95,11 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
         setPhase('load-error')
       })
     return () => controller.abort()
-  }, [])
+  }, [studentCode, store])
 
   useEffect(() => {
-    if (session && questionIndex < QUIZ_LENGTH) questionStartedAt.current = performance.now()
-  }, [session, questionIndex])
+    if (session && phase === 'active' && questionIndex < QUIZ_LENGTH) questionStartedAt.current = performance.now()
+  }, [session, questionIndex, phase])
 
   async function startQuiz() {
     if (busy.current || questions.length !== QUIZ_LENGTH) return
@@ -78,9 +108,14 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
     setPhase('starting')
     try {
       const context = prepareQuizContext(studentCode)
-      const created = await createPreQuizSession(context.studentId, context.learningCycleId)
-      if (created.learning_cycle_id !== context.learningCycleId) throw new Error('The assessment cycle was not confirmed. Please try again.')
-      rememberQuizSession(context, created.quiz_session_id)
+      const id = store.start({
+        student_id: studentCode, concept_id: 'linear_equations', assessment_phase: 'pre_tutor',
+        display_language: language, learning_cycle_id: context.learningCycleId, client_session_id: crypto.randomUUID(),
+      }, questions.map(question => question.id))
+      rememberQuizSession(context, id)
+      if (!await store.flush(id)) throw new Error(store.session(id).error || 'Quiz session is pending. Use Retry / Recover Quiz evidence.')
+      const created = store.session(id).session
+      if (!created) throw new Error('Quiz session was not confirmed by the backend.')
       setSession(created)
       setDiagnostic(null)
       setQuestionIndex(0)
@@ -89,7 +124,7 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
       setPhase('active')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'The session could not be started.')
-      setPhase('ready')
+      setPhase(store.openSessions().length ? 'recovery' : 'ready')
     } finally {
       busy.current = false
     }
@@ -103,16 +138,21 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
     setError(null)
     let completed = false
     try {
-      await completeQuizSession(sessionId)
+      if (!await store.flush(sessionId) || !store.session(sessionId).completed) {
+        throw new Error(store.session(sessionId).error || 'Quiz completion is pending.')
+      }
       completed = true
     } catch {
       try {
-        const saved = await getQuizSession(sessionId)
-        if (saved.status === 'completed') {
+        const saved = store.session(sessionId)
+        if (saved.completed) {
           completed = true
         }
       } catch { /* Keep the last answer locked until completion is confirmed. */ }
-      if (!completed) setError('All ten answers are saved. Please use “Finish recording” to confirm completion.')
+      if (!completed) {
+        setError(store.session(sessionId).error || 'Quiz completion is pending. Use Retry / Recover Quiz evidence.')
+        setPhase('recovery')
+      }
     } finally {
       finishing.current = false
       setCompletionBusy(false)
@@ -120,16 +160,33 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
     if (completed) await loadResult(sessionId)
   }
 
-  async function moveAfterSave(sessionId: string) {
+  function showSavedFeedback(sessionId: string) {
+    const write = store.session(sessionId).responses[questionIndex]
+    if (!write?.saved || typeof write.is_correct !== 'boolean') {
+      throw new Error('The saved answer feedback is not available. Recover Quiz evidence before continuing.')
+    }
+    setSelectedOptionId(write.body.selected_option_id)
+    setConfidence(write.body.confidence_level)
+    setPhase('feedback')
+  }
+
+  async function continueAfterFeedback() {
+    if (phase !== 'feedback' || !session) return
+    try {
+      store.acknowledgeFeedback(session.quiz_session_id, questionIndex)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Feedback could not be confirmed.')
+      return
+    }
     setError(null)
     setSelectedOptionId(null)
     setConfidence(null)
     if (questionIndex + 1 === QUIZ_LENGTH) {
       setQuestionIndex(QUIZ_LENGTH)
-      await finishSession(sessionId)
+      await finishSession(session.quiz_session_id)
     } else {
       setQuestionIndex(questionIndex + 1)
-      setPhase('active')
+      setPhase(transitionAfterAnswers(questionIndex + 1) ? 'transition' : 'active')
     }
   }
 
@@ -146,37 +203,41 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
     const sessionId = session.quiz_session_id
     const question = questions[questionIndex]
     try {
-      await submitQuizAnswer(sessionId, {
+      store.answer(sessionId, {
         question_id: question.id,
         selected_option_id: selectedOptionId,
         response_time_sec: elapsedQuestionSeconds(questionStartedAt.current, performance.now()),
         confidence_level: confidence,
         question_order: questionIndex + 1,
+        client_action_at: new Date().toISOString(),
       })
-      await moveAfterSave(sessionId)
+      const flushed = await store.flush(sessionId)
+      if (!store.session(sessionId).responses[questionIndex]?.saved) {
+        throw new Error(store.session(sessionId).error || 'Quiz answer is pending. Use Retry / Recover Quiz evidence.')
+      }
+      if (!flushed) setError(store.session(sessionId).error || 'Quiz completion is pending. Continue to retry.')
+      showSavedFeedback(sessionId)
     } catch (cause) {
-      // A lost response can follow a successful save. Check the server before offering the same question again.
+      // The queue preserves the exact answer across a lost response.
       try {
-        const saved = await getQuizSession(sessionId)
-        if (saved.responses_saved >= questionIndex + 1) {
-          if (saved.status === 'completed' && questionIndex + 1 === QUIZ_LENGTH) {
-            setQuestionIndex(QUIZ_LENGTH)
-            await loadResult(sessionId)
-          } else {
-            await moveAfterSave(sessionId)
-          }
+        const saved = store.session(sessionId)
+        if (saved.responses[questionIndex]?.saved && typeof saved.responses[questionIndex].is_correct === 'boolean') {
+          showSavedFeedback(sessionId)
           return
         }
       } catch { /* Show the current question and retain its selection. */ }
       setError(cause instanceof Error ? cause.message : 'The answer could not be saved. Please try again.')
-      setPhase('active')
+      setPhase(store.session(sessionId).responses.length > questionIndex ? 'recovery' : 'active')
     } finally {
       busy.current = false
     }
   }
 
   const question = questions[questionIndex]
-  const locked = phase === 'saving'
+  const locked = phase !== 'active'
+  const feedbackCorrect = phase === 'feedback' && session
+    ? store.session(session.quiz_session_id).responses[questionIndex]?.is_correct : undefined
+  const transition = transitionAfterAnswers(questionIndex)
 
   return (
     <main className="quiz-page">
@@ -199,44 +260,55 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
 
       {phase === 'loading' && <section className="quiz-panel" role="status">{language === 'si' ? 'ප්‍රශ්න පූරණය වෙමින්…' : 'Loading assessment questions…'}</section>}
       {phase === 'load-error' && <section className="quiz-panel" role="alert"><p>{error}</p><button type="button" onClick={() => window.location.reload()}>{language === 'si' ? 'ප්‍රශ්න නැවත පූරණය කරන්න' : 'Reload questions'}</button></section>}
+      {phase === 'recovery' && <section className="quiz-panel" role="alert">
+        <h2>Quiz evidence needs recovery</h2>
+        <p>{error || 'Use Retry / Recover Quiz evidence above. Keep this browser profile and learner code.'}</p>
+      </section>}
       {(phase === 'ready' || phase === 'starting') && (
         <section className="quiz-panel quiz-intro" aria-labelledby="quiz-intro-title">
-          <span className="quiz-kicker">{language === 'si' ? 'ප්‍රශ්න 10' : '10 questions · 4 easy · 4 medium · 2 hard'}</span>
+          <span className="quiz-kicker">{language === 'si' ? 'ප්‍රශ්න 10 · ආරම්භක 4 · අතරමැදි 4 · උසස් 2' : '10 Questions · 4 Beginner · 4 Intermediate · 2 Advanced'}</span>
           <h2 id="quiz-intro-title" lang={language === 'si' ? 'si' : 'en'}>{language === 'si' ? 'ඔබ සූදානම්ද?' : 'Ready to begin?'}</h2>
-          {language !== 'si' && <p lang="en">Choose one answer and tell us how confident you feel for each question. Your answers are recorded once.</p>}
-          {language !== 'en' && <p lang="si">සෑම ප්‍රශ්නයකටම එක් පිළිතුරක් සහ ඔබගේ විශ්වාස මට්ටම තෝරන්න.</p>}
+          {language !== 'si' && <p lang="en">Choose one answer and tell us how confident you feel for each question. After it is saved, you will see whether it was correct before continuing.</p>}
+          {language !== 'en' && <p lang="si">සෑම ප්‍රශ්නයකටම එක් පිළිතුරක් සහ ඔබගේ විශ්වාස මට්ටම තෝරන්න. පිළිතුර සුරැකුණු පසු එය නිවැරදිදැයි බලා ඉදිරියට යන්න.</p>}
           <p className="quiz-review-note">
             {language !== 'si' && <span lang="en">Development prototype questions · Teacher and Sinhala wording review pending</span>}
             {language === 'bilingual' && <br />}
             {language !== 'en' && <span lang="si">මෙම ආදර්ශ ප්‍රශ්න සහ සිංහල වචන ගුරු සමාලෝචනය සඳහා ඇත.</span>}
           </p>
           {error && <p className="quiz-error" role="alert">{error}</p>}
-          <label htmlFor="quiz-student">Assigned student code / <span lang="si">ශිෂ්‍ය කේතය</span></label>
-          <input id="quiz-student" value={studentCode} onChange={event => setStudentCode(event.target.value)} placeholder="STU_001" autoComplete="off" maxLength={10} disabled={phase === 'starting'} />
-          <p>Use the same code for your Quiz, Game and AI Tutor. / <span lang="si">Quiz, Game සහ AI Tutor සඳහා එකම ශිෂ්‍ය කේතය භාවිත කරන්න.</span></p>
-          <button className="quiz-primary" type="button" disabled={phase === 'starting' || !studentCode.trim()} onClick={startQuiz}>
+          <button className="quiz-primary" type="button" disabled={phase === 'starting'} onClick={startQuiz}>
             {phase === 'starting' ? (language === 'si' ? 'ආරම්භ වෙමින්…' : 'Starting…') : (language === 'si' ? 'ඇගයීම ආරම්භ කරන්න' : 'Start assessment')}
           </button>
         </section>
       )}
 
-      {(phase === 'active' || phase === 'saving') && question && (
+      {phase === 'transition' && transition && <QuizLevelTransition
+        completedLevel={transition}
+        language={language}
+        onContinue={() => setPhase('active')}
+      />}
+
+      {(phase === 'active' || phase === 'saving' || phase === 'feedback') && question && (
         <section className="quiz-panel" aria-labelledby="quiz-question-title">
-          <QuizProgress questionNumber={questionIndex + 1} language={language} />
-          <h2 id="quiz-question-title" className="quiz-section-title">{language === 'si' ? 'පිළිතුර තෝරන්න' : 'Choose your answer'}</h2>
+          <QuizProgress questionNumber={questionIndex + 1} language={language} difficulty={question.difficulty_level} />
+          <h2 id="quiz-question-title" className="quiz-section-title">{phase === 'feedback' ? (language === 'si' ? 'ඔබේ පිළිතුර' : 'Your answer') : (language === 'si' ? 'පිළිතුර තෝරන්න' : 'Choose your answer')}</h2>
           <form onSubmit={submitAnswer}>
             <QuizQuestionCard
               question={question}
               language={language}
               selectedOptionId={selectedOptionId}
               disabled={locked}
+              feedback={phase === 'feedback' ? feedbackCorrect : undefined}
               onSelect={setSelectedOptionId}
             />
             <ConfidenceSelector language={language} value={confidence} disabled={locked} onChange={setConfidence} />
+            {phase === 'feedback' && typeof feedbackCorrect === 'boolean' && <QuizAnswerFeedback correct={feedbackCorrect} language={language} />}
             {error && <p className="quiz-error" role="alert">{error}</p>}
-            <button className="quiz-primary quiz-submit" type="submit" disabled={locked || !selectedOptionId || !confidence}>
-              {locked ? (language === 'si' ? 'පිළිතුර සුරකිමින්…' : 'Saving answer…') : questionIndex + 1 === QUIZ_LENGTH ? (language === 'si' ? 'පිළිතුර යවා අවසන් කරන්න' : 'Submit and finish') : (language === 'si' ? 'සුරකින්න සහ ඉදිරියට යන්න' : 'Save and continue')}
-            </button>
+            {phase === 'feedback' ? <button className="quiz-primary quiz-feedback-continue" type="button" onClick={() => void continueAfterFeedback()}>
+              {questionIndex + 1 === QUIZ_LENGTH ? (language === 'si' ? 'ප්‍රතිඵලය බලන්න' : 'See your result') : transitionAfterAnswers(questionIndex + 1) ? (language === 'si' ? 'ඉදිරියට යන්න' : 'Continue') : (language === 'si' ? 'ඊළඟ ප්‍රශ්නය' : 'Next question')}
+            </button> : <button className="quiz-primary quiz-submit" type="submit" disabled={locked || !selectedOptionId || !confidence}>
+              {locked ? (language === 'si' ? 'පිළිතුර සුරකිමින්…' : 'Saving answer…') : (language === 'si' ? 'පිළිතුර යවන්න' : 'Submit answer')}
+            </button>}
           </form>
         </section>
       )}
@@ -244,12 +316,12 @@ export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
       {phase === 'finalizing' && (
         <section className="quiz-panel quiz-finalizing" role="status">
           <h2>{language === 'si' ? 'ඇගයීම අවසන් කරමින්' : 'Recording assessment completion'}</h2>
-          <p>{language === 'si' ? 'පිළිතුරු දහයම සුරැකී ඇත.' : 'All ten answers have been saved.'}</p>
+          <p>{language === 'si' ? 'පිළිතුරු සුරැකීම තහවුරු කරමින් පවතී.' : 'Confirming saved answers and assessment completion.'}</p>
           {error ? <><p className="quiz-error" role="alert">{error}</p><button className="quiz-primary" type="button" disabled={completionBusy} onClick={() => session && finishSession(session.quiz_session_id)}>{language === 'si' ? 'සටහන් කිරීම අවසන් කරන්න' : 'Finish recording'}</button></> : <p>{language === 'si' ? 'කරුණාකර රැඳී සිටින්න…' : 'Please wait…'}</p>}
         </section>
       )}
       {phase === 'analyzing' && <section className="quiz-panel" role="status">{language === 'si' ? 'ඔබේ ප්‍රතිඵලය සකස් වෙමින් පවතී…' : 'Preparing your learning summary…'}</section>}
-      {phase === 'complete' && (diagnostic ? <><QuizDiagnosticResult result={diagnostic} language={language} />{onContinue && <button type="button" className="quiz-primary" onClick={onContinue}>Continue to AI Tutor / <span lang="si">AI Tutor වෙත යන්න</span></button>}</> : <>
+      {phase === 'complete' && (diagnostic ? <><QuizDiagnosticResult result={diagnostic} language={language} />{onContinue && <button type="button" className="quiz-primary quiz-tutor-continue" onClick={onContinue}>Continue to AI Tutor / <span lang="si">AI Tutor වෙත යන්න</span></button>}</> : <>
         <QuizResultPlaceholder language={language} />
         <section className="quiz-panel quiz-result-retry">
           <p className="quiz-error" role="alert">{error || 'Your learning summary is not available yet.'}</p>
