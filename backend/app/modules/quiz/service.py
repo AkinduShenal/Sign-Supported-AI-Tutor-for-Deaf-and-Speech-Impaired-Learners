@@ -125,7 +125,14 @@ class QuizService:
         return QuizSessionResponse.model_validate(session, from_attributes=True)
 
     @staticmethod
-    def _saved_response(response: QuizResponse) -> QuizAnswerSavedResponse:
+    def _saved_response(database: Session, response: QuizResponse) -> QuizAnswerSavedResponse:
+        correct_option = None
+        if not response.is_correct:
+            options = repository.get_options_for_questions(database, [response.question_id])
+            correct = next((option for option in options if option.is_correct), None)
+            if correct is None:
+                raise QuizInvalidAnswerError("Quiz question has no correct option")
+            correct_option = QuizQuestionOptionResponse.model_validate(correct, from_attributes=True)
         return QuizAnswerSavedResponse(
             response_id=response.id,
             quiz_session_id=response.quiz_session_id,
@@ -136,10 +143,11 @@ class QuizService:
             confidence_level=response.confidence_level,
             answered_at=response.answered_at.replace(tzinfo=response.answered_at.tzinfo or timezone.utc),
             is_correct=response.is_correct,
+            correct_option=correct_option,
         )
 
     @staticmethod
-    def _matching_response(response: QuizResponse, request: QuizAnswerSubmit) -> QuizAnswerSavedResponse:
+    def _matching_response(database: Session, response: QuizResponse, request: QuizAnswerSubmit) -> QuizAnswerSavedResponse:
         requested_time = request.client_action_at
         if requested_time is not None:
             requested_time = requested_time.replace(tzinfo=requested_time.tzinfo or timezone.utc).astimezone(timezone.utc)
@@ -152,7 +160,7 @@ class QuizService:
             or (requested_time is not None and saved_time != requested_time)
         ):
             raise QuizConflictError("Question already has different saved evidence")
-        return QuizService._saved_response(response)
+        return QuizService._saved_response(database, response)
 
     def submit_answer(
         self,
@@ -167,7 +175,7 @@ class QuizService:
             raise QuizNotFoundError("Quiz session was not found")
         existing = repository.get_quiz_response(database, quiz_session_id, request.question_id)
         if existing is not None:
-            return self._matching_response(existing, request)
+            return self._matching_response(database, existing, request)
         if session.status != "in_progress":
             raise QuizConflictError("Quiz session is no longer in progress")
         question = repository.get_question_by_id(database, request.question_id)
@@ -216,13 +224,13 @@ class QuizService:
             ):
                 existing = repository.get_quiz_response(database, quiz_session_id, question.id)
                 if existing is not None:
-                    return self._matching_response(existing, request)
+                    return self._matching_response(database, existing, request)
                 raise QuizConflictError("This question already has an official response") from error
             raise
         except Exception:
             database.rollback()
             raise
-        return self._saved_response(response)
+        return self._saved_response(database, response)
 
     def get_session(
         self, database: Session, quiz_session_id: str
