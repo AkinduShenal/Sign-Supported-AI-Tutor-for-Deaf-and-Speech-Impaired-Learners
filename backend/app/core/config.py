@@ -4,11 +4,6 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, SecretStr
 
-# Repo-root .env (backend/app/core/config.py -> backend/app/core -> backend/app
-# -> backend -> repo root). Docker Compose already injects DATABASE_URL as a
-# real environment variable, which always takes precedence over this file, so
-# this only matters when running uvicorn/pytest/alembic directly rather than
-# through `docker compose up`.
 ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
 
 
@@ -29,7 +24,7 @@ class Settings(BaseSettings):
     openai_api_key: SecretStr | None = None
 
     model_config = SettingsConfigDict(
-        env_file=ENV_FILE,
+        env_file=(ENV_FILE, ".env", "../.env"),
         extra="ignore",
     )
 
