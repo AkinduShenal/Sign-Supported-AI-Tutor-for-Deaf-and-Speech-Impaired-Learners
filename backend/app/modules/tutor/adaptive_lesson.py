@@ -1,7 +1,7 @@
 """Bounded, auditable Grade 10 content. No generated mathematics or sign motion.
 
 The diagnostic contract is shared with /strategy. A trained strategy predictor
-can be injected; the default is explicitly the existing rule-based baseline.
+can be injected; the default is the bundled trained strategy pipeline.
 Content and thresholds remain drafts pending teacher/student evaluation.
 """
 
@@ -9,6 +9,7 @@ import re
 from decimal import Decimal
 from fractions import Fraction
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -24,7 +25,7 @@ from app.modules.tutor.content_schemas import (
 from app.modules.tutor.schemas import TutorStrategyRequest, TutoringStrategy
 from app.modules.tutor.sign_planner import MathSignPlanner
 from app.modules.tutor.explanation_choreography import choreograph_segments
-from app.modules.tutor.strategy_model import RuleBasedStrategyModel, StrategyPredictor
+from app.modules.tutor.strategy_model import StrategyPredictor, get_strategy_model
 from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_hint, explain_step, expression_segment, segments_from_lines
 from app.modules.tutor.knowledge import lesson_notes
 
@@ -41,6 +42,9 @@ class PlanMetadata(BaseModel):
     model_version: str
     content_version: str = CONTENT_VERSION
     primary_strategy: TutoringStrategy
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    prediction_id: UUID | None = None
+    prior_mastery_source: Literal["pre_tutor_quiz"] | None = None
     supporting_strategies: list[TutoringStrategy] = Field(default_factory=list)
     rationale: str
     misconception_support: str
@@ -390,7 +394,7 @@ def plan_lesson(
         raise ValueError(
             "This planner supports only Grade 10 linear equations; route other concepts to their own tutor."
         )
-    model = model or RuleBasedStrategyModel()
+    model = model if model is not None else get_strategy_model()
     prediction = model.predict(request)
     # Mastery is input supplied by Quiz/Game, not a new diagnostic owned by Tutor.
     score = (
@@ -426,6 +430,7 @@ def plan_lesson(
         source="diagnostic",
         model_version=model.version,
         primary_strategy=prediction.primary_strategy,
+        confidence=prediction.confidence,
         supporting_strategies=list(prediction.supporting_strategies),
         rationale=f"Quiz mastery {request.quiz.quiz_mastery_score:.0%}; Game mastery {request.game.game_mastery_score:.0%}; prior mastery {request.learner.prior_mastery_score:.0%}. Conservative draft placement; response speed is not used as an ability penalty.",
         misconception_support=MISCONCEPTION_SUPPORT[request.quiz.misconception_code],

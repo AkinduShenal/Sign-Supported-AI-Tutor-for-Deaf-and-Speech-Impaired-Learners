@@ -4,6 +4,7 @@ import { GameSessionTracker } from '../analytics/GameSessionTracker.ts'
 import type { SessionAnalytics } from '../analytics/GameSessionTracker.ts'
 import type { GameBackendSync } from '../api/gameBackendSync.ts'
 import type { AssessmentPhase, GameType } from '../types.ts'
+import { selectLearningStudent } from '../../learningContext.ts'
 
 // Every task in an assessment is one of the 18 Easy/Medium/Hard variants
 // (Milestone 3 Steps 10-13) under this same overall concept.
@@ -55,7 +56,7 @@ export class GameSession {
     this.gameType = options.gameType
     this.studentId = options.studentId
     this.backendSync = options.backendSync
-    this.learningCycleId = options.learningCycleId ?? crypto.randomUUID()
+    this.learningCycleId = options.learningCycleId ?? selectLearningStudent(options.studentId).learningCycleId
     this.conceptId = options.conceptId ?? CONCEPT_ID
     this.assessmentPhase = options.assessmentPhase ?? 'pre_tutor'
     this.tracker = new GameSessionTracker(options.gameType)

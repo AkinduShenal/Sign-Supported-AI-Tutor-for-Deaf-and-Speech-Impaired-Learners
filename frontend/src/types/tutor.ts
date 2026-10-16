@@ -83,6 +83,12 @@ export interface TutorLesson {
 export type LearningLevel = 'foundation' | 'one_step' | 'two_step' | 'extended'
 export type TeachingStrategy = 'step_by_step' | 'worked_example_based' | 'conceptual_explanation' | 'progressive_hints' | 'advanced_challenge'
 
+export interface TutorLearningStatus {
+  quiz_complete: boolean
+  game_complete: boolean
+  ready: boolean
+}
+
 export interface KnowledgeSource {
   id: string
   title_en: string
@@ -112,6 +118,9 @@ export interface AdaptiveLesson extends TutorLesson {
     model_version: string
     content_version: string
     primary_strategy: TeachingStrategy
+    confidence?: number | null
+    prediction_id?: string | null
+    prior_mastery_source?: 'pre_tutor_quiz' | null
     supporting_strategies: string[]
     rationale: string
     misconception_support: string

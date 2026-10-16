@@ -36,7 +36,10 @@ try {
     try { await fetch(`http://127.0.0.1:${port}`); throw Error(`Port ${port} is already occupied`) }
     catch (error) { if (error.message.includes('occupied')) throw error }
   }
-  const backend = launch(path.join(repository, 'backend/.venv/bin/uvicorn'), ['app.main:app', '--host', '127.0.0.1', '--port', '8126'], path.join(repository, 'backend'), { DATABASE_URL: 'sqlite+pysqlite:///:memory:', RAG_ENABLED: 'true', RAG_GENERATION_ENABLED: 'false' })
+  const databaseUrl = `sqlite+pysqlite:///${path.join(profile, 'tutor.sqlite')}`
+  const seed = launch(path.join(repository, 'backend/.venv/bin/python'), ['-m', 'scripts.seed_tutor_ui_check'], path.join(repository, 'backend'), { DATABASE_URL: databaseUrl })
+  await new Promise((resolve, reject) => seed.once('exit', code => code === 0 ? resolve() : reject(Error('Unable to seed disposable Tutor database'))))
+  const backend = launch(path.join(repository, 'backend/.venv/bin/uvicorn'), ['app.main:app', '--host', '127.0.0.1', '--port', '8126'], path.join(repository, 'backend'), { DATABASE_URL: databaseUrl, RAG_ENABLED: 'true', RAG_GENERATION_ENABLED: 'false' })
   const vite = launch(process.execPath, [path.join(frontend, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', '5176', '--strictPort'], frontend, { VITE_API_BASE_URL: 'http://127.0.0.1:8126/api/v1' })
   const chrome = launch(process.env.TUTOR_TEST_CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=9226', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', 'about:blank'], frontend)
   await Promise.all([ready('http://127.0.0.1:8126/api/v1/health', backend), ready('http://127.0.0.1:5176', vite), ready('http://127.0.0.1:9226/json', chrome)])
@@ -74,6 +77,16 @@ try {
   const click = text => evaluate(`[...document.querySelectorAll('button')].find(e=>e.textContent===${JSON.stringify(text)}).click()`)
   await fs.mkdir(artifacts, { recursive: true })
   await send('Page.enable'); await send('Runtime.enable')
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: `
+    if (!localStorage.getItem('learning.context.v1')) localStorage.setItem('learning.context.v1', JSON.stringify({version:1,activeStudentId:'STU_999',learners:{STU_999:{studentId:'STU_999',learningCycleId:'00000000-0000-4000-8000-000000000999',quizSessionId:'QUIZ-tutor-ui'}}}));
+    window.automaticTutorCalls = [];
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+      const response = await originalFetch(input, init);
+      if (String(input).includes('/adaptive-lesson/from-results')) window.automaticTutorCalls.push({body:JSON.parse(init.body),result:await response.clone().json()});
+      return response;
+    };
+  ` })
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1050, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: 'http://127.0.0.1:5176/' })
   await until("document.querySelector('model-viewer')?.loaded")
@@ -98,13 +111,17 @@ try {
   assert.equal(await evaluate("document.querySelector('.bilingual-question [lang=si]').textContent.includes('x + 5 = 12')"), true)
   assert.equal(await evaluate("document.querySelector('model-viewer').availableAnimations.length"), 153)
   assert.equal(await evaluate("document.querySelector('.sign-chip.is-active') === null"), true)
-  assert.equal(await evaluate("document.querySelector('.tutor-setup').open"), false)
+  assert.equal(await evaluate("document.querySelector('#teaching-strategy') === null && document.querySelector('.tutor-setup') === null"), true)
+  assert.equal(await evaluate("document.querySelector('.recommended-approach').textContent.includes('step_by_step')"), true)
+  assert.equal(await evaluate("window.automaticTutorCalls.at(-1).result.plan.model_version"), 'strategy-ml-v1')
+  assert.equal(await evaluate("window.automaticTutorCalls.at(-1).result.plan.prior_mastery_source"), 'pre_tutor_quiz')
+  assert.equal(await evaluate("Boolean(window.automaticTutorCalls.at(-1).result.plan.prediction_id)"), true)
   assert.equal(await evaluate("document.querySelector('.reviewer-settings').open"), false)
   assert.equal(await evaluate("document.querySelector('.practice-evidence').open"), false)
   assert.equal(await evaluate("document.querySelector('.worked-example').tagName"), 'ARTICLE')
   assert.equal(await evaluate("document.querySelector('.avatar-options').open"), false)
   await screenshot('strict-default')
-  assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < window.innerHeight * 0.6 && document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.practice-card').getBoundingClientRect().top"), true)
+  assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < window.innerHeight * 0.6 && document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.practice-section').getBoundingClientRect().top"), true)
   assert.equal(await evaluate("document.querySelector('.avatar-expression, .meaning-equation-sides, .meaning-original-equation').textContent === document.querySelector('.adaptive-equation').textContent"), true)
   assert.equal(await evaluate("document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')"), '1')
   await screenshot('strict-default')
@@ -117,7 +134,7 @@ try {
     const layout = await evaluate(`(() => {
       const example = document.querySelector('.worked-example').getBoundingClientRect();
       const avatar = document.querySelector('.avatar-panel').getBoundingClientRect();
-      const practice = document.querySelector('.practice-card').getBoundingClientRect();
+      const practice = document.querySelector('.practice-section').getBoundingClientRect();
       return { desktop: Math.abs(example.top-avatar.top)<=3 && example.right<avatar.left && example.width>avatar.width,
         stacked: example.top<avatar.top && avatar.top<practice.top };
     })()`)
@@ -231,13 +248,13 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
   await delay(300)
   assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true)
-  assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.avatar-panel').getBoundingClientRect().top && document.querySelector('.avatar-panel').getBoundingClientRect().top < document.querySelector('.practice-card').getBoundingClientRect().top"), true)
+  assert.equal(await evaluate("document.querySelector('.worked-example').getBoundingClientRect().top < document.querySelector('.avatar-panel').getBoundingClientRect().top && document.querySelector('.avatar-panel').getBoundingClientRect().top < document.querySelector('.practice-section').getBoundingClientRect().top"), true)
   await evaluate("document.querySelector('model-viewer').scrollIntoView({block:'center'})")
   await delay(500)
   await screenshot('mobile-avatar')
   await evaluate('window.scrollTo(0,0)')
   await screenshot('mobile')
-  await evaluate("document.querySelector('.tutor-setup > summary').click(); document.querySelector('.reviewer-settings > summary').click(); document.querySelector('.practice-evidence > summary').click()")
+  await evaluate("document.querySelector('.learner-settings > summary').click(); document.querySelector('.reviewer-settings > summary').click(); document.querySelector('.practice-evidence > summary').click()")
   assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true)
   await screenshot('mobile-settings')
   await evaluate("[...document.querySelectorAll('label')].find(e=>e.textContent.includes('Show avatar support')).querySelector('input').click()")
@@ -272,6 +289,36 @@ try {
   await send('Page.reload', { ignoreCache: true })
   await until("document.querySelector('model-viewer')?.loaded")
   await until("document.querySelector('model-viewer')?.animationName === 'IDLE'")
+
+  // Missing assessments must lead to assessment actions, never a preview lesson.
+  await evaluate(`(() => {
+    const settings=document.querySelector('.learner-settings'); settings.open=true;
+    const input=document.querySelector('#tutor-student');
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'STU_998');
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+  })()`)
+  await evaluate("document.querySelector('.learner-form').requestSubmit()")
+  await until("document.querySelector('.assessment-needed')")
+  assert.equal(await evaluate("document.querySelector('#lesson-content') === null"), true)
+  assert.equal(await evaluate("document.querySelector('.assessment-needed').textContent.includes('Complete Quiz') && document.querySelector('.assessment-needed').textContent.includes('Complete Game')"), true)
+  await screenshot('assessments-needed')
+  await evaluate(`(() => {
+    const input=document.querySelector('#tutor-student');
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'STU_999');
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+  })()`)
+  await evaluate("document.querySelector('.learner-form').requestSubmit()")
+  await until("document.querySelector('model-viewer')?.loaded")
+  assert.equal(await evaluate("window.automaticTutorCalls.at(-1).body.learning_cycle_id"), '00000000-0000-4000-8000-000000000999')
+  // A failed automatic request must not silently select a manual/default lesson.
+  await send('Network.setBlockedURLs', { urls: ['*adaptive-lesson/from-results*'] })
+  await send('Page.reload', { ignoreCache: true })
+  await until("document.querySelector('[role=alert]')?.textContent.includes('Lesson unavailable')")
+  assert.equal(await evaluate("document.querySelector('#lesson-content') === null && document.querySelector('#teaching-strategy') === null"), true)
+  await screenshot('automatic-request-error')
+  await send('Network.setBlockedURLs', { urls: [] })
+  await send('Page.reload', { ignoreCache: true })
+  await until("document.querySelector('model-viewer')?.loaded")
 
   // Optional full motion audit; UI-only checks do not resample unchanged assets.
   if (!process.argv.includes('--ui-only')) {

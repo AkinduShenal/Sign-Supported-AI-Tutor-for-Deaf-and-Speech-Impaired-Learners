@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { getOrCreateStudentId } from '../game/identity'
+import { prepareQuizContext, readLearningContext, rememberQuizSession } from '../learningContext'
 import {
   analyzeQuizSession,
   completeQuizSession,
@@ -20,7 +20,10 @@ import './quiz.css'
 
 type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'finalizing' | 'analyzing' | 'complete'
 
-export function QuizAssessment() {
+export function QuizAssessment({ onContinue }: { onContinue?: () => void }) {
+  const [studentCode, setStudentCode] = useState(() => {
+    try { return readLearningContext()?.studentId ?? '' } catch { return '' }
+  })
   const [phase, setPhase] = useState<QuizPhase>('loading')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [session, setSession] = useState<QuizSession | null>(null)
@@ -74,7 +77,10 @@ export function QuizAssessment() {
     setError(null)
     setPhase('starting')
     try {
-      const created = await createPreQuizSession(getOrCreateStudentId())
+      const context = prepareQuizContext(studentCode)
+      const created = await createPreQuizSession(context.studentId, context.learningCycleId)
+      if (created.learning_cycle_id !== context.learningCycleId) throw new Error('The assessment cycle was not confirmed. Please try again.')
+      rememberQuizSession(context, created.quiz_session_id)
       setSession(created)
       setDiagnostic(null)
       setQuestionIndex(0)
@@ -205,7 +211,10 @@ export function QuizAssessment() {
             {language !== 'en' && <span lang="si">මෙම ආදර්ශ ප්‍රශ්න සහ සිංහල වචන ගුරු සමාලෝචනය සඳහා ඇත.</span>}
           </p>
           {error && <p className="quiz-error" role="alert">{error}</p>}
-          <button className="quiz-primary" type="button" disabled={phase === 'starting'} onClick={startQuiz}>
+          <label htmlFor="quiz-student">Assigned student code / <span lang="si">ශිෂ්‍ය කේතය</span></label>
+          <input id="quiz-student" value={studentCode} onChange={event => setStudentCode(event.target.value)} placeholder="STU_001" autoComplete="off" maxLength={10} disabled={phase === 'starting'} />
+          <p>Use the same code for your Quiz, Game and AI Tutor. / <span lang="si">Quiz, Game සහ AI Tutor සඳහා එකම ශිෂ්‍ය කේතය භාවිත කරන්න.</span></p>
+          <button className="quiz-primary" type="button" disabled={phase === 'starting' || !studentCode.trim()} onClick={startQuiz}>
             {phase === 'starting' ? (language === 'si' ? 'ආරම්භ වෙමින්…' : 'Starting…') : (language === 'si' ? 'ඇගයීම ආරම්භ කරන්න' : 'Start assessment')}
           </button>
         </section>
@@ -240,7 +249,7 @@ export function QuizAssessment() {
         </section>
       )}
       {phase === 'analyzing' && <section className="quiz-panel" role="status">{language === 'si' ? 'ඔබේ ප්‍රතිඵලය සකස් වෙමින් පවතී…' : 'Preparing your learning summary…'}</section>}
-      {phase === 'complete' && (diagnostic ? <QuizDiagnosticResult result={diagnostic} language={language} /> : <>
+      {phase === 'complete' && (diagnostic ? <><QuizDiagnosticResult result={diagnostic} language={language} />{onContinue && <button type="button" className="quiz-primary" onClick={onContinue}>Continue to AI Tutor / <span lang="si">AI Tutor වෙත යන්න</span></button>}</> : <>
         <QuizResultPlaceholder language={language} />
         <section className="quiz-panel quiz-result-retry">
           <p className="quiz-error" role="alert">{error || 'Your learning summary is not available yet.'}</p>

@@ -58,13 +58,13 @@ function App() {
         </div>
       </nav>
 
-      {view === 'quiz' && <QuizAssessment />}
+      {view === 'quiz' && <QuizAssessment onContinue={() => setView('tutor')} />}
       {view === 'game' && (
         <main className="game-page">
-          <PhaserGame />
+          <PhaserGame onContinue={() => setView('tutor')} />
         </main>
       )}
-      {view === 'tutor' && <AdaptiveTutor />}
+      {view === 'tutor' && <AdaptiveTutor onAssessment={setView} />}
       {view === 'remedial' && (
         <PendingGateway title="Remedial Support" teamName="Remedial Support" />
       )}

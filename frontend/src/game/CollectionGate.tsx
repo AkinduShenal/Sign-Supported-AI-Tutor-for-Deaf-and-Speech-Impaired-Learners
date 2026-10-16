@@ -4,10 +4,13 @@ import { setCollectionStudent, validateStudentCode } from './collectionIdentity'
 import { getCollectionStore, openCollectionStore } from './api/collectionStore'
 import { CollectionExport } from './CollectionExport'
 import './CollectionGate.css'
+import { readLearningContext, selectLearningStudent } from '../learningContext'
 
-export function CollectionGate({ children }: { children: ReactNode }) {
+export function CollectionGate({ children, onContinue }: { children: ReactNode; onContinue?: () => void }) {
   const [lock, setLock] = useState(false)
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState(() => {
+    try { return readLearningContext()?.studentId ?? '' } catch { return '' }
+  })
   const [active, setActive] = useState<string | null>(null)
   const [recoveryOnly, setRecoveryOnly] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
@@ -80,6 +83,7 @@ export function CollectionGate({ children }: { children: ReactNode }) {
     try {
       const selected = validateStudentCode(code)
       if (rows.some(row => row.request.student_id !== selected)) throw new Error('Recover and close the previous learner’s collection before switching codes.')
+      selectLearningStudent(selected)
       setCollectionStudent(selected)
       setRecoveryOnly(rows.length > 0)
       setActive(selected)
@@ -100,7 +104,8 @@ export function CollectionGate({ children }: { children: ReactNode }) {
       for (const row of rows) store!.close(row.request.client_session_id)
       setCollectionStudent(null)
       setActive(null); setRecoveryOnly(false); setCode(''); setError(''); setConfirmed(false)
-    } catch (e) { setError(String(e)) }
+      return true
+    } catch (e) { setError(String(e)); return false }
   }
 
   return <div className="collection-shell">
@@ -120,6 +125,7 @@ export function CollectionGate({ children }: { children: ReactNode }) {
         {row.error && <span role="alert"> · {row.error}</span>}
       </p>)}
       {rows.length > 0 && <>
+        {onContinue && rows.every(row => row.completed) && <button type="button" disabled={pending || busy || !!fatal} onClick={() => { if (close()) onContinue() }}>Continue to AI Tutor / AI Tutor වෙත යන්න</button>}
         <button type="button" onClick={() => void recover()} disabled={!active || busy || !!fatal}>Retry / recover saved evidence</button>
         <label><input type="checkbox" disabled={!active} checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /> I am ending this collection. Unfinished assessments stay incomplete.</label>
         <button type="button" onClick={close} disabled={!active || !confirmed || pending || busy || !!fatal}>End collection / switch learner</button>

@@ -108,7 +108,7 @@ try {
       if (!path.startsWith('/api/v1/quiz/')) return originalFetch(input, init);
       const method = init.method || 'GET';
       if (path.endsWith('/questions') && method === 'GET') { calls.questions++; return reply(questions); }
-      if (path.endsWith('/sessions') && method === 'POST') { calls.sessions++; return reply(session, 201); }
+      if (path.endsWith('/sessions') && method === 'POST') { calls.sessions++; calls.sessionRequest = JSON.parse(init.body); session.learning_cycle_id = calls.sessionRequest.learning_cycle_id; return reply(session, 201); }
       if (path.endsWith('/responses') && method === 'POST') {
         if (calls.failNextResponse) { calls.failNextResponse = false; return reply({ detail: 'Temporary network error' }, 503); }
         calls.responses.push(JSON.parse(init.body));
@@ -136,9 +136,12 @@ try {
   await until("document.querySelector('.quiz-intro button')?.textContent === 'Start assessment'")
   assert.equal(await evaluate('window.__quizMock.questions >= 1'), true)
   assert.equal(await evaluate("document.querySelector('.quiz-intro').textContent.includes('10 questions')"), true)
+  await evaluate(`(() => { const input=document.querySelector('#quiz-student'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'STU_999'); input.dispatchEvent(new Event('input',{bubbles:true})); })()`)
   await click('.quiz-intro button')
   await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 1 of 10'")
   assert.equal(await evaluate('window.__quizMock.sessions'), 1)
+  assert.equal(await evaluate('window.__quizMock.sessionRequest.student_id'), 'STU_999')
+  assert.equal(await evaluate("window.__quizMock.sessionRequest.learning_cycle_id === JSON.parse(localStorage.getItem('learning.context.v1')).learners.STU_999.learningCycleId"), true)
   assert.equal(await evaluate("document.querySelectorAll('.quiz-option').length"), 4)
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('Solve x + 5 = 12.')"), true)
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('සමීකරණය විසඳන්න')"), true)

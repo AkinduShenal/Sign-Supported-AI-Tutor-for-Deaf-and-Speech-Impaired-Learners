@@ -31,9 +31,10 @@ export function getPreQuizQuestions(signal?: AbortSignal): Promise<QuizQuestion[
   )
 }
 
-export function createPreQuizSession(studentId: string): Promise<QuizSession> {
+export function createPreQuizSession(studentId: string, learningCycleId: string): Promise<QuizSession> {
   return quizRequest<QuizSession>('sessions', {
     student_id: studentId,
+    learning_cycle_id: learningCycleId,
     concept_id: 'linear_equations',
     assessment_phase: 'pre_tutor',
     display_language: 'bilingual',
