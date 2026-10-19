@@ -1,6 +1,6 @@
 """Independent-label, learner–concept–assessment-session research contract."""
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -29,7 +29,14 @@ class IndependentLabel(BaseModel):
     value: NonEmpty
     source: Literal["teacher", "quiz", "test"]
     source_reference: NonEmpty
-    assessed_at: Timestamp
+    assessed_at: Timestamp | None = None
+    assessed_on: Annotated[date, Field(strict=False)] | None = None
+    assessment_timing: Literal["before_gameplay", "after_gameplay"] | None = None
+    revision_before_assessment: bool | None = None
+    revision_description: NonEmpty | None = None
+    # Audit-only assessment evidence; feature selection never reads these fields.
+    assessment_score: Count | None = None
+    assessment_max_score: Annotated[int, Field(gt=0)] | None = None
     rubric_version: NonEmpty
     gameplay_independent: bool
 
@@ -39,8 +46,28 @@ class IndependentLabel(BaseModel):
             raise ValueError(
                 "Labels must be assessed independently of gameplay heuristics/features"
             )
-        if self.assessed_at.tzinfo is None or self.assessed_at.utcoffset() is None:
-            raise ValueError("Label assessment timestamp must include a timezone")
+        if self.assessed_at is None and self.assessed_on is None:
+            raise ValueError("Label needs an assessment timestamp or recorded date")
+        if self.assessed_at is not None:
+            if self.assessed_at.tzinfo is None or self.assessed_at.utcoffset() is None:
+                raise ValueError("Label assessment timestamp must include a timezone")
+            if (
+                self.assessed_on is not None
+                and self.assessed_on != self.assessed_at.date()
+            ):
+                raise ValueError("Assessment date contradicts the timestamp")
+        if (self.assessment_score is None) != (self.assessment_max_score is None):
+            raise ValueError("Assessment score and maximum must be supplied together")
+        if (
+            self.assessment_score is not None
+            and self.assessment_score > self.assessment_max_score
+        ):
+            raise ValueError("Assessment score exceeds maximum")
+        if (
+            self.revision_before_assessment is True
+            and self.revision_description is None
+        ):
+            raise ValueError("Revision provenance requires a description")
         return self
 
 
