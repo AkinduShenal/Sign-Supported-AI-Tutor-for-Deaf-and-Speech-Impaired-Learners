@@ -4,27 +4,22 @@ import { getCollectionStore } from '../../api/collectionStore'
 import type { GameModeDefinition } from '../../gameModes'
 import type { GameType } from '../../types'
 import { GAME_TEXT, GAME_TYPE_TEXT } from '../gameText'
-import type { DesignSize } from '../viewport'
-import { fitCameraToDesign, fitDesignSize, isCompactScreen, prefersReducedMotion } from '../viewport'
+import { designSize, fitCameraToDesign, isCompactScreen } from '../viewport'
 import { GAME_THEME as T, cssColor } from '../theme/gameTheme'
-import { drawBackdrop } from '../theme/gameBackdrop'
 import { RoundedPanel, backgroundTouchScroll, bilingualPair, crispSceneText, gameButton, watchViewportSize } from '../theme/gameUi'
 
 // Only presentation lives here. Available modes and scene/session creation
 // continue to come from the existing registry and startMode callback.
 export class GameSelectionScene extends Phaser.Scene {
   private compact = false
-  private design: DesignSize = { width: 960, height: 840 }
 
   constructor() { super({ key: 'GameSelectionScene' }) }
 
   create(): void {
     this.compact = isCompactScreen(this)
-    this.design = fitDesignSize(this, this.compact)
-    fitCameraToDesign(this, this.compact, this.design)
+    fitCameraToDesign(this, this.compact)
     crispSceneText(this)
     backgroundTouchScroll(this)
-    drawBackdrop(this, this.design, 'hub')
     this.drawTitle()
     GAME_MODES.forEach((mode, index) => this.drawCard(mode, index))
     watchViewportSize(this, () => this.handleResize())
@@ -33,19 +28,19 @@ export class GameSelectionScene extends Phaser.Scene {
   private handleResize(): void { this.scene.restart() }
 
   private drawTitle(): void {
-    const { width } = this.design
+    const { width } = designSize(this.compact)
     bilingualPair(this, { x: width / 2, primaryY: 48, secondaryY: 92,
       text: GAME_TEXT.chooseGame, width: width - 40,
-      primarySize: this.compact ? 34 : 44, secondarySize: T.font.subtitle + 2,
-      color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted), variant: 'title' })
+      primarySize: this.compact ? 30 : 36, secondarySize: T.font.subtitle,
+      color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted) })
   }
 
   private drawCard(mode: GameModeDefinition, index: number): void {
     const text = GAME_TYPE_TEXT[mode.type]
-    const { width } = this.design
+    const { width } = designSize(this.compact)
     const cardWidth = this.compact ? 380 : 280
     const cardHeight = this.compact ? 300 : 410
-    const x = this.compact ? width / 2 : width / 2 + (index - 1) * (cardWidth + 28)
+    const x = this.compact ? width / 2 : width / 2 + (index - 1) * 300
     const y = this.compact ? 292 + index * 320 : 386
     const background = new RoundedPanel(this, 0, 0, cardWidth, cardHeight,
       mode.available ? T.color.surface : T.color.surfaceSoft, T.color.border, T.radius.card, true)
@@ -58,8 +53,8 @@ export class GameSelectionScene extends Phaser.Scene {
     const children: Phaser.GameObjects.GameObject[] = [background, icon]
     children.push(
       ...bilingualPair(this, { x: textX, primaryY: nameY, secondaryY: nameY + 36,
-        text: text.name, width: textWidth, primarySize: this.compact ? 25 : 28,
-        secondarySize: T.font.body, color: cssColor(T.color.primaryText), secondaryColor: cssColor(T.color.muted), variant: 'heading' }),
+        text: text.name, width: textWidth, primarySize: this.compact ? 23 : 25,
+        secondarySize: T.font.body, color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted) }),
       ...bilingualPair(this, { x: textX, primaryY: this.compact ? -16 : 27, secondaryY: this.compact ? 40 : 72,
         text: text.description, width: textWidth, primarySize: T.font.body,
         secondarySize: T.font.caption, color: cssColor(T.color.text), secondaryColor: cssColor(T.color.muted), wrap: true }),
@@ -83,29 +78,14 @@ export class GameSelectionScene extends Phaser.Scene {
       children.push(lock)
     }
     const card = this.add.container(x, y, children)
-    const reduced = prefersReducedMotion()
-    if (!reduced) {
-      // Cards rise into place one after another; the icon then idles with
-      // a small wiggle so the hub feels alive. Visual only.
-      // Never start fully transparent: Phaser skips input on alpha-0
-      // objects, and a card must be tappable from the first frame.
-      card.setAlpha(0.25).setY(y + 40)
-      this.tweens.add({ targets: card, alpha: 1, y, duration: 420, delay: 60 + index * 90, ease: 'Back.easeOut' })
-      if (mode.available) {
-        this.tweens.add({ targets: icon, angle: { from: -6, to: 6 }, duration: 1400 + index * 200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
-      }
-    }
     if (mode.available) {
       card.setInteractive({
         hitArea: new Phaser.Geom.Rectangle(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight),
         hitAreaCallback: Phaser.Geom.Rectangle.Contains, useHandCursor: true,
       })
-      const lift = (scale: number) => {
-        if (!reduced) this.tweens.add({ targets: card, scale, duration: 140, ease: 'Quad.easeOut' })
-      }
-      card.on('pointerover', () => { background.setStrokeStyle(2, T.color.primary); lift(1.03) })
-      card.on('pointerdown', () => { background.setFillStyle(T.color.primarySoft); lift(0.98) })
-      card.on('pointerout', () => { background.setFillStyle(T.color.surface).setStrokeStyle(1, T.color.border); lift(1) })
+      card.on('pointerover', () => background.setStrokeStyle(2, T.color.primary))
+      card.on('pointerdown', () => background.setFillStyle(T.color.primarySoft))
+      card.on('pointerout', () => background.setFillStyle(T.color.surface).setStrokeStyle(1, T.color.border))
       card.on('pointerup', () => this.startMode(mode))
     }
   }

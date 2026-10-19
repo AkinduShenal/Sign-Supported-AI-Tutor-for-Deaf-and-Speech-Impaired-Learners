@@ -73,7 +73,7 @@ export class BalanceScale {
         .text(0, 0, '', {
           fontFamily: this.fontFamily,
           fontSize: '22px',
-          fontStyle: '600',
+          fontStyle: 'bold',
           color: TEXT_COLOR,
         })
         .setOrigin(0.5)

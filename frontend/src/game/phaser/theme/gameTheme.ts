@@ -27,17 +27,7 @@ export const GAME_THEME = {
   space: { xs: 6, sm: 12, md: 20, lg: 28, xl: 40 },
   font: { title: 32, subtitle: 18, body: 17, caption: 15, equation: 36, operation: 27 },
   control: { height: 60, compactHeight: 68, minPhysicalHeight: 44 },
-  // maxDesktopZoom allows full screen to fill a 1080p display; text is
-  // re-rasterised at the new zoom on resize (resharpenSceneText in gameUi.ts).
-  render: { maxPixelRatio: 2, maxTextResolution: 3, maxDesktopZoom: 1.5 },
-  // Soft game-world backdrop colours (gameBackdrop.ts). Light enough that
-  // dark text placed directly on them keeps strong contrast.
-  backdrop: {
-    hub: { top: 0xd9d3ff, bottom: 0xf4f1ff, hill: 0xc9c0f7, hillFar: 0xe1dcfb },
-    balance: { top: 0xd6e4ff, bottom: 0xf3f6ff, hill: 0xc3d3f7, hillFar: 0xdde7fb },
-    gym: { top: 0xcfeaff, bottom: 0xf1f9ff, hill: 0xbfe3c9, hillFar: 0xd9efdf },
-  },
-  confetti: [0x5b4ae8, 0xf5b301, 0x18a35e, 0xff6b6b, 0x3bb6ff, 0xff9f1c],
+  render: { maxPixelRatio: 2, maxTextResolution: 3, maxDesktopZoom: 1.15 },
 } as const
 
 export const cssColor = (value: number): string => `#${value.toString(16).padStart(6, '0')}`

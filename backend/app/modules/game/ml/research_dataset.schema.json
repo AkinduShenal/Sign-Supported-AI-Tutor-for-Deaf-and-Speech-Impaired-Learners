@@ -52,98 +52,9 @@
           "type": "string"
         },
         "assessed_at": {
-          "anyOf": [
-            {
-              "format": "date-time",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Assessed At"
-        },
-        "assessed_on": {
-          "anyOf": [
-            {
-              "format": "date",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Assessed On"
-        },
-        "assessment_timing": {
-          "anyOf": [
-            {
-              "enum": [
-                "before_gameplay",
-                "after_gameplay"
-              ],
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Assessment Timing"
-        },
-        "revision_before_assessment": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Revision Before Assessment"
-        },
-        "revision_description": {
-          "anyOf": [
-            {
-              "minLength": 1,
-              "pattern": "\\S",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Revision Description"
-        },
-        "assessment_score": {
-          "anyOf": [
-            {
-              "minimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Assessment Score"
-        },
-        "assessment_max_score": {
-          "anyOf": [
-            {
-              "exclusiveMinimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Assessment Max Score"
+          "format": "date-time",
+          "title": "Assessed At",
+          "type": "string"
         },
         "rubric_version": {
           "minLength": 1,
@@ -164,6 +75,7 @@
         "value",
         "source",
         "source_reference",
+        "assessed_at",
         "rubric_version",
         "gameplay_independent"
       ],
