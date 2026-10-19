@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { prepareQuizContext, rememberQuizSession } from '../learningContext'
 import {
   analyzeQuizSession,
   getPreQuizQuestions,
@@ -18,7 +19,7 @@ import './quiz.css'
 
 type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'feedback' | 'transition' | 'finalizing' | 'analyzing' | 'complete' | 'recovery'
 
-export function QuizExperience({ studentCode, store }: { studentCode: string; store: PendingQuizWrites }) {
+export function QuizExperience({ studentCode, store, onContinue }: { studentCode: string; store: PendingQuizWrites; onContinue?: () => void }) {
   const [phase, setPhase] = useState<QuizPhase>('loading')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [session, setSession] = useState<QuizSession | null>(null)
@@ -106,10 +107,12 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
     setError(null)
     setPhase('starting')
     try {
+      const context = prepareQuizContext(studentCode)
       const id = store.start({
         student_id: studentCode, concept_id: 'linear_equations', assessment_phase: 'pre_tutor',
-        display_language: language, learning_cycle_id: crypto.randomUUID(), client_session_id: crypto.randomUUID(),
+        display_language: language, learning_cycle_id: context.learningCycleId, client_session_id: crypto.randomUUID(),
       }, questions.map(question => question.id))
+      rememberQuizSession(context, id)
       if (!await store.flush(id)) throw new Error(store.session(id).error || 'Quiz session is pending. Use Retry / Recover Quiz evidence.')
       const created = store.session(id).session
       if (!created) throw new Error('Quiz session was not confirmed by the backend.')
@@ -318,7 +321,7 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
         </section>
       )}
       {phase === 'analyzing' && <section className="quiz-panel" role="status">{language === 'si' ? 'ඔබේ ප්‍රතිඵලය සකස් වෙමින් පවතී…' : 'Preparing your learning summary…'}</section>}
-      {phase === 'complete' && (diagnostic ? <QuizDiagnosticResult result={diagnostic} language={language} /> : <>
+      {phase === 'complete' && (diagnostic ? <><QuizDiagnosticResult result={diagnostic} language={language} />{onContinue && <button type="button" className="quiz-primary quiz-tutor-continue" onClick={onContinue}>Continue to AI Tutor / <span lang="si">AI Tutor වෙත යන්න</span></button>}</> : <>
         <QuizResultPlaceholder language={language} />
         <section className="quiz-panel quiz-result-retry">
           <p className="quiz-error" role="alert">{error || 'Your learning summary is not available yet.'}</p>

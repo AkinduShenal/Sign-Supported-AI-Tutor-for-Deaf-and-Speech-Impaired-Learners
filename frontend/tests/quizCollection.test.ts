@@ -98,3 +98,17 @@ test('Quiz queue rejects a mismatched answer acknowledgment and retains the writ
   assert.equal(queue.session(id).responses[0].saved, false)
   assert.equal(queue.session(id).completed, false)
 })
+
+test('Quiz queue refuses a session acknowledged for a different learning cycle', async () => {
+  const storage = memoryStorage()
+  const source = learner('STU_001', '74974d18-5e89-4db5-9c24-9be8654b2c3e')
+  const queue = new PendingQuizWrites(storage, {
+    create: async input => ({ ...savedSession(input), learning_cycle_id: crypto.randomUUID() }),
+    answer: async () => { throw Error('No answers should be sent') },
+    complete: async () => savedSession(source, 'completed'),
+  }, 'http://isolated.test/api/v1')
+  const id = queue.start(source, ['question-1'])
+  assert.equal(await queue.flush(id), false)
+  assert.equal(queue.session(id).created, false)
+  assert.equal(queue.session(id).request.learning_cycle_id, source.learning_cycle_id)
+})

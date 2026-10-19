@@ -11,7 +11,9 @@ and speech-impaired learners.
 - **Quiz:** merged bilingual ten-question pre-assessment, saved responses and
   provisional diagnostic results; it is no longer a placeholder.
 - **AI Tutor:** adaptive lesson/practice workspace and avatar support, using a
-  rule-based baseline. Automatic coordinated Quiz/Game handoff is pending.
+  trained `strategy-ml-v1` strategy pipeline (updated 2026-10-16). Quiz/Game share
+  learner codes and cycles; saved results now select the lesson automatically.
+  See [automatic learning flow](docs/TUTOR_AUTOMATIC_FLOW.md).
 - **Remedial:** gateway/package placeholder; implementation pending.
 - **Curriculum and Game content:** Milestone 4 Batches 1–3 complete. Supabase
   was verified at revision `20261011_0007` on 2026-10-12. The curriculum has
@@ -19,9 +21,8 @@ and speech-impaired learners.
   Game bank has 8 draft activities and 18 draft variants (6 per tier). Phaser
   still uses its existing local content; database integration is Batch 4.
 
-Two integration gaps remain: Tutor's strategy fallback still inserts missing
-Game/Quiz results despite the team's read-only Tutor ownership rule, and the
-newer Quiz schema is modeled but not covered by Alembic. The current history
+The newer Quiz schema is modeled but not covered by Alembic. Tutor now reads
+saved Quiz/Game results and persists only its predictions (2026-10-16). The current history
 does not yet build the entire live application schema from an empty database.
 
 See [current status and next steps](STATUS_CHECKLIST.md),
@@ -66,10 +67,9 @@ Open `http://localhost:5173` (or the configured frontend port). On Windows use
 `.venv\Scripts\Activate.ps1`, or invoke `.venv\Scripts\python.exe` directly;
 use `npm.cmd` if PowerShell blocks `npm.ps1`.
 
-The current working tree opens the **Equation Game** tab. Switch to **AI Tutor**
-for the adaptive linear-equation workspace. Open
-**Lesson settings** to preview four difficulty paths or
-import Quiz/Game diagnostic JSON. See [the implementation and research guide](docs/GRADE10_TUTOR.md)
+The application opens the **AI Tutor** tab. Complete Quiz and Game with the same
+assigned student code, then return to AI Tutor.
+It loads the model-selected approach and lesson automatically. See [the implementation and research guide](docs/GRADE10_TUTOR.md)
 for API integration, tests, model status and remaining validation requirements.
 
 Backend settings currently read the root `.env` when environment variables are
@@ -101,7 +101,8 @@ written and visual mathematics support rather than being fabricated at runtime.
 
 Validated-only playback is the default. To review existing unvalidated gestures,
 explicitly enable **Preview unvalidated gestures (reviewers only)**. The current
-strategy engine is a rule-based baseline, not a trained ML model. Teacher/sign
+strategy engine uses the supplied Colab model; its training metrics are not a
+claim of learner effectiveness. Teacher/sign
 review and actual learner evaluation remain necessary before research claims.
 
 Batch 3 schema, seed, source references and live preservation checks are recorded

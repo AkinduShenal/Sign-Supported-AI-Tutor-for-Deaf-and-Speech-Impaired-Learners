@@ -119,6 +119,8 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 2, mobile: false })
   await send('Page.navigate', { url: 'http://127.0.0.1:5193' })
   async function setStudent() {
+    await until(`[...document.querySelectorAll('.app-navigation button')].some(button => button.textContent === 'Equation Game')`)
+    await evaluate(`[...document.querySelectorAll('.app-navigation button')].find(button => button.textContent === 'Equation Game').click()`)
     await until(`document.querySelector('#collection-student') && !document.querySelector('#collection-student').disabled`)
     await evaluate(`(() => {const e=document.querySelector('#collection-student');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,'STU_999');e.dispatchEvent(new Event('input',{bubbles:true}));})()`)
     await delay(80)

@@ -51,13 +51,13 @@ def test_level_has_distinct_content_complete_glossary_and_hints(level):
     }
 
 
-def test_low_diagnostic_receives_scaffolding_not_a_claimed_ml_prediction():
+def test_low_diagnostic_receives_scaffolding_from_trained_model():
     response = client.post("/api/v1/tutor/adaptive-lesson", json=make_request_payload())
     assert response.status_code == 200
     plan = response.json()["plan"]
     assert plan["level"] == "foundation"
     assert plan["primary_strategy"] == "step_by_step"
-    assert plan["model_version"] == "rule-based-v2"
+    assert plan["model_version"] == "strategy-ml-v1"
     assert "Undo addition" in plan["misconception_support"]
 
 

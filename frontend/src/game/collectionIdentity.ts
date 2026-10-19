@@ -1,4 +1,4 @@
-// Researcher-assigned Game codes. The legacy Quiz identity helper is unchanged.
+// Researcher-assigned learner codes shared by Quiz, Game and Tutor.
 export const STUDENT_CODE_PATTERN = /^STU_[0-9]{3,6}$/
 
 export function validateStudentCode(value: string): string {

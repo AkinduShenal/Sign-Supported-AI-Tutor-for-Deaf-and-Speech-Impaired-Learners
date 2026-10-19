@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -10,9 +10,11 @@ from app.modules.tutor.content_schemas import (
     TutorLessonResponse,
 )
 from app.modules.tutor.lesson_content import get_lesson
-from app.modules.tutor.schemas import TutorStrategyRequest, TutorStrategyResponse, TutoringStrategy
+from app.modules.tutor.schemas import AutomaticTutorRequest, TutorLearningStatus, TutorStrategyFromResultsRequest, TutorStrategyRequest, TutorStrategyResponse, TutoringStrategy
+from app.modules.tutor.learning_flow import automatic_diagnostics, learning_status
 from app.modules.tutor.service import (
     DuplicateSessionConflictError,
+    MissingDiagnosticResultsError,
     TutorStrategyService,
 )
 from app.modules.tutor.sign_planner import MathSignPlanner
@@ -78,6 +80,40 @@ def adaptive_grade10(request: TutorStrategyRequest) -> AdaptiveLesson:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
 
+@router.get("/learning-status", response_model=TutorLearningStatus)
+def read_learning_status(
+    request: Annotated[AutomaticTutorRequest, Query()],
+    database: Annotated[Session, Depends(get_db)],
+) -> TutorLearningStatus:
+    return learning_status(request, database)
+
+
+@router.post("/adaptive-lesson/from-results", response_model=AdaptiveLesson)
+def automatic_grade10(
+    request: AutomaticTutorRequest,
+    database: Annotated[Session, Depends(get_db)],
+) -> AdaptiveLesson:
+    """Select the strategy and lesson from stored pre-tutor evidence only."""
+    try:
+        diagnostics = automatic_diagnostics(request, database, service)
+        # Validate/build before persisting anything; a failed lesson cannot leave
+        # a prediction for unsupported content in the database.
+        lesson = plan_lesson(diagnostics, service.model)
+        saved = service.recommend(diagnostics, database)
+        if lesson.plan.primary_strategy != saved.primary_strategy:
+            raise ValueError("Saved strategy and current model disagree; check model versioning")
+        lesson.plan.confidence = saved.confidence
+        lesson.plan.prediction_id = saved.prediction_id
+        lesson.plan.prior_mastery_source = "pre_tutor_quiz"
+        return lesson
+    except MissingDiagnosticResultsError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except DuplicateSessionConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
 @router.post("/practice/check", response_model=PracticeCheckResponse)
 def check_grade10_practice(request: PracticeCheckRequest) -> PracticeCheckResponse:
     try:
@@ -124,8 +160,28 @@ def recommend_strategy(
 ) -> TutorStrategyResponse:
     try:
         return service.recommend(request, database)
+    except MissingDiagnosticResultsError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
     except DuplicateSessionConflictError as error:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(error),
         ) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@router.post("/strategy/from-results", response_model=TutorStrategyResponse)
+def recommend_strategy_from_results(
+    request: TutorStrategyFromResultsRequest,
+    database: Annotated[Session, Depends(get_db)],
+) -> TutorStrategyResponse:
+    """Use persisted Quiz/Game evidence and save only the Tutor prediction."""
+    try:
+        return service.recommend_from_results(request, database)
+    except MissingDiagnosticResultsError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except DuplicateSessionConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error

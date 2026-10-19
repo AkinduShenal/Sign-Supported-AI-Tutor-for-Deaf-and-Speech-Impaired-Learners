@@ -17,6 +17,7 @@ from app.modules.tutor.content_schemas import AvatarTeachingSegment
 from app.modules.tutor.knowledge import KnowledgeSource, get_knowledge_index, terms
 from app.modules.tutor.schemas import TutoringStrategy
 from app.modules.tutor.sign_planner import MathSignPlanner
+from app.modules.tutor.explanation_choreography import choreograph_segments
 
 
 class TutorQuestionRequest(BaseModel):
@@ -83,7 +84,7 @@ def _checked_context(request: TutorQuestionRequest) -> KnowledgeSource | None:
     # Import here to keep the optional Q&A layer out of the lesson module's
     # import path. Only bank examples/current steps enter the generation prompt.
     from app.modules.tutor.adaptive_lesson import STRATEGY_EXPLANATIONS, _examples
-    from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_step, segments_from_lines
+    from app.modules.tutor.teaching_explanations import STRATEGY_OPENINGS, explain_step, expression_segment, segments_from_lines
 
     example = next((example for example in _examples(request.level)
                     if example.problem == request.example_problem), None)
@@ -92,11 +93,12 @@ def _checked_context(request: TutorQuestionRequest) -> KnowledgeSource | None:
     if request.step_index == 0:
         instruction = STRATEGY_EXPLANATIONS[request.strategy]
         expression, actions = example.problem, []
-        parts = segments_from_lines(STRATEGY_OPENINGS[request.strategy], lambda _: [])
+        parts = segments_from_lines(STRATEGY_OPENINGS[request.strategy], lambda _: []) + [expression_segment(expression)]
     else:
         step = example.steps[request.step_index - 1]
         instruction, expression, actions = step.instruction, step.expression, step.sign_actions
         parts = explain_step(step, request.strategy, lambda _: [])
+    parts = choreograph_segments(parts, original_expression=example.problem, expression_context=expression)
     return KnowledgeSource(
         id=f"worked-example:{request.level}:{hashlib.sha256(example.problem.encode()).hexdigest()[:12]}:{request.step_index}",
         title_en="Current worked-example step", title_si="දැනට ඇති උදාහරණයේ පියවර",
@@ -104,8 +106,7 @@ def _checked_context(request: TutorQuestionRequest) -> KnowledgeSource | None:
         text_si=f"මුල් සමීකරණය: {example.problem}. මෙම පියවරේ සමීකරණය: {expression}.",
         source_ref="backend/app/modules/tutor/adaptive_lesson.py:_examples",
         sign_actions=list(actions),
-        avatar_parts=[{"text": part.text, "text_si": part.text_si or part.text,
-                       "sign_actions": part.sign_actions} for part in parts],
+        avatar_parts=[{**part.model_dump(), "text_si": part.text_si or part.text} for part in parts],
     )
 
 
@@ -142,6 +143,7 @@ async def _generate(request: TutorQuestionRequest, sources: list[KnowledgeSource
         "Explain provided checked steps; do not solve an unseen equation or reveal future steps. "
         "Every supported paragraph must cite one or more provided source IDs. If the sources do not support "
         "the question, set supported=false and say so in both languages. Use at most four short paragraphs. "
+        "Keep each bilingual paragraph to one teaching idea so the avatar can present it clearly. "
         + STRATEGY_INSTRUCTIONS[request.strategy]
     )
     payload = {
@@ -229,13 +231,23 @@ async def answer_question(request: TutorQuestionRequest) -> TutorQuestionAnswer:
     for source in sources:
         if source.avatar_parts:
             segments.extend(AvatarTeachingSegment(
-                text=part.text, text_si=part.text_si,
-                sign_actions=[action for action in part.sign_actions if planner.manifest_entry(action) is not None],
+                **part.model_dump(),
             ) for part in source.avatar_parts)
         else:
             segments.append(AvatarTeachingSegment(
                 text=source.text_en, text_si=source.text_si,
                 sign_actions=[action for action in source.sign_actions if planner.manifest_entry(action) is not None],
             ))
+    if mode == "openai":
+        # Animate the answer that the learner actually sees, rather than only
+        # playing a different collection of source-note captions.
+        segments = [AvatarTeachingSegment(
+            text=paragraph.text_en, text_si=paragraph.text_si,
+            sign_actions=list(planner.plan(instruction=paragraph.text_en).sign_actions),
+        ) for paragraph in paragraphs]
+    segments = choreograph_segments(segments,
+        original_expression=request.example_problem,
+        expression_context=next((part.expression for part in (context.avatar_parts if context else [])
+                                 if part.expression), request.example_problem))
     return TutorQuestionAnswer(supported=True, mode=mode, knowledge_version=index.version,
                               paragraphs=paragraphs, sources=sources, avatar_segments=segments)
