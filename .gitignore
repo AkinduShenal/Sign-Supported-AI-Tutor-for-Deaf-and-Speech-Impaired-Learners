@@ -35,3 +35,9 @@ Thumbs.db
 *.log
 config.bat
 node_modules
+
+# Local ML models and research demo artifacts
+/local_ml_artifacts/
+
+# Generated Dynamic Quiz ML demo datasets
+/tmp/quiz_dynamic_ml_demo/

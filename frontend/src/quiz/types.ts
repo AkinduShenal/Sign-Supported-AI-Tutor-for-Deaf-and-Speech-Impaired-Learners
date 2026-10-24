@@ -23,6 +23,7 @@ export interface QuizQuestion {
 
 export interface QuizSession {
   quiz_session_id: string
+  bank_version?: string | null
   student_id: string
   concept_id: string
   learning_cycle_id: string
@@ -57,6 +58,7 @@ export interface QuizAnswerSaved {
   confidence_level: ConfidenceLevel
   answered_at: string
   is_correct: boolean
+  correct_option: QuizOption | null
   saved: true
 }
 
@@ -74,4 +76,36 @@ export interface QuizDiagnosticResult {
     high_confidence_incorrect_count: number
     low_confidence_correct_count: number
   }
+  diagnostic_evidence?: {
+    question_evidence?: QuizQuestionEvidence[]
+  } | null
+}
+
+export interface QuizDynamicMlPrediction {
+  quiz_session_id: string
+  status: 'available' | 'unavailable'
+  model_version: string | null
+  feature_schema_version: string | null
+  bank_version: string | null
+  training_data_origin: string | null
+  research_validated: false
+  disclaimer: string
+  predictions: Array<{
+    label: 'M1' | 'M2' | 'M3' | 'M4'
+    probability: number
+    threshold: number
+    flagged: boolean
+  }>
+  reason: 'session_incomplete' | 'artifact_missing' | 'artifact_incompatible' | 'prediction_failed' | null
+}
+
+export interface QuizQuestionEvidence {
+  question_order: number
+  question_id: string
+  is_correct: boolean
+  confidence_level: ConfidenceLevel
+  response_time_sec: number
+  difficulty_level: DifficultyLevel
+  subconcept_code: string
+  misconception_code: string | null
 }

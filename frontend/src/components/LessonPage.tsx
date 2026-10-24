@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
+import { showSprinkles } from './sprinkleEvent'
 import { getTutorLesson } from '../api/tutor'
 import type { LessonStep, TutorLesson } from '../types/tutor'
 import { AvatarSignPlayer } from './AvatarSignPlayer'
@@ -126,9 +127,9 @@ export function LessonPage({ conceptId }: LessonPageProps) {
     event.preventDefault()
     if (!practiceQuestion || !answer.trim()) return
 
-    setAnswerIsCorrect(
-      isCorrectAnswer(answer, practiceQuestion.expected_answer),
-    )
+    const correct = isCorrectAnswer(answer, practiceQuestion.expected_answer)
+    setAnswerIsCorrect(correct)
+    if (correct) showSprinkles('answer')
   }
 
   if (isLoading) {

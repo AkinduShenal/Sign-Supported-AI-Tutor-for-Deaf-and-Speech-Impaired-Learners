@@ -1,13 +1,16 @@
 import uuid
+import secrets
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 from app.modules.quiz import repository
+from app.core.config import settings
 from app.modules.quiz.diagnostic_rules import RULES
-from app.modules.quiz.models import QuizResponse, QuizSession
+from app.modules.quiz.models import QuizResponse, QuizSession, QuizSessionQuestion
 from app.modules.quiz.schemas import (
     AssessmentPhase,
     QuizAnswerSavedResponse,
@@ -33,6 +36,30 @@ class QuizInvalidAnswerError(ValueError):
 
 
 class QuizService:
+    DYNAMIC_VERSION = "pp1_dynamic_v1_DRAFT"
+
+    @staticmethod
+    def _local_development_database(database: Session) -> bool:
+        url = make_url(str(database.get_bind().url))
+        return url.get_backend_name() == "sqlite" or (
+            url.get_backend_name() == "postgresql" and url.host in {"localhost", "127.0.0.1", "::1"}
+        )
+
+    @staticmethod
+    def _question_responses(database: Session, questions) -> list[QuizQuestionResponse]:
+        options_by_question = defaultdict(list)
+        for option in repository.get_options_for_questions(database, [q.id for q in questions]):
+            options_by_question[option.question_id].append(QuizQuestionOptionResponse(
+                id=option.id, option_code=option.option_code,
+                option_text_en=option.option_text_en, option_text_si=option.option_text_si,
+            ))
+        return [QuizQuestionResponse(
+            id=q.id, question_code=q.question_code, concept_id=q.concept_id,
+            subconcept_code=q.subconcept_code, question_type=q.question_type,
+            question_text_en=q.question_text_en, question_text_si=q.question_text_si,
+            difficulty_level=q.difficulty_level, options=options_by_question[q.id],
+        ) for q in questions]
+
     def list_questions(
         self,
         database: Session,
@@ -49,33 +76,19 @@ class QuizService:
             assessment_use,
             difficulty_level,
         )
-        options_by_question = defaultdict(list)
-        for option in repository.get_options_for_questions(
-            database,
-            [question.id for question in questions],
-        ):
-            options_by_question[option.question_id].append(
-                QuizQuestionOptionResponse(
-                    id=option.id,
-                    option_code=option.option_code,
-                    option_text_en=option.option_text_en,
-                    option_text_si=option.option_text_si,
-                )
-            )
-        return [
-            QuizQuestionResponse(
-                id=question.id,
-                question_code=question.question_code,
-                concept_id=question.concept_id,
-                subconcept_code=question.subconcept_code,
-                question_type=question.question_type,
-                question_text_en=question.question_text_en,
-                question_text_si=question.question_text_si,
-                difficulty_level=question.difficulty_level,
-                options=options_by_question[question.id],
-            )
-            for question in questions
-        ]
+        return self._question_responses(database, questions)
+
+    def list_session_questions(self, database: Session, session_id: str) -> list[QuizQuestionResponse]:
+        session = repository.get_quiz_session(database, session_id)
+        if session is None:
+            raise QuizNotFoundError("Quiz session was not found")
+        questions = (repository.get_session_questions(database, session_id)
+                     if session.bank_version else repository.get_questions(
+                         database, session.concept_id,
+                         "pre" if session.assessment_phase == "pre_tutor" else "post"))
+        if session.bank_version and len(questions) != 10:
+            raise QuizConflictError("Saved dynamic question plan is incomplete")
+        return self._question_responses(database, questions)
 
     def create_session(
         self,
@@ -86,6 +99,11 @@ class QuizService:
         existing = repository.get_quiz_session(database, session_id)
         if existing is not None:
             return self._matching_session(existing, request)
+        dynamic = request.bank_mode == "dynamic_dev"
+        if dynamic and (not settings.quiz_dynamic_dev_enabled or not self._local_development_database(database)):
+            raise QuizConflictError("Dynamic Quiz requires an isolated local development database and feature flag")
+        if dynamic and request.assessment_phase != AssessmentPhase.PRE_TUTOR:
+            raise QuizConflictError("The draft dynamic bank supports pre-tutor sessions only")
         session = QuizSession(
             quiz_session_id=session_id,
             student_id=request.student_id,
@@ -95,9 +113,25 @@ class QuizService:
             quiz_attempt_number=request.quiz_attempt_number,
             display_language=request.display_language.value,
             status="in_progress",
+            bank_version=self.DYNAMIC_VERSION if dynamic else None,
         )
         try:
             repository.create_quiz_session(database, session)
+            if dynamic:
+                bank = repository.get_questions(database, request.concept_id, "pre", bank_version=self.DYNAMIC_VERSION)
+                by_slot = defaultdict(list)
+                for question in bank:
+                    if not question.teacher_validated:
+                        by_slot[question.logical_slot].append(question)
+                if (len(bank) != 60 or set(by_slot) != {f"S{i:02d}" for i in range(1, 11)}
+                    or any(len(group) != 6 or len({q.difficulty_level for q in group}) != 1 for group in by_slot.values())
+                    or Counter(q.difficulty_level for group in by_slot.values() for q in group) != {"easy": 24, "medium": 24, "hard": 12}):
+                    raise QuizConflictError("The 60-item development bank is missing or invalid")
+                for position, slot in enumerate(sorted(by_slot), 1):
+                    selected = secrets.choice(by_slot[slot])
+                    database.add(QuizSessionQuestion(quiz_session_id=session_id,
+                                                     question_order=position, question_id=selected.id))
+                database.flush()
             database.commit()
             database.refresh(session)
         except IntegrityError:
@@ -120,12 +154,20 @@ class QuizService:
             or session.quiz_attempt_number != request.quiz_attempt_number
             or session.display_language != request.display_language.value
             or (request.learning_cycle_id is not None and session.learning_cycle_id != request.learning_cycle_id)
+            or (session.bank_version is not None) != (request.bank_mode == "dynamic_dev")
         ):
             raise QuizConflictError("client_session_id belongs to different Quiz session data")
         return QuizSessionResponse.model_validate(session, from_attributes=True)
 
     @staticmethod
-    def _saved_response(response: QuizResponse) -> QuizAnswerSavedResponse:
+    def _saved_response(database: Session, response: QuizResponse) -> QuizAnswerSavedResponse:
+        correct_option = None
+        if not response.is_correct:
+            options = repository.get_options_for_questions(database, [response.question_id])
+            correct = next((option for option in options if option.is_correct), None)
+            if correct is None:
+                raise QuizInvalidAnswerError("Quiz question has no correct option")
+            correct_option = QuizQuestionOptionResponse.model_validate(correct, from_attributes=True)
         return QuizAnswerSavedResponse(
             response_id=response.id,
             quiz_session_id=response.quiz_session_id,
@@ -136,10 +178,11 @@ class QuizService:
             confidence_level=response.confidence_level,
             answered_at=response.answered_at.replace(tzinfo=response.answered_at.tzinfo or timezone.utc),
             is_correct=response.is_correct,
+            correct_option=correct_option,
         )
 
     @staticmethod
-    def _matching_response(response: QuizResponse, request: QuizAnswerSubmit) -> QuizAnswerSavedResponse:
+    def _matching_response(database: Session, response: QuizResponse, request: QuizAnswerSubmit) -> QuizAnswerSavedResponse:
         requested_time = request.client_action_at
         if requested_time is not None:
             requested_time = requested_time.replace(tzinfo=requested_time.tzinfo or timezone.utc).astimezone(timezone.utc)
@@ -152,7 +195,7 @@ class QuizService:
             or (requested_time is not None and saved_time != requested_time)
         ):
             raise QuizConflictError("Question already has different saved evidence")
-        return QuizService._saved_response(response)
+        return QuizService._saved_response(database, response)
 
     def submit_answer(
         self,
@@ -167,7 +210,7 @@ class QuizService:
             raise QuizNotFoundError("Quiz session was not found")
         existing = repository.get_quiz_response(database, quiz_session_id, request.question_id)
         if existing is not None:
-            return self._matching_response(existing, request)
+            return self._matching_response(database, existing, request)
         if session.status != "in_progress":
             raise QuizConflictError("Quiz session is no longer in progress")
         question = repository.get_question_by_id(database, request.question_id)
@@ -179,8 +222,15 @@ class QuizService:
             or question.assessment_use not in (expected_use, "both")
             or question.question_type != "multiple_choice"
             or not question.is_active
+            or (session.bank_version is None and question.bank_version is not None)
         ):
             raise QuizInvalidAnswerError("Question is not available for this session")
+        if session.bank_version is not None:
+            planned = repository.get_session_questions(database, quiz_session_id)
+            if (request.question_order > len(planned)
+                or planned[request.question_order - 1].id != question.id
+                or question.bank_version != session.bank_version):
+                raise QuizInvalidAnswerError("Question is not in this session's saved plan")
         option = repository.get_option_by_id(database, request.selected_option_id)
         if option is None or option.question_id != question.id:
             raise QuizInvalidAnswerError(
@@ -216,13 +266,13 @@ class QuizService:
             ):
                 existing = repository.get_quiz_response(database, quiz_session_id, question.id)
                 if existing is not None:
-                    return self._matching_response(existing, request)
+                    return self._matching_response(database, existing, request)
                 raise QuizConflictError("This question already has an official response") from error
             raise
         except Exception:
             database.rollback()
             raise
-        return self._saved_response(response)
+        return self._saved_response(database, response)
 
     def get_session(
         self, database: Session, quiz_session_id: str
@@ -256,7 +306,8 @@ class QuizService:
         rows = repository.get_diagnostic_rows(database, quiz_session_id)
         expected = dict(zip(("easy", "medium", "hard"), RULES.expected_difficulty_counts))
         use = "pre" if session.assessment_phase == "pre_tutor" else "post"
-        bank = repository.get_questions(database, session.concept_id, use)
+        bank = (repository.get_session_questions(database, quiz_session_id)
+                if session.bank_version else repository.get_questions(database, session.concept_id, use))
         if (
             len(rows) != RULES.expected_questions
             or len(bank) != RULES.expected_questions

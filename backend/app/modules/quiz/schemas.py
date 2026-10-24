@@ -61,6 +61,7 @@ class QuizSessionCreate(BaseModel):
     quiz_attempt_number: int = Field(default=1, gt=0)
     display_language: DisplayLanguage = DisplayLanguage.BILINGUAL
     client_session_id: uuid.UUID | None = None
+    bank_mode: Literal["fixed", "dynamic_dev"] = "fixed"
 
     @model_validator(mode="after")
     def require_collection_code(self):
@@ -71,6 +72,7 @@ class QuizSessionCreate(BaseModel):
 
 class QuizSessionResponse(BaseModel):
     quiz_session_id: str
+    bank_version: str | None = None
     student_id: str
     concept_id: str
     learning_cycle_id: uuid.UUID
@@ -84,6 +86,26 @@ class QuizSessionResponse(BaseModel):
 
 class QuizSessionDetailResponse(QuizSessionResponse):
     responses_saved: int
+
+
+class QuizDynamicMlClassPrediction(BaseModel):
+    label: Literal["M1", "M2", "M3", "M4"]
+    probability: float = Field(ge=0, le=1)
+    threshold: float = Field(default=0.5, ge=0, le=1)
+    flagged: bool
+
+
+class QuizDynamicMlPredictionResponse(BaseModel):
+    quiz_session_id: str
+    status: Literal["available", "unavailable"]
+    model_version: str | None = None
+    feature_schema_version: str | None = None
+    bank_version: str | None = None
+    training_data_origin: str | None = None
+    research_validated: bool = False
+    disclaimer: str = "Experimental ML Prediction — Trained on Simulated Data — Not Research Validated"
+    predictions: list[QuizDynamicMlClassPrediction] = Field(default_factory=list)
+    reason: Literal["session_incomplete", "artifact_missing", "artifact_incompatible", "prediction_failed"] | None = None
 
 
 class QuizAnswerSubmit(BaseModel):
@@ -107,6 +129,7 @@ class QuizAnswerSavedResponse(BaseModel):
     confidence_level: ConfidenceLevel
     answered_at: datetime
     is_correct: bool
+    correct_option: QuizQuestionOptionResponse | None = None
     saved: Literal[True] = True
 
 

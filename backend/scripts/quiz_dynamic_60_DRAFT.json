@@ -1,0 +1,2402 @@
+[
+  {
+    "question_code": "PP1-DYN-S01-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S01",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_addition",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x + 5 = 12.",
+    "question_text_si": "සමීකරණය විසඳන්න: x + 5 = 12.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "17",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "12",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S01-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S01",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_addition",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x + 3 = 7.",
+    "question_text_si": "සමීකරණය විසඳන්න: x + 3 = 7.",
+    "answer": "4",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S01-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S01",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_addition",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x + 6 = 8.",
+    "question_text_si": "සමීකරණය විසඳන්න: x + 6 = 8.",
+    "answer": "2",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "2",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "14",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S01-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S01",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_addition",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x + 8 = 13.",
+    "question_text_si": "සමීකරණය විසඳන්න: x + 8 = 13.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "13",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S01-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S01",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_addition",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x + 9 = 12.",
+    "question_text_si": "සමීකරණය විසඳන්න: x + 9 = 12.",
+    "answer": "3",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "3",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "12",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S01-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S01",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_addition",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x + 4 = 14.",
+    "question_text_si": "සමීකරණය විසඳන්න: x + 4 = 14.",
+    "answer": "10",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "18",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "14",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "10",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S02-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S02",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_subtraction",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x - 8 = 3.",
+    "question_text_si": "සමීකරණය විසඳන්න: x - 8 = 3.",
+    "answer": "11",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "-5",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "B",
+        "text": "11",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S02-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S02",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_subtraction",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x - 4 = 3.",
+    "question_text_si": "සමීකරණය විසඳන්න: x - 4 = 3.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "-1",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S02-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S02",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_subtraction",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x - 6 = -1.",
+    "question_text_si": "සමීකරණය විසඳන්න: x - 6 = -1.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "-7",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "-1",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S02-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S02",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_subtraction",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x - 9 = 3.",
+    "question_text_si": "සමීකරණය විසඳන්න: x - 9 = 3.",
+    "answer": "12",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "-6",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "B",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "12",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S02-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S02",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_subtraction",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x - 3 = 9.",
+    "question_text_si": "සමීකරණය විසඳන්න: x - 3 = 9.",
+    "answer": "12",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "B",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "12",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S02-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S02",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_subtraction",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x - 7 = 1.",
+    "question_text_si": "සමීකරණය විසඳන්න: x - 7 = 1.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "-6",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "1",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S03-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S03",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_multiplication",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve 4x = 28.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4x = 28.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "32",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "24",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S03-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S03",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_multiplication",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve 3x = 24.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x = 24.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "27",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S03-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S03",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_multiplication",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve 5x = 30.",
+    "question_text_si": "සමීකරණය විසඳන්න: 5x = 30.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "35",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "25",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S03-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S03",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_multiplication",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve 6x = 24.",
+    "question_text_si": "සමීකරණය විසඳන්න: 6x = 24.",
+    "answer": "4",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "30",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "18",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S03-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S03",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_multiplication",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve 7x = 21.",
+    "question_text_si": "සමීකරණය විසඳන්න: 7x = 21.",
+    "answer": "3",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "3",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "28",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "14",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "D",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S03-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S03",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_multiplication",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve 8x = 40.",
+    "question_text_si": "සමීකරණය විසඳන්න: 8x = 40.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "48",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "32",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "D",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S04-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S04",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_division",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x ÷ 3 = 6.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 3 = 6.",
+    "answer": "18",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "18",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S04-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S04",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_division",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x ÷ 2 = 7.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 2 = 7.",
+    "answer": "14",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "14",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S04-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S04",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_division",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x ÷ 4 = 5.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 4 = 5.",
+    "answer": "20",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "20",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S04-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S04",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_division",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x ÷ 5 = 3.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 5 = 3.",
+    "answer": "15",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "15",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S04-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S04",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_division",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x ÷ 6 = 4.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 6 = 4.",
+    "answer": "24",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "24",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S04-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S04",
+    "concept_id": "linear_equations",
+    "subconcept_code": "one_step_division",
+    "difficulty_level": "easy",
+    "question_text_en": "Solve x ÷ 7 = 2.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 7 = 2.",
+    "answer": "14",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "14",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S05-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S05",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 2x + 3 = 15.",
+    "question_text_si": "සමීකරණය විසඳන්න: 2x + 3 = 15.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "12",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S05-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S05",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 3x + 2 = 17.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x + 2 = 17.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "15",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S05-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S05",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 4x + 1 = 17.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4x + 1 = 17.",
+    "answer": "4",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "4",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "16",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S05-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S05",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 5x + 3 = 18.",
+    "question_text_si": "සමීකරණය විසඳන්න: 5x + 3 = 18.",
+    "answer": "3",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "15",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "3",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S05-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S05",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 2x + 5 = 19.",
+    "question_text_si": "සමීකරණය විසඳන්න: 2x + 5 = 19.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "14",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S05-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S05",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 3x + 4 = 22.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x + 4 = 22.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "18",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S06-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S06",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 3x - 4 = 17.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x - 4 = 17.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "13",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S06-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S06",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 2x - 5 = 7.",
+    "question_text_si": "සමීකරණය විසඳන්න: 2x - 5 = 7.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "12",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S06-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S06",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 4x - 3 = 17.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4x - 3 = 17.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "20",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S06-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S06",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 5x - 2 = 18.",
+    "question_text_si": "සමීකරණය විසඳන්න: 5x - 2 = 18.",
+    "answer": "4",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "20",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S06-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S06",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 3x - 7 = 17.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x - 7 = 17.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "24",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S06-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S06",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 6x - 4 = 14.",
+    "question_text_si": "සමීකරණය විසඳන්න: 6x - 4 = 14.",
+    "answer": "3",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "3",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "18",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S07-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S07",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 5x + 2 = 32.",
+    "question_text_si": "සමීකරණය විසඳන්න: 5x + 2 = 32.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "30",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S07-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S07",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 3x + 4 = 19.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x + 4 = 19.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "15",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S07-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S07",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 4x + 3 = 31.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4x + 3 = 31.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "28",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S07-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S07",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 2x + 7 = 19.",
+    "question_text_si": "සමීකරණය විසඳන්න: 2x + 7 = 19.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "12",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S07-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S07",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 6x + 5 = 29.",
+    "question_text_si": "සමීකරණය විසඳන්න: 6x + 5 = 29.",
+    "answer": "4",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "4",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "24",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S07-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S07",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve 7x + 1 = 22.",
+    "question_text_si": "සමීකරණය විසඳන්න: 7x + 1 = 22.",
+    "answer": "3",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "3",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S08-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S08",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve x ÷ 2 + 4 = 9.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 2 + 4 = 9.",
+    "answer": "10",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "B",
+        "text": "13",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "D",
+        "text": "10",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S08-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S08",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve x ÷ 3 + 2 = 5.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 3 + 2 = 5.",
+    "answer": "9",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "15",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "9",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S08-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S08",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve x ÷ 4 + 3 = 5.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 4 + 3 = 5.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "20",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S08-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S08",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve x ÷ 5 + 1 = 3.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 5 + 1 = 3.",
+    "answer": "10",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "10",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "15",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "D",
+        "text": "11",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S08-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S08",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve x ÷ 2 + 6 = 12.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 2 + 6 = 12.",
+    "answer": "12",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "12",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "24",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "D",
+        "text": "13",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S08-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S08",
+    "concept_id": "linear_equations",
+    "subconcept_code": "two_step_equations",
+    "difficulty_level": "medium",
+    "question_text_en": "Solve x ÷ 3 + 5 = 7.",
+    "question_text_si": "සමීකරණය විසඳන්න: x ÷ 3 + 5 = 7.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "2",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "inverse_operation"
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S09-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S09",
+    "concept_id": "linear_equations",
+    "subconcept_code": "variables_both_sides",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 3x + 4 = x + 18.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3x + 4 = x + 18.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "14",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "11",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S09-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S09",
+    "concept_id": "linear_equations",
+    "subconcept_code": "variables_both_sides",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 4x + 3 = 2x + 13.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4x + 3 = 2x + 13.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S09-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S09",
+    "concept_id": "linear_equations",
+    "subconcept_code": "variables_both_sides",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 5x + 1 = 2x + 13.",
+    "question_text_si": "සමීකරණය විසඳන්න: 5x + 1 = 2x + 13.",
+    "answer": "4",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "4",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "12",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S09-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S09",
+    "concept_id": "linear_equations",
+    "subconcept_code": "variables_both_sides",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 6x + 5 = 3x + 29.",
+    "question_text_si": "සමීකරණය විසඳන්න: 6x + 5 = 3x + 29.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "24",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S09-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S09",
+    "concept_id": "linear_equations",
+    "subconcept_code": "variables_both_sides",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 4x + 2 = x + 20.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4x + 2 = x + 20.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "18",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S09-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S09",
+    "concept_id": "linear_equations",
+    "subconcept_code": "variables_both_sides",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 7x + 3 = 4x + 9.",
+    "question_text_si": "සමීකරණය විසඳන්න: 7x + 3 = 4x + 9.",
+    "answer": "2",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "3",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "1",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "D",
+        "text": "2",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S10-V01",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S10",
+    "concept_id": "linear_equations",
+    "subconcept_code": "distributive_equations",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 2(x + 3) = x + 14.",
+    "question_text_si": "සමීකරණය විසඳන්න: 2(x + 3) = x + 14.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "11",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "B",
+        "text": "16",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S10-V02",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S10",
+    "concept_id": "linear_equations",
+    "subconcept_code": "distributive_equations",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 3(x + 2) = x + 20.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3(x + 2) = x + 20.",
+    "answer": "7",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "7",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "13",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S10-V03",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S10",
+    "concept_id": "linear_equations",
+    "subconcept_code": "distributive_equations",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 4(x + 1) = 2x + 14.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4(x + 1) = 2x + 14.",
+    "answer": "5",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "5",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "C",
+        "text": "6",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "4",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S10-V04",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S10",
+    "concept_id": "linear_equations",
+    "subconcept_code": "distributive_equations",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 3(x + 4) = 2x + 21.",
+    "question_text_si": "සමීකරණය විසඳන්න: 3(x + 4) = 2x + 21.",
+    "answer": "9",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "21",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "10",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "9",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "D",
+        "text": "8",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S10-V05",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S10",
+    "concept_id": "linear_equations",
+    "subconcept_code": "distributive_equations",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 5(x + 2) = 3x + 22.",
+    "question_text_si": "සමීකරණය විසඳන්න: 5(x + 2) = 3x + 22.",
+    "answer": "6",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "16",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "B",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "C",
+        "text": "5",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      },
+      {
+        "option_code": "D",
+        "text": "6",
+        "is_correct": true,
+        "misconception_code": null
+      }
+    ]
+  },
+  {
+    "question_code": "PP1-DYN-S10-V06",
+    "bank_version": "pp1_dynamic_v1_DRAFT",
+    "logical_slot": "S10",
+    "concept_id": "linear_equations",
+    "subconcept_code": "distributive_equations",
+    "difficulty_level": "hard",
+    "question_text_en": "Solve 4(x + 3) = x + 36.",
+    "question_text_si": "සමීකරණය විසඳන්න: 4(x + 3) = x + 36.",
+    "answer": "8",
+    "teacher_validated": false,
+    "review_status": "DRAFT_REVIEW",
+    "research_use": "DEVELOPMENT_ONLY",
+    "options": [
+      {
+        "option_code": "A",
+        "text": "8",
+        "is_correct": true,
+        "misconception_code": null
+      },
+      {
+        "option_code": "B",
+        "text": "20",
+        "is_correct": false,
+        "misconception_code": "concept_confusion"
+      },
+      {
+        "option_code": "C",
+        "text": "9",
+        "is_correct": false,
+        "misconception_code": "arithmetic_error"
+      },
+      {
+        "option_code": "D",
+        "text": "7",
+        "is_correct": false,
+        "misconception_code": "sign_error"
+      }
+    ]
+  }
+]

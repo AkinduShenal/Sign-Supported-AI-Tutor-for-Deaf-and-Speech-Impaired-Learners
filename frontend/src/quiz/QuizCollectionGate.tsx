@@ -7,7 +7,7 @@ import { QuizExperience } from './QuizAssessment'
 import './quizCollection.css'
 import { readLearningContext, restoreQuizContext, selectLearningStudent } from '../learningContext'
 
-export function QuizCollectionGate({ onContinue }: { onContinue?: () => void }) {
+export function QuizCollectionGate({ onContinueToGame }: { onContinueToGame: () => void }) {
   const [store, setStore] = useState<PendingQuizWrites | null>(null)
   const [locked, setLocked] = useState(false)
   const [code, setCode] = useState(() => {
@@ -109,6 +109,26 @@ export function QuizCollectionGate({ onContinue }: { onContinue?: () => void }) 
     if (close()) onContinue?.()
   }
 
+  function continueToGame(sessionId: string) {
+    if (!store || !active) return
+    try {
+      const row = store.session(sessionId)
+      const open = store.openSessions()
+      if (fatal || row.closed || row.request.student_id !== active || !row.completed
+        || row.question_ids.length !== 10 || row.responses.length !== row.question_ids.length
+        || row.responses.some(response => !response.saved)
+        || open.length !== 1 || `QUIZ-${open[0].request.client_session_id}` !== sessionId
+        || store.status(sessionId) !== 'Saved') {
+        throw new Error('Complete and save all Quiz answers before continuing to Game.')
+      }
+      store.close(sessionId)
+      setError('')
+      onContinueToGame()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not continue to Game.')
+    }
+  }
+
   return <div className="quiz-collection-shell">
     <section className="quiz-collection-gate" aria-label="Researcher Quiz collection">
       <strong>Researcher Quiz collection</strong>
@@ -133,6 +153,6 @@ export function QuizCollectionGate({ onContinue }: { onContinue?: () => void }) 
       {active && rows.length === 0 && <button type="button" onClick={close}>Switch learner</button>}
       <QuizCollectionExport disabled={!locked || pending || busy || !!fatal} />
     </section>
-    {active && store && !fatal && <QuizExperience key={`${active}-${revision}`} studentCode={active} store={store} onContinue={onContinue ? continueToTutor : undefined} />}
+    {active && store && !fatal && <QuizExperience key={`${active}-${revision}`} studentCode={active} store={store} onContinueToGame={continueToGame} />}
   </div>
 }
