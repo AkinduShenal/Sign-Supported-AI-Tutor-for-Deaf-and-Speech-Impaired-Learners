@@ -25,6 +25,7 @@ SESSION_FIELDS = (
     "concept_id", "learning_cycle_id", "assessment_phase", "quiz_attempt_number",
     "display_language", "status", "assessment_complete", "responses_saved",
     "started_at", "completed_at", "created_at",
+    "bank_version",
 )
 RESPONSE_FIELDS = (
     "source_response_id", "quiz_session_id", "student_id_recorded", "student_code",
@@ -33,6 +34,7 @@ RESPONSE_FIELDS = (
     "selected_option_id", "selected_option_code", "selected_answer", "is_correct",
     "response_time_sec", "confidence_level", "misconception_code", "answered_at",
     "saved_at",
+    "bank_version", "logical_slot",
 )
 
 
@@ -71,6 +73,7 @@ def export_quiz_data(database: Session, output_dir: Path) -> dict[str, int]:
         "responses_saved": counts_by_session.get(row.quiz_session_id, 0),
         "started_at": _iso(row.started_at), "completed_at": _iso(row.completed_at),
         "created_at": _iso(row.created_at),
+        "bank_version": row.bank_version or "",
     } for row in sessions]
 
     response_rows = []
@@ -97,6 +100,8 @@ def export_quiz_data(database: Session, output_dir: Path) -> dict[str, int]:
             "confidence_level": row.confidence_level,
             "misconception_code": row.misconception_code or "",
             "answered_at": _iso(row.answered_at), "saved_at": _iso(row.created_at),
+            "bank_version": session.bank_version or "",
+            "logical_slot": question.logical_slot if question else "",
         })
 
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -5,6 +5,8 @@ import { BodmasReference } from './BodmasReference'
 import {
   analyzeQuizSession,
   getPreQuizQuestions,
+  getQuizSession,
+  getQuizSessionQuestions,
 } from './api'
 import { ConfidenceSelector } from './ConfidenceSelector'
 import { QuizAnswerFeedback } from './QuizAnswerFeedback'
@@ -14,13 +16,15 @@ import { QuizLevelTransition } from './QuizLevelTransition'
 import { QuizQuestionCard } from './QuizQuestionCard'
 import { QuizResultPlaceholder } from './QuizResultPlaceholder'
 import type { ConfidenceLevel, QuizDiagnosticResult as DiagnosticResult, QuizLanguage, QuizQuestion, QuizSession } from './types'
-import { quizAttemptState, type PendingQuizWrites } from './pendingQuizWrites'
+import { quizAttemptState, type PendingQuizWrites, type QuizCollectionSession } from './pendingQuizWrites'
 import { elapsedQuestionSeconds, QUIZ_LENGTH, transitionAfterAnswers, validatePreQuestionBank } from './workflow'
+import { buildMlFeatures, type MlFeatures } from './mlFeatures'
 import './quiz.css'
 
 type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'feedback' | 'transition' | 'finalizing' | 'analyzing' | 'complete' | 'recovery'
 
-export function QuizExperience({ studentCode, store }: { studentCode: string; store: PendingQuizWrites }) {
+export function QuizExperience({ studentCode, store, onContinueToGame }: { studentCode: string; store: PendingQuizWrites; onContinueToGame?: (sessionId: string) => void }) {
+  const dynamicNew = import.meta.env.VITE_QUIZ_DYNAMIC_DEV === 'true'
   const [phase, setPhase] = useState<QuizPhase>('loading')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [session, setSession] = useState<QuizSession | null>(null)
@@ -34,6 +38,18 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
   const busy = useRef(false)
   const finishing = useRef(false)
   const [completionBusy, setCompletionBusy] = useState(false)
+
+  let mlFeatures: MlFeatures | null = null
+  let resultCollection: QuizCollectionSession | null = null
+  if (phase === 'complete' && diagnostic && session) {
+    try { resultCollection = store.session(session.quiz_session_id) }
+    catch { /* The saved diagnostic can still show first-answer evidence. */ }
+  }
+  if (phase === 'complete' && diagnostic && session && !session.bank_version && resultCollection) {
+    try {
+      mlFeatures = buildMlFeatures(resultCollection, questions, diagnostic)
+    } catch { /* Hide the experiment if any training input cannot be verified. */ }
+  }
 
   async function loadResult(sessionId: string, celebrate = false) {
     setPhase('analyzing')
@@ -51,21 +67,31 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
 
   useEffect(() => {
     const controller = new AbortController()
-    getPreQuizQuestions(controller.signal)
-      .then(validatePreQuestionBank)
+    const open = store.openSessions().find(row => row.request.student_id === studentCode)
+    const questionPromise = open?.request.bank_mode === 'dynamic_dev'
+      ? store.flush(`QUIZ-${open.request.client_session_id}`).then(saved => {
+          if (!saved) throw new Error(store.session(`QUIZ-${open.request.client_session_id}`).error || 'Recover dynamic Quiz evidence.')
+          return getQuizSessionQuestions(`QUIZ-${open.request.client_session_id}`)
+        })
+      : open || !dynamicNew ? getPreQuizQuestions(controller.signal) : Promise.resolve(null)
+    questionPromise
+      .then(bank => bank === null ? null : validatePreQuestionBank(bank))
       .then(bank => {
         if (controller.signal.aborted) return
-        setQuestions(bank)
-        const open = store.openSessions().find(row => row.request.student_id === studentCode)
+        if (bank) setQuestions(bank)
         if (!open) { setPhase('ready'); return }
         const id = `QUIZ-${open.request.client_session_id}`
-        if (open.question_ids.join('|') !== bank.map(question => question.id).join('|')) {
+        if (bank && open.question_ids.length && open.question_ids.join('|') !== bank.map(question => question.id).join('|')) {
           setError('The question bank changed. Recover saved evidence and end this incomplete collection before starting a new Quiz.')
           setPhase('recovery'); return
         }
         void store.flush(id).then(saved => {
           if (controller.signal.aborted) return
           const row = store.session(id)
+          if (row.request.bank_mode === 'dynamic_dev' && bank && row.question_ids.join('|') !== bank.map(question => question.id).join('|')) {
+            setError('The saved dynamic question plan changed. Keep this browser profile and recover evidence.')
+            setPhase('recovery'); return
+          }
           if (!row.session) {
             setError(row.error || 'Quiz evidence is pending. Use Retry / Recover Quiz evidence.')
             setPhase('recovery'); return
@@ -111,8 +137,19 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
     if (session && phase === 'active' && questionIndex < QUIZ_LENGTH) questionStartedAt.current = performance.now()
   }, [session, questionIndex, phase])
 
+  useEffect(() => {
+    if (phase !== 'complete' || !diagnostic || !session || session.bank_version) return
+    let active = true
+    void getQuizSession(session.quiz_session_id)
+      .then(saved => {
+        if (active && saved.quiz_session_id === diagnostic.quiz_session_id) setSession(saved)
+      })
+      .catch(() => { /* Keep the completed result visible if metadata refresh fails. */ })
+    return () => { active = false }
+  }, [phase, diagnostic?.quiz_session_id, session?.quiz_session_id, session?.bank_version])
+
   async function startQuiz() {
-    if (busy.current || questions.length !== QUIZ_LENGTH) return
+    if (busy.current || (!dynamicNew && questions.length !== QUIZ_LENGTH)) return
     busy.current = true
     setError(null)
     setPhase('starting')
@@ -120,10 +157,18 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
       const id = store.start({
         student_id: studentCode, concept_id: 'linear_equations', assessment_phase: 'pre_tutor',
         display_language: language, learning_cycle_id: crypto.randomUUID(), client_session_id: crypto.randomUUID(),
-      }, questions.map(question => question.id))
+        ...(dynamicNew ? { bank_mode: 'dynamic_dev' as const } : {}),
+      }, dynamicNew ? [] : questions.map(question => question.id))
       if (!await store.flush(id)) throw new Error(store.session(id).error || 'Quiz session is pending. Use Retry / Recover Quiz evidence.')
       const created = store.session(id).session
       if (!created) throw new Error('Quiz session was not confirmed by the backend.')
+      if (dynamicNew) {
+        const selected = validatePreQuestionBank(await getQuizSessionQuestions(id))
+        if (selected.map(question => question.id).join('|') !== store.session(id).question_ids.join('|')) {
+          throw new Error('The saved dynamic question plan does not match this session.')
+        }
+        setQuestions(selected)
+      }
       setSession(created)
       setDiagnostic(null)
       setQuestionIndex(0)
@@ -309,6 +354,7 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
           {language !== 'si' && <p lang="en">Choose one answer and tell us how confident you feel. You have up to three tries per question. The correct option appears after a third incorrect try. Only your first answer counts toward the score; later tries are practice.</p>}
           {language !== 'en' && <p lang="si">සෑම ප්‍රශ්නයකටම උත්සාහ තුනක් දක්වා ඇත. තුන්වන උත්සාහයත් වැරදුණොත් නිවැරදි පිළිතුර පෙන්වයි. පළමු පිළිතුර පමණක් ලකුණු සඳහා ගණන් කෙරේ. පසුව කරන උත්සාහ පුහුණුව සඳහාය.</p>}
           <p className="quiz-review-note">
+            {(dynamicNew || session?.bank_version) && <span lang="en">PP1 dynamic development bank · 60 draft variants · teacher review pending<br /></span>}
             {language !== 'si' && <span lang="en">Development prototype questions · Teacher and Sinhala wording review pending</span>}
             {language === 'bilingual' && <br />}
             {language !== 'en' && <span lang="si">මෙම ආදර්ශ ප්‍රශ්න සහ සිංහල වචන ගුරු සමාලෝචනය සඳහා ඇත.</span>}
@@ -360,7 +406,7 @@ export function QuizExperience({ studentCode, store }: { studentCode: string; st
         </section>
       )}
       {phase === 'analyzing' && <section className="quiz-panel" role="status">{language === 'si' ? 'ඔබේ ප්‍රතිඵලය සකස් වෙමින් පවතී…' : 'Preparing your learning summary…'}</section>}
-      {phase === 'complete' && (diagnostic ? <QuizDiagnosticResult result={diagnostic} language={language} /> : <>
+      {phase === 'complete' && (diagnostic ? <QuizDiagnosticResult result={diagnostic} language={language} bankVersion={session?.bank_version} mlFeatures={mlFeatures} questions={questions} collection={resultCollection} onContinueToGame={onContinueToGame && session ? () => onContinueToGame(session.quiz_session_id) : undefined} /> : <>
         <QuizResultPlaceholder language={language} />
         <section className="quiz-panel quiz-result-retry">
           <p className="quiz-error" role="alert">{error || 'Your learning summary is not available yet.'}</p>

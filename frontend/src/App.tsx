@@ -60,7 +60,10 @@ function App() {
         </div>
       </nav>
 
-      {view === 'quiz' && <QuizCollectionGate />}
+      {view === 'quiz' && <QuizCollectionGate onContinueToGame={() => {
+        setView('game')
+        window.requestAnimationFrame(() => window.scrollTo(0, 0))
+      }} />}
       {view === 'game' && (
         <main className="game-page">
           <PhaserGame />
