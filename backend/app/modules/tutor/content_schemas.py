@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
-from app.modules.tutor.knowledge import KnowledgeSource
+from app.modules.tutor.knowledge import ExplanationMotion, ExpressionSignToken, KnowledgeSource
 
 
 class SignValidationStatus(StrEnum):
@@ -20,6 +20,7 @@ class SignReference(BaseModel):
     animation_type: str | None = None
     prototype_ready: bool = False
     validation_status: SignValidationStatus
+    reference_videos: list[dict[str, str]] = Field(default_factory=list)
 
 
 class AvatarTeachingSegment(BaseModel):
@@ -27,6 +28,10 @@ class AvatarTeachingSegment(BaseModel):
     text_si: str | None = None
     expression: str | None = None
     sign_actions: list[str]
+    expression_tokens: list[ExpressionSignToken] = Field(default_factory=list)
+    unsupported_tokens: list[str] = Field(default_factory=list)
+    support_kind: str = "key_terms"
+    motion: ExplanationMotion | None = None
 
 
 class SignSupportedText(BaseModel):
@@ -49,6 +54,7 @@ class WorkedExample(BaseModel):
     problem: str = Field(min_length=1)
     steps: list[LessonStep] = Field(min_length=1)
     answer: str = Field(min_length=1)
+    avatar_intro_segments: list[AvatarTeachingSegment] = Field(default_factory=list)
 
 
 class PracticeFeedback(BaseModel):

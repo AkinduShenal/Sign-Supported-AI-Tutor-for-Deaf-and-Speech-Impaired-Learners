@@ -68,3 +68,24 @@ The frontend build and 39 unit tests pass. Lint exits successfully with five war
 - The existing Hangman confetti code may still animate when reduced motion is requested; the existing instant fall path is preserved. Changing confetti would affect `HangmanFigure.ts`, which this visual pass does not modify.
 - Browser checks use Chrome emulation and mocked backend calls. Test on a physical phone and with the Game backend before release.
 - Some existing Sinhala copy is draft and needs the team's usual language review. No translations were rewritten here.
+
+## 11. Game feel pass — 16 October 2026
+
+Visual-only. Question data, scoring, analytics, GameSession and backend calls are unchanged.
+
+- `phaser/theme/gameBackdrop.ts`: a soft game-world backdrop (sky gradient, hills, drifting clouds, faint maths symbols) behind every Game scene, drawn well past the design edges so letterboxing never shows blank strips.
+- `phaser/theme/gameEffects.ts`: shared feedback — confetti, ✓/✕ badge pops, a star that flies into the progress path, shakes, and a level banner. No sound; nothing blocks input; every effect has a reduced-motion path.
+- `phaser/HangmanFigure.ts`: rewritten as a procedurally animated gymnast on a gym bar above a crash mat. Idle sway and blinking; each wrong answer visibly slips one finger off the bar in a realistic order — on each hand the thumb first, then little, ring, middle and finally index, hands alternating right first (the finger flicks open, the hand jolts, the body swings, a sweat drop from the third slip); once one hand has no fingers left it lets go and the figure hangs from the other. A correct answer never changes the grip — the figure does two pull-ups with kicking legs and confetti. The fall drops onto the mat, which squashes like a cushion: no impact effects, no injury (Milestone 4 §7/§9/§18).
+- `HangmanGameScene.ts`: re-laid out so both panels share edges, Submit and Hint share one row (Hint previously ran past the panel bottom), a ten-pip grip meter with an always-visible "Attempts Left", and a 4-column keypad on phones.
+- `viewport.ts`: the wide design width now follows the canvas aspect ratio (960–1360) and scenes keep it for their lifetime; a resize only refits the camera and re-rasterises text (`resharpenSceneText`).
+- `phaser/PhaserGame.tsx` + `PhaserGame.css`: a full-screen button on the game stage (browser Fullscreen API with a CSS overlay fallback for iPhone); the language toggle stays available in full screen. `App.css` was not changed.
+- Confetti and banners never originate on, or sit over, an equation.
+
+`tests/gameUi.e2e.mjs` now opens the Game tab first (the app's default tab changed). Its phone→landscape step still expects Hangman to switch to the wide layout on rotation, which Hangman has not done since its resize handler stopped restarting the scene; that assertion fails independently of this pass.
+
+## 12. Game typography — 16 October 2026
+
+- Bundled fonts in `assets/fonts/` (SIL OFL 1.1, licences beside the files): Fredoka for Latin letters and digits, Noto Sans Sinhala (real variable weights) for Sinhala. Declared in `phaser/PhaserGame.css`, served from the app bundle (no third-party font requests), and awaited by `phaser/gameFonts.ts` before the canvas boots, because Phaser rasterises Text once. If they fail to load within 3 s, the system fallback fonts in `FONT_FAMILY` are used.
+- `bilingualPair(..., { variant: 'title' })`: chunky outlined screen titles (deep purple fill, thick white outline, solid drop shadow) for Choose Your Game, Balance the Equation and Hangman; `variant: 'heading'` for bold card names. Button labels are bold in both languages (real bold, never synthetic).
+- `hudChip()`: rounded HUD pills behind the level line and the Drag & Drop instruction, resized automatically when the language toggle changes the text.
+- Equations and pans use semi-bold (600), not bold: at full bold the variable x starts to resemble the × operator.

@@ -219,6 +219,8 @@ export class PendingQuizWrites {
       if (!row.created) {
         const saved = await this.transport.create(row.request)
         if (saved.quiz_session_id !== id || saved.student_id !== row.request.student_id
+          || saved.learning_cycle_id !== row.request.learning_cycle_id
+          || saved.concept_id !== row.request.concept_id
           || saved.assessment_phase !== row.request.assessment_phase) {
           throw new Error('Quiz session acknowledgment does not match the learner and session.')
         }

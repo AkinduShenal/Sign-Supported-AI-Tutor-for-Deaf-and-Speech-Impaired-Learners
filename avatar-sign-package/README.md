@@ -18,7 +18,17 @@ This canonical package contains:
 
 ## Current prototype asset
 
-The runtime file `frontend/public/models/louise_signs_master.glb` contains 71 named educational
+The current runtime master contains **153 actions**, including 70 connected
+explanation flows for the current tutor introductions, worked steps, hints and
+Q&A. Baked phrase timings drive equation highlights and phrase replay. See
+[explanation flows, source evidence and coverage](docs/EXPLANATION_FLOWS.md).
+The 2026-10-14 number revision fixes source-referenced shapes for numbers 6–9,
+adds ordered equation reading and withholds the inaccurate legacy zero motion.
+See [number sources and remaining language work](docs/SLSL_REFERENCE_REVISION.md).
+All lexical clips remain unvalidated; the flows demonstrate mathematical meaning
+with bilingual text and diagrams rather than claiming full SLSL translation.
+
+Before the short-cue and number revisions, `frontend/public/models/louise_signs_master.glb` contained 71 named educational
 gesture actions: 22 repaired core actions, 34 review-only composites and 15 longer
 teaching-demo composites. The manifest
 marks them with `prototype_ready: true`, while their lexical
@@ -77,6 +87,7 @@ Then add tutor/remedial support signs.
 - `tools/build_linear_equation_glb_reference.py` — prototype master-GLB build reference
 - `tools/append_composite_prototype_actions.py` — guarded 34-action review expansion
 - `tools/append_teaching_prototype_actions.py` — guarded 15-action teaching expansion with source preservation checks and a backup before promotion
+- `tools/build_explanation_flows.py` — guarded 70-action connected choreography build with baked phrase timing and source preservation
 
 Runtime integration lives in:
 

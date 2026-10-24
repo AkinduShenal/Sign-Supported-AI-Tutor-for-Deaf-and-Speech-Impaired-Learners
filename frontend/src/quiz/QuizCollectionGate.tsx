@@ -5,11 +5,14 @@ import { QuizCollectionExport } from './QuizCollectionExport'
 import type { PendingQuizWrites } from './pendingQuizWrites'
 import { QuizExperience } from './QuizAssessment'
 import './quizCollection.css'
+import { readLearningContext, restoreQuizContext, selectLearningStudent } from '../learningContext'
 
 export function QuizCollectionGate({ onContinueToGame }: { onContinueToGame: () => void }) {
   const [store, setStore] = useState<PendingQuizWrites | null>(null)
   const [locked, setLocked] = useState(false)
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState(() => {
+    try { return readLearningContext()?.studentId ?? '' } catch { return '' }
+  })
   const [active, setActive] = useState<string | null>(null)
   const [confirmed, setConfirmed] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -70,6 +73,12 @@ export function QuizCollectionGate({ onContinueToGame }: { onContinueToGame: () 
     try {
       const selected = validateStudentCode(code)
       if (rows.some(row => row.request.student_id !== selected)) throw new Error('Recover and close the previous learner’s Quiz before switching codes.')
+      const existing = rows.find(row => row.request.student_id === selected)
+      if (existing) {
+        restoreQuizContext({ studentId: selected,
+          learningCycleId: existing.request.learning_cycle_id,
+          quizSessionId: `QUIZ-${existing.request.client_session_id}` })
+      } else selectLearningStudent(selected)
       setActive(selected); setError('')
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Invalid learner code') }
   }
@@ -91,7 +100,13 @@ export function QuizCollectionGate({ onContinueToGame }: { onContinueToGame: () 
       if (pending) throw new Error('Recover all pending Quiz evidence before switching.')
       for (const row of rows) store.close(`QUIZ-${row.request.client_session_id}`)
       setActive(null); setCode(''); setConfirmed(false); setError(''); setRevision(value => value + 1)
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not end collection') }
+      return true
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not end collection'); return false }
+  }
+
+  function continueToTutor() {
+    if (!store || !active || pending || busy || fatal || !rows.length || !rows.every(row => row.completed)) return
+    if (close()) onContinue?.()
   }
 
   function continueToGame(sessionId: string) {

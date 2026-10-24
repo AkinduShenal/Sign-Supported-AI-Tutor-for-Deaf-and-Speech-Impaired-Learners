@@ -93,7 +93,8 @@ print(
     "Validated lexical signs: "
     f"{sum(sign['validation_status'] == 'validated' for sign in manifest['signs'])}"
 )
-print(f"Prototype-ready educational gestures: {len(master_actions)}")
+print(f"Master animation actions: {len(master_actions)}")
+print(f"Playback-ready entries: {sum(bool(sign.get('prototype_ready')) for sign in manifest['signs'])}")
 print(f"Missing standalone source clips: {len(missing)}")
 
 if MASTER_GLB_PATH.exists():

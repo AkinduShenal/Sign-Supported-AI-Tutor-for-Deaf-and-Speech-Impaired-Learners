@@ -154,6 +154,7 @@ export function QuizExperience({ studentCode, store, onContinueToGame }: { stude
     setError(null)
     setPhase('starting')
     try {
+      const context = prepareQuizContext(studentCode)
       const id = store.start({
         student_id: studentCode, concept_id: 'linear_equations', assessment_phase: 'pre_tutor',
         display_language: language, learning_cycle_id: crypto.randomUUID(), client_session_id: crypto.randomUUID(),
