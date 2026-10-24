@@ -1,5 +1,5 @@
 import type { CreateQuizSessionInput } from './api'
-import type { QuizAnswer, QuizAnswerSaved, QuizOption, QuizSession } from './types'
+import type { QuizAnswer, QuizAnswerSaved, QuizOption, QuizQuestion, QuizSession } from './types'
 
 export const QUIZ_STORAGE_KEY = 'quiz.collection.pending.v1'
 const MAX_SESSIONS = 100
@@ -69,6 +69,7 @@ interface Snapshot {
 
 export interface QuizTransport {
   create(input: CreateQuizSessionInput): Promise<QuizSession>
+  questions?(id: string): Promise<QuizQuestion[]>
   answer(id: string, body: QuizAnswer): Promise<QuizAnswerSaved>
   complete(id: string): Promise<QuizSession>
 }
@@ -148,13 +149,15 @@ export class PendingQuizWrites {
   status(id: string): QuizCollectionStatus {
     const row = this.session(id)
     if (row.error || this.fatalError) return 'Failed'
-    if (!row.created || row.responses.some(response => !response.saved)
+    if (!row.created || (row.request.bank_mode === 'dynamic_dev' && row.question_ids.length === 0)
+      || row.responses.some(response => !response.saved)
       || (row.completion_requested && !row.completed)) return 'Pending'
     return 'Saved'
   }
   start(request: CreateQuizSessionInput, questionIds: string[]): string {
     if (this.openSessions().length) throw new Error('End the previous Quiz collection before starting another.')
-    if (!questionIds.length || new Set(questionIds).size !== questionIds.length) throw new Error('Invalid Quiz question plan')
+    if ((!questionIds.length && request.bank_mode !== 'dynamic_dev')
+      || new Set(questionIds).size !== questionIds.length) throw new Error('Invalid Quiz question plan')
     const id = `QUIZ-${request.client_session_id}`
     this.update(next => next.sessions.push({ request, question_ids: questionIds, created: false,
       session: null, responses: [], completion_requested: false, completed: false, closed: false, error: null }))
@@ -222,6 +225,17 @@ export class PendingQuizWrites {
         this.update(next => {
           const target = next.sessions.find(item => `QUIZ-${item.request.client_session_id}` === id)!
           target.created = true; target.session = saved
+        })
+      }
+      row = this.session(id)
+      if (row.request.bank_mode === 'dynamic_dev' && row.question_ids.length === 0) {
+        if (!this.transport.questions) throw new Error('Dynamic Quiz question recovery is unavailable.')
+        const questions = await this.transport.questions(id)
+        if (questions.length !== 10 || new Set(questions.map(question => question.id)).size !== 10) {
+          throw new Error('The saved dynamic Quiz plan is incomplete.')
+        }
+        this.update(next => {
+          next.sessions.find(item => `QUIZ-${item.request.client_session_id}` === id)!.question_ids = questions.map(question => question.id)
         })
       }
       while (true) {

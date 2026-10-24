@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     rag_timeout_sec: int = Field(default=15, ge=1, le=60)
     rag_model: str = "gpt-4.1-mini"
     openai_api_key: SecretStr | None = None
+    quiz_dynamic_dev_enabled: bool = False
+    quiz_dynamic_ml_demo_enabled: bool = False
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,

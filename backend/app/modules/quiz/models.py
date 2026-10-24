@@ -176,10 +176,13 @@ class QuizQuestion(Base):
         Index("idx_quiz_questions_difficulty", "difficulty_level"),
         Index("idx_quiz_questions_equivalence", "equivalence_group"),
         Index("idx_quiz_questions_subconcept", "subconcept_code"),
+        Index("ix_quiz_questions_bank_slot", "bank_version", "logical_slot"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     question_code: Mapped[str] = mapped_column(String(50))
+    bank_version: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    logical_slot: Mapped[str | None] = mapped_column(String(10), nullable=True)
     concept_id: Mapped[str] = mapped_column(String(100), default="linear_equations")
     subconcept_code: Mapped[str] = mapped_column(String(100))
     question_type: Mapped[str] = mapped_column(String(30), default="multiple_choice")
@@ -269,6 +272,7 @@ class QuizSession(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     quiz_session_id: Mapped[str] = mapped_column(String(100))
+    bank_version: Mapped[str | None] = mapped_column(String(80), nullable=True)
     student_id: Mapped[str] = mapped_column(String(100))
     concept_id: Mapped[str] = mapped_column(String(100), default="linear_equations")
     learning_cycle_id: Mapped[uuid.UUID] = mapped_column(Uuid)
@@ -284,6 +288,25 @@ class QuizSession(Base):
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class QuizSessionQuestion(Base):
+    __tablename__ = "quiz_session_questions"
+    __table_args__ = (
+        PrimaryKeyConstraint("quiz_session_id", "question_order", name=conv("quiz_session_questions_pkey")),
+        UniqueConstraint("quiz_session_id", "question_id", name=conv("quiz_session_questions_session_question_key")),
+        CheckConstraint("question_order BETWEEN 1 AND 10", name=conv("quiz_session_questions_order_check")),
+    )
+
+    quiz_session_id: Mapped[str] = mapped_column(
+        String(100), ForeignKey("quiz_sessions.quiz_session_id", ondelete="CASCADE",
+                                name=conv("quiz_session_questions_session_fkey")),
+    )
+    question_order: Mapped[int] = mapped_column(Integer)
+    question_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("quiz_questions.id", ondelete="RESTRICT",
+                         name=conv("quiz_session_questions_question_fkey")),
     )
 
 

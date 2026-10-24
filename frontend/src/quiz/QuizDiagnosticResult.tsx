@@ -1,29 +1,32 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { QuizReactionBoy } from './QuizReactionBoy'
-import { presentConfidenceInsight, presentResult } from './resultPresentation'
-import type { QuizDiagnosticResult as Diagnostic, QuizLanguage } from './types'
+import { QuizDynamicMlPrediction } from './QuizDynamicMlPrediction'
+import { QuizResultDetails } from './QuizResultDetails'
+import type { MlFeatures } from './mlFeatures'
+import type { QuizCollectionSession } from './pendingQuizWrites'
+import { presentResult } from './resultPresentation'
+import { isDynamicQuizResultSession } from './resultMetrics'
+import type { QuizDiagnosticResult as Diagnostic, QuizLanguage, QuizQuestion } from './types'
 
-type ResultIconName = 'correct' | 'incorrect' | 'level' | 'practice' | 'focus'
+type ResultIconName = 'correct' | 'incorrect'
 
 function ResultIcon({ name }: { name: ResultIconName }) {
   return <svg className="quiz-result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {name === 'correct' && <path d="m5 12 4.5 4.5L19 7" />}
     {name === 'incorrect' && <path d="M6 6 18 18M18 6 6 18" />}
-    {name === 'level' && <path d="m12 2 2.8 6.2L21 11l-6.2 2.8L12 20l-2.8-6.2L3 11l6.2-2.8L12 2Z" />}
-    {name === 'practice' && <><path d="M12 6c-2.5-1.5-5.3-1.8-9-1v14c3.7-.8 6.5-.5 9 1 2.5-1.5 5.3-1.8 9-1V5c-3.7-.8-6.5-.5-9 1ZM12 6v14" /></>}
-    {name === 'focus' && <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" /></>}
   </svg>
 }
 
-export function QuizDiagnosticResult({ result, language }: { result: Diagnostic; language: QuizLanguage }) {
+export function QuizDiagnosticResult({ result, language, bankVersion, mlFeatures, questions, collection, onContinueToGame }: { result: Diagnostic; language: QuizLanguage; bankVersion?: string | null; mlFeatures?: MlFeatures | null; questions: QuizQuestion[]; collection: QuizCollectionSession | null; onContinueToGame?: () => void }) {
+  const [copyStatus, setCopyStatus] = useState('')
   const values = presentResult(result, language)
-  const sinhalaValues = language === 'bilingual' ? presentResult(result, 'si') : null
   const showEnglish = language !== 'si'
   const scorePercent = Math.min(100, Math.max(0, Math.round(result.correct_answers / Math.max(result.questions_total, 1) * 100)))
   const scoreStyle = { '--quiz-score-percent': `${scorePercent}%` } as CSSProperties
+  const dynamicSession = isDynamicQuizResultSession(result.quiz_session_id, bankVersion, collection, questions)
 
   return (
-    <section className={`quiz-panel quiz-complete quiz-complete--diagnostic quiz-complete--${result.mastery_level}`} aria-labelledby="quiz-completed-title">
+    <section className="quiz-panel quiz-complete quiz-complete--diagnostic" aria-labelledby="quiz-completed-title">
       <div className="quiz-complete-hero">
         <div className="quiz-complete-hero-copy">
           <span className="quiz-complete-mark" aria-hidden="true">
@@ -61,36 +64,40 @@ export function QuizDiagnosticResult({ result, language }: { result: Diagnostic;
           <dt><ResultIcon name="incorrect" />{showEnglish ? 'Incorrect Answers' : 'වැරදි පිළිතුරු'}{language === 'bilingual' && <small lang="si">වැරදි පිළිතුරු</small>}</dt>
           <dd>{values.wrongAnswers}</dd>
         </div>
-        <div className="quiz-result-card quiz-result-card--level">
-          <dt><ResultIcon name="level" />{showEnglish ? 'Understanding Level' : 'අවබෝධ මට්ටම'}{language === 'bilingual' && <small lang="si">අවබෝධ මට්ටම</small>}</dt>
-          <dd>{values.level}{sinhalaValues && <small lang="si">{sinhalaValues.level}</small>}</dd>
-        </div>
-        <div className="quiz-result-card quiz-result-card--practice">
-          <dt><ResultIcon name="practice" />{showEnglish ? 'Needs More Practice' : 'තවත් පුහුණුව අවශ්‍ය ප්‍රදේශය'}{language === 'bilingual' && <small lang="si">තවත් පුහුණුව අවශ්‍ය ප්‍රදේශය</small>}</dt>
-          <dd>{values.practice}{sinhalaValues && <small lang="si">{sinhalaValues.practice}</small>}</dd>
-        </div>
-        <div className="quiz-result-card quiz-result-card--focus">
-          <dt><ResultIcon name="focus" />{showEnglish ? 'Recommended Focus' : 'නිර්දේශිත පුහුණු අවධානය'}{language === 'bilingual' && <small lang="si">නිර්දේශිත පුහුණු අවධානය</small>}</dt>
-          <dd>{values.focus}{sinhalaValues && <small lang="si">{sinhalaValues.focus}</small>}</dd>
-        </div>
       </dl>
 
-      <div className="quiz-confidence-insight">
-        <div className="quiz-confidence-insight-heading">
-          <span className="quiz-confidence-insight-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6M10 22h4M9 14c-1.8-1-3-3-3-5a6 6 0 0 1 12 0c0 2-1.2 4-3 5-.8.5-1 1.3-1 2h-4c0-.7-.2-1.5-1-2Z" /></svg></span>
-          <div>
-            <h3>{showEnglish ? 'Confidence Insight' : 'පිළිතුරු පිළිබඳ විශ්වාසයේ සාරාංශය'}</h3>
-            {language === 'bilingual' && <p lang="si" className="quiz-confidence-heading-si">පිළිතුරු පිළිබඳ විශ්වාසයේ සාරාංශය</p>}
-          </div>
-        </div>
-        {showEnglish && <p lang="en">{presentConfidenceInsight(result, 'en')}</p>}
-        {language !== 'en' && <p lang="si">{presentConfidenceInsight(result, 'si')}</p>}
-      </div>
+      {dynamicSession && <QuizDynamicMlPrediction sessionId={result.quiz_session_id} language={language} />}
+
+      <QuizResultDetails result={result} language={language} questions={questions} collection={collection} />
 
       <div className="quiz-score-note">
         {language !== 'si' && <p lang="en">The score uses your first answer to each question. Practice tries do not change it.</p>}
         {language !== 'en' && <p lang="si">ලකුණු සඳහා සෑම ප්‍රශ්නයකම පළමු පිළිතුර පමණක් ගණන් කෙරේ. පුහුණු උත්සාහවලින් ලකුණු වෙනස් නොවේ.</p>}
       </div>
+      {!dynamicSession && <div className="quiz-ml-demo" lang="en">
+        <h3>ML prediction</h3>
+        <p>Quiz session: <code>{result.quiz_session_id}</code></p>
+        {mlFeatures ? <>
+          <p>No prediction has been generated in the app. Copy this fixed Quiz session’s 45 inputs for the Colab model; the JSON contains no student code or personal details.</p>
+          <button className="quiz-primary" type="button" onClick={() => {
+            if (!navigator.clipboard?.writeText) {
+              setCopyStatus('Clipboard access is unavailable in this browser.')
+              return
+            }
+            void navigator.clipboard.writeText(JSON.stringify(mlFeatures, null, 2))
+              .then(() => setCopyStatus('ML features copied as JSON.'))
+              .catch(() => setCopyStatus('Clipboard access failed. Please allow clipboard access and try again.'))
+          }}>Copy ML Features</button>
+        </> : <p>No prediction is available. The Quiz model is not connected to this app.</p>}
+        {copyStatus && <p role="status">{copyStatus}</p>}
+      </div>}
+      {onContinueToGame && <div className="quiz-result-next-step">
+        <button className="quiz-primary quiz-continue-game" type="button" onClick={onContinueToGame}>
+          {language !== 'si' && <span>Continue to Game</span>}
+          {language !== 'en' && <span lang="si">ක්‍රීඩාවට ඉදිරියට යන්න</span>}
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>}
     </section>
   )
 }
