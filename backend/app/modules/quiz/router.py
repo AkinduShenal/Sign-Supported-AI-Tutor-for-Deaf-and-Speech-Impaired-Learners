@@ -8,11 +8,15 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.modules.quiz.collection_export import quiz_collection_zip, require_quiz_export_access
 from app.modules.quiz.diagnostic_service import QuizDiagnosticService
+from app.modules.quiz.dynamic_ml_inference import (
+    prediction_enabled, predict_completed_dynamic_session,
+)
 from app.modules.quiz.schemas import (
     AssessmentPhase,
     QuizAnswerSavedResponse,
     QuizAnswerSubmit,
     QuizDiagnosticResponse,
+    QuizDynamicMlPredictionResponse,
     QuizQuestionResponse,
     QuizSessionCreate,
     QuizSessionDetailResponse,
@@ -78,6 +82,16 @@ def get_session(quiz_session_id: str, database: Database) -> QuizSessionDetailRe
         raise HTTPException(status_code=404, detail=str(error)) from error
 
 
+@router.get("/sessions/{quiz_session_id}/questions", response_model=list[QuizQuestionResponse])
+def list_session_questions(quiz_session_id: str, database: Database) -> list[QuizQuestionResponse]:
+    try:
+        return service.list_session_questions(database, quiz_session_id)
+    except QuizNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except QuizConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+
+
 @router.post(
     "/sessions/{quiz_session_id}/responses",
     response_model=QuizAnswerSavedResponse,
@@ -127,5 +141,22 @@ def analyze_session(quiz_session_id: str, database: Database) -> QuizDiagnosticR
 def get_result(quiz_session_id: str, database: Database) -> QuizDiagnosticResponse:
     try:
         return diagnostic_service.get_result(database, quiz_session_id)
+    except QuizNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@router.get(
+    "/sessions/{quiz_session_id}/experimental-prediction",
+    response_model=QuizDynamicMlPredictionResponse,
+)
+def get_experimental_prediction(
+    quiz_session_id: str, database: Database,
+) -> QuizDynamicMlPredictionResponse:
+    if not prediction_enabled(database):
+        raise HTTPException(status_code=404, detail="Experimental prediction is unavailable")
+    try:
+        return QuizDynamicMlPredictionResponse.model_validate(
+            predict_completed_dynamic_session(database, quiz_session_id)
+        )
     except QuizNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error

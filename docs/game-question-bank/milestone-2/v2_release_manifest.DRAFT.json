@@ -1,0 +1,3075 @@
+{
+  "design_schema_version": "game-question-bank-v2-design-1",
+  "release_id": "GAME_LEQ_V2_DRAFT_20261020_001",
+  "status": "DRAFT_TEACHER_REVIEW_REQUIRED",
+  "prepared_on": "2026-10-20",
+  "prepared_timezone": "Asia/Colombo",
+  "activation_enabled": false,
+  "production_approved": false,
+  "database_verified": false,
+  "source_bank": {
+    "kind": "live_frontend_v1_only",
+    "path": "frontend/src/game/data/equationVariants.ts",
+    "variants": 18,
+    "distinct_original_activities": 10,
+    "sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+  },
+  "rubric": {
+    "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+    "status": "TEACHER_REVIEW_REQUIRED",
+    "beginner": "One inverse operation; judge signed arithmetic separately.",
+    "intermediate": "Two inverse operations with variable on one side; constant denominators provisionally permitted.",
+    "advanced": "Variables on both sides, multi-step bracket/denominator reasoning or at least three inverse operations.",
+    "borderline_decision": "Two original simple multiplicative-bracket questions are provisionally Advanced despite a two-operation shortcut; teacher may choose Intermediate. Grouped numerator divided by a constant is provisionally Intermediate.",
+    "approved_by": null,
+    "approved_on": null
+  },
+  "content_hash_contract": {
+    "algorithm": "SHA-256",
+    "canonicalization": "UTF-8 JSON, sorted keys, ensure_ascii=false, allow_nan=false, compact comma/colon separators",
+    "question_scope": "All question fields except content_hash, approved_difficulty, teacher_review. Proposed difficulty and rubric version ARE hashed.",
+    "manifest_scope": "Entire manifest except manifest_hash",
+    "approval_policy": "Separate actual teacher attestation tied to exact content hash and rubric. Approved difficulty must match proposal; otherwise create a new revision. Never overwrite this draft as an approved release.",
+    "limitation": "Traceability/tamper detection only; not signatures or enforced filesystem immutability."
+  },
+  "expected_proposed_distribution": {
+    "beginner": 10,
+    "intermediate": 10,
+    "advanced": 10
+  },
+  "proposed_primary_variant_ids": [
+    "GQBV2_Q001_R01",
+    "GQBV2_Q002_R01",
+    "GQBV2_Q003_R01",
+    "GQBV2_Q004_R01",
+    "GQBV2_Q005_R01",
+    "GQBV2_Q006_R01",
+    "GQBV2_Q007_R01",
+    "GQBV2_Q008_R01",
+    "GQBV2_Q009_R01",
+    "GQBV2_Q010_R01",
+    "GQBV2_Q011_R01",
+    "GQBV2_Q012_R01",
+    "GQBV2_Q013_R01",
+    "GQBV2_Q014_R01",
+    "GQBV2_Q015_R01",
+    "GQBV2_Q016_R01",
+    "GQBV2_Q017_R01",
+    "GQBV2_Q018_R01",
+    "GQBV2_Q019_R01",
+    "GQBV2_Q020_R01",
+    "GQBV2_Q021_R01",
+    "GQBV2_Q022_R01",
+    "GQBV2_Q023_R01",
+    "GQBV2_Q024_R01",
+    "GQBV2_Q025_R01",
+    "GQBV2_Q026_R01",
+    "GQBV2_Q027_R01",
+    "GQBV2_Q028_R01",
+    "GQBV2_Q029_R01",
+    "GQBV2_Q030_R01"
+  ],
+  "reserve_variant_ids": [
+    "GQBV2_Q031_R01",
+    "GQBV2_Q032_R01",
+    "GQBV2_Q033_R01",
+    "GQBV2_Q034_R01",
+    "GQBV2_Q035_R01",
+    "GQBV2_Q036_R01"
+  ],
+  "active_variant_ids": [],
+  "activities": [
+    {
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "proposed_difficulty": "beginner",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "proposed_difficulty": "beginner",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_TWO_STEP_R01",
+      "proposed_difficulty": "intermediate",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_BRACKETS_R01",
+      "proposed_difficulty": "advanced",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "proposed_difficulty": "advanced",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "proposed_difficulty": "intermediate",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_BRACKETS_WITH_OFFSET_R01",
+      "proposed_difficulty": "advanced",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    },
+    {
+      "activity_id": "GQBV2_ACT_DENOMINATOR_BOTH_SIDES_R01",
+      "proposed_difficulty": "advanced",
+      "status": "DRAFT_TEACHER_REVIEW_REQUIRED"
+    }
+  ],
+  "assessment_contract": {
+    "tasks_per_session": 6,
+    "tasks_per_tier": {
+      "beginner": 2,
+      "intermediate": 2,
+      "advanced": 2
+    },
+    "proposed_internal_tier_mapping": {
+      "beginner": "easy",
+      "intermediate": "medium",
+      "advanced": "hard"
+    },
+    "drag_drop_scored_unit": "Persisted inverse-operation step",
+    "hangman_scored_unit": "One final-value question; internal operation steps are not extra Hangman answers",
+    "release_pinned_at_session_start": true,
+    "legacy_queue_rewrite_permitted": false,
+    "release_gate": "Actual teacher/rubric approval and hashes; 30 selected revisions, 10 approved per tier; both-mode/language verification; compatible recovery/export; database inventory before shared-DB publication. Not implemented here."
+  },
+  "questions": [
+    {
+      "question_variant_id": "GQBV2_Q001_R01",
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "superseded_v1_id": "LEQ_E_001",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_E_001",
+        "original_activity_id": "LEQ_ONE_STEP_ADD",
+        "original_difficulty": "easy",
+        "original_concept": "one_step_addition",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x + 3 = 7",
+      "answer": "4",
+      "concept": "one_step_addition",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-3",
+          "step_text": "x + 3 - 3 = 7 - 3",
+          "result_equation": "x = 4",
+          "hint_en": "Use the opposite operation to remove +3.",
+          "choices": [
+            {
+              "label": "-3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -3 to both sides.",
+      "classification_reason": "One inverse operation; retain the tier under its proposed display label.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "74e6e5bdb40c11d7d7350146a818b1b47ed228a73dab511bd29b352e29e2b449"
+    },
+    {
+      "question_variant_id": "GQBV2_Q002_R01",
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "superseded_v1_id": "LEQ_E_002",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_E_002",
+        "original_activity_id": "LEQ_ONE_STEP_SUB",
+        "original_difficulty": "easy",
+        "original_concept": "one_step_subtraction",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x - 5 = 8",
+      "answer": "13",
+      "concept": "one_step_subtraction",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+5",
+          "step_text": "x - 5 + 5 = 8 + 5",
+          "result_equation": "x = 13",
+          "hint_en": "Use the opposite operation to remove -5.",
+          "choices": [
+            {
+              "label": "+5",
+              "is_correct": true
+            },
+            {
+              "label": "-5",
+              "is_correct": false
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            },
+            {
+              "label": "÷5",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +5 to both sides.",
+      "classification_reason": "One inverse operation; retain the tier under its proposed display label.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "bac41385848ef90333802eaeeca09f9658d4571b96113ea45974e0ba261395b1"
+    },
+    {
+      "question_variant_id": "GQBV2_Q003_R01",
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "superseded_v1_id": "LEQ_E_003",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_E_003",
+        "original_activity_id": "LEQ_ONE_STEP_MUL",
+        "original_difficulty": "easy",
+        "original_concept": "one_step_multiplication",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "3x = 12",
+      "answer": "4",
+      "concept": "one_step_multiplication",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "÷3",
+          "step_text": "3x ÷ 3 = 12 ÷ 3",
+          "result_equation": "x = 4",
+          "hint_en": "3 is multiplying x. Use the opposite operation.",
+          "choices": [
+            {
+              "label": "÷3",
+              "is_correct": true
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ÷3 to both sides.",
+      "classification_reason": "One inverse operation; retain the tier under its proposed display label.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "fb200aaff504875f30ba65356890650f612988153cf4452f3ff654e1803e97ac"
+    },
+    {
+      "question_variant_id": "GQBV2_Q004_R01",
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "superseded_v1_id": "LEQ_E_004",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_E_004",
+        "original_activity_id": "LEQ_ONE_STEP_DIV",
+        "original_difficulty": "easy",
+        "original_concept": "one_step_division",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x ÷ 4 = 5",
+      "answer": "20",
+      "concept": "one_step_division",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×4",
+          "step_text": "(x ÷ 4) × 4 = 5 × 4",
+          "result_equation": "x = 20",
+          "hint_en": "x is divided by 4. Use the opposite operation.",
+          "choices": [
+            {
+              "label": "×4",
+              "is_correct": true
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "-4",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×4 to both sides.",
+      "classification_reason": "One inverse operation; retain the tier under its proposed display label.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "e12db1ba6dc3d9a310acad1bd685d2ec8634df1162de4d8714dd60b378604bca"
+    },
+    {
+      "question_variant_id": "GQBV2_Q005_R01",
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "superseded_v1_id": "LEQ_E_005",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_E_005",
+        "original_activity_id": "LEQ_ONE_STEP_ADD",
+        "original_difficulty": "easy",
+        "original_concept": "one_step_addition",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x + 8 = 15",
+      "answer": "7",
+      "concept": "one_step_addition",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-8",
+          "step_text": "x + 8 - 8 = 15 - 8",
+          "result_equation": "x = 7",
+          "hint_en": "Use the opposite operation to remove +8.",
+          "choices": [
+            {
+              "label": "-8",
+              "is_correct": true
+            },
+            {
+              "label": "+8",
+              "is_correct": false
+            },
+            {
+              "label": "×8",
+              "is_correct": false
+            },
+            {
+              "label": "÷8",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -8 to both sides.",
+      "classification_reason": "One inverse operation; retain the tier under its proposed display label.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "fc11ae8c326fd644c5e408582df8bef74bda3b0e31ba89830b84d1d165279cd0"
+    },
+    {
+      "question_variant_id": "GQBV2_Q006_R01",
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "superseded_v1_id": "LEQ_E_006",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_E_006",
+        "original_activity_id": "LEQ_ONE_STEP_MUL",
+        "original_difficulty": "easy",
+        "original_concept": "one_step_multiplication",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "5x = 35",
+      "answer": "7",
+      "concept": "one_step_multiplication",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "÷5",
+          "step_text": "5x ÷ 5 = 35 ÷ 5",
+          "result_equation": "x = 7",
+          "hint_en": "5 is multiplying x. Use the opposite operation.",
+          "choices": [
+            {
+              "label": "÷5",
+              "is_correct": true
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            },
+            {
+              "label": "+5",
+              "is_correct": false
+            },
+            {
+              "label": "-5",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ÷5 to both sides.",
+      "classification_reason": "One inverse operation; retain the tier under its proposed display label.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "f9cbdb837bf34cc5d2bc83d5cea5e3a903b5c6c647f857231d1e2d0f6f43bb94"
+    },
+    {
+      "question_variant_id": "GQBV2_Q007_R01",
+      "activity_id": "GQBV2_ACT_TWO_STEP_R01",
+      "superseded_v1_id": "LEQ_M_001",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_M_001",
+        "original_activity_id": "LEQ_TWO_STEP",
+        "original_difficulty": "medium",
+        "original_concept": "two_step_equation",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "2x + 3 = 11",
+      "answer": "4",
+      "concept": "two_step_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-3",
+          "step_text": "2x + 3 - 3 = 11 - 3",
+          "result_equation": "2x = 8",
+          "hint_en": "Remove +3 first.",
+          "choices": [
+            {
+              "label": "-3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷2",
+          "step_text": "2x ÷ 2 = 8 ÷ 2",
+          "result_equation": "x = 4",
+          "hint_en": "Now remove the multiplication by 2.",
+          "choices": [
+            {
+              "label": "÷2",
+              "is_correct": true
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -3, then ÷2 to both sides.",
+      "classification_reason": "Two inverse operations; Medium maps to Intermediate.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "2abcd9f668d9a67bb4b9c7ce97e139ceecd98c59bb19eabc35a1a67f9b39cad6"
+    },
+    {
+      "question_variant_id": "GQBV2_Q008_R01",
+      "activity_id": "GQBV2_ACT_TWO_STEP_R01",
+      "superseded_v1_id": "LEQ_M_002",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_M_002",
+        "original_activity_id": "LEQ_TWO_STEP",
+        "original_difficulty": "medium",
+        "original_concept": "two_step_equation",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "3x - 4 = 11",
+      "answer": "5",
+      "concept": "two_step_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+4",
+          "step_text": "3x - 4 + 4 = 11 + 4",
+          "result_equation": "3x = 15",
+          "hint_en": "Remove -4 first.",
+          "choices": [
+            {
+              "label": "+4",
+              "is_correct": true
+            },
+            {
+              "label": "-4",
+              "is_correct": false
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            },
+            {
+              "label": "×4",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷3",
+          "step_text": "3x ÷ 3 = 15 ÷ 3",
+          "result_equation": "x = 5",
+          "hint_en": "Now remove the multiplication by 3.",
+          "choices": [
+            {
+              "label": "÷3",
+              "is_correct": true
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +4, then ÷3 to both sides.",
+      "classification_reason": "Two inverse operations; Medium maps to Intermediate.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "5116f371e4c0ffd6bcc68dea8f821fff4a96e9b9c4441cc669b9f97567fda764"
+    },
+    {
+      "question_variant_id": "GQBV2_Q009_R01",
+      "activity_id": "GQBV2_ACT_BRACKETS_R01",
+      "superseded_v1_id": "LEQ_M_003",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_M_003",
+        "original_activity_id": "LEQ_BRACKET",
+        "original_difficulty": "medium",
+        "original_concept": "bracket_equation",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "2(x + 3) = 16",
+      "answer": "5",
+      "concept": "bracket_equation",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "÷2",
+          "step_text": "2(x + 3) ÷ 2 = 16 ÷ 2",
+          "result_equation": "x + 3 = 8",
+          "hint_en": "Remove the bracket by undoing the ×2 outside it first.",
+          "choices": [
+            {
+              "label": "÷2",
+              "is_correct": true
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-3",
+          "step_text": "x + 3 - 3 = 8 - 3",
+          "result_equation": "x = 5",
+          "hint_en": "Now remove +3.",
+          "choices": [
+            {
+              "label": "-3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ÷2, then -3 to both sides.",
+      "classification_reason": "Provisional Advanced under the bracket guideline, but dividing first gives two operations. Teacher may approve Intermediate.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "4f49c3686673b5d8a94a3ad4b47a8407a23e4a952183b4ef16e2e4802f710042"
+    },
+    {
+      "question_variant_id": "GQBV2_Q010_R01",
+      "activity_id": "GQBV2_ACT_BRACKETS_R01",
+      "superseded_v1_id": "LEQ_M_004",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_M_004",
+        "original_activity_id": "LEQ_BRACKET",
+        "original_difficulty": "medium",
+        "original_concept": "bracket_equation",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "3(x - 2) = 18",
+      "answer": "8",
+      "concept": "bracket_equation",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "÷3",
+          "step_text": "3(x - 2) ÷ 3 = 18 ÷ 3",
+          "result_equation": "x - 2 = 6",
+          "hint_en": "Remove the bracket by undoing the ×3 outside it first.",
+          "choices": [
+            {
+              "label": "÷3",
+              "is_correct": true
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "+2",
+          "step_text": "x - 2 + 2 = 6 + 2",
+          "result_equation": "x = 8",
+          "hint_en": "Now remove -2.",
+          "choices": [
+            {
+              "label": "+2",
+              "is_correct": true
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ÷3, then +2 to both sides.",
+      "classification_reason": "Provisional Advanced under the bracket guideline, but dividing first gives two operations. Teacher may approve Intermediate.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "d6cfab0edea32cdd3a1906a0a5cd56c4233c757ea308020325710b8730afa724"
+    },
+    {
+      "question_variant_id": "GQBV2_Q011_R01",
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "superseded_v1_id": "LEQ_M_005",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_M_005",
+        "original_activity_id": "LEQ_VAR_BOTH_SIDES",
+        "original_difficulty": "medium",
+        "original_concept": "variable_on_both_sides",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "2x + 3 = x + 7",
+      "answer": "4",
+      "concept": "variable_on_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-x",
+          "step_text": "2x + 3 - x = x + 7 - x",
+          "result_equation": "x + 3 = 7",
+          "hint_en": "Remove x from both sides to collect the variable on one side.",
+          "choices": [
+            {
+              "label": "-x",
+              "is_correct": true
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            },
+            {
+              "label": "-2x",
+              "is_correct": false
+            },
+            {
+              "label": "+2x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-3",
+          "step_text": "x + 3 - 3 = 7 - 3",
+          "result_equation": "x = 4",
+          "hint_en": "Now remove +3.",
+          "choices": [
+            {
+              "label": "-3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -x, then -3 to both sides.",
+      "classification_reason": "Collect variable terms from both sides; proposed Advanced conceptual demand.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "0f7d861a0c1f526c2ba52430388ea9baf6c8497e26b8096766b711577d3bf334"
+    },
+    {
+      "question_variant_id": "GQBV2_Q012_R01",
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "superseded_v1_id": "LEQ_M_006",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_M_006",
+        "original_activity_id": "LEQ_VAR_BOTH_SIDES",
+        "original_difficulty": "medium",
+        "original_concept": "variable_on_both_sides",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "3x + 4 = x + 10",
+      "answer": "3",
+      "concept": "variable_on_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-x",
+          "step_text": "3x + 4 - x = x + 10 - x",
+          "result_equation": "2x + 4 = 10",
+          "hint_en": "Remove x from both sides to collect the variable on one side.",
+          "choices": [
+            {
+              "label": "-x",
+              "is_correct": true
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            },
+            {
+              "label": "-3x",
+              "is_correct": false
+            },
+            {
+              "label": "+3x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-4",
+          "step_text": "2x + 4 - 4 = 10 - 4",
+          "result_equation": "2x = 6",
+          "hint_en": "Now remove +4.",
+          "choices": [
+            {
+              "label": "-4",
+              "is_correct": true
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "×4",
+              "is_correct": false
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "÷2",
+          "step_text": "2x ÷ 2 = 6 ÷ 2",
+          "result_equation": "x = 3",
+          "hint_en": "Now remove the multiplication by 2.",
+          "choices": [
+            {
+              "label": "÷2",
+              "is_correct": true
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -x, then -4, then ÷2 to both sides.",
+      "classification_reason": "Collect variable terms from both sides and complete three operations.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "e3850f38e53cd2d5d0f6360d049780ccd115256022de483226d2b1215282de98"
+    },
+    {
+      "question_variant_id": "GQBV2_Q013_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": "LEQ_H_001",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_H_001",
+        "original_activity_id": "LEQ_FRACTIONAL",
+        "original_difficulty": "hard",
+        "original_concept": "fractional_equation",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x ÷ 2 + 3 = 7",
+      "answer": "8",
+      "concept": "fractional_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-3",
+          "step_text": "x ÷ 2 + 3 - 3 = 7 - 3",
+          "result_equation": "x ÷ 2 = 4",
+          "hint_en": "Remove +3 first.",
+          "choices": [
+            {
+              "label": "-3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "×2",
+          "step_text": "(x ÷ 2) × 2 = 4 × 2",
+          "result_equation": "x = 8",
+          "hint_en": "x is divided by 2. Use the opposite operation.",
+          "choices": [
+            {
+              "label": "×2",
+              "is_correct": true
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -3, then ×2 to both sides.",
+      "classification_reason": "Two inverse operations with a constant denominator; Hard overstates the proposed tier.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "ea9276baed08fba74426e45816d498789813ca1e7df9eb40a48ffa6692257fb3"
+    },
+    {
+      "question_variant_id": "GQBV2_Q014_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": "LEQ_H_002",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_H_002",
+        "original_activity_id": "LEQ_FRACTIONAL",
+        "original_difficulty": "hard",
+        "original_concept": "fractional_equation",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x ÷ 3 - 2 = 5",
+      "answer": "21",
+      "concept": "fractional_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+2",
+          "step_text": "x ÷ 3 - 2 + 2 = 5 + 2",
+          "result_equation": "x ÷ 3 = 7",
+          "hint_en": "Remove -2 first.",
+          "choices": [
+            {
+              "label": "+2",
+              "is_correct": true
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "×3",
+          "step_text": "(x ÷ 3) × 3 = 7 × 3",
+          "result_equation": "x = 21",
+          "hint_en": "x is divided by 3. Use the opposite operation.",
+          "choices": [
+            {
+              "label": "×3",
+              "is_correct": true
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +2, then ×3 to both sides.",
+      "classification_reason": "Two inverse operations with a constant denominator; Hard overstates the proposed tier.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "9b26ea19c58534a3a220f4cb2b6f27552f9110a0cf1d8fb60305de8de6dd7227"
+    },
+    {
+      "question_variant_id": "GQBV2_Q015_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": "LEQ_H_003",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_H_003",
+        "original_activity_id": "LEQ_ALGEBRAIC_FRACTION",
+        "original_difficulty": "hard",
+        "original_concept": "algebraic_fraction",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "(x + 1) ÷ 2 = 5",
+      "answer": "9",
+      "concept": "constant_denominator_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×2",
+          "step_text": "((x + 1) ÷ 2) × 2 = 5 × 2",
+          "result_equation": "x + 1 = 10",
+          "hint_en": "Clear the fraction first by multiplying both sides by 2.",
+          "choices": [
+            {
+              "label": "×2",
+              "is_correct": true
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-1",
+          "step_text": "x + 1 - 1 = 10 - 1",
+          "result_equation": "x = 9",
+          "hint_en": "Now remove +1.",
+          "choices": [
+            {
+              "label": "-1",
+              "is_correct": true
+            },
+            {
+              "label": "+1",
+              "is_correct": false
+            },
+            {
+              "label": "×1",
+              "is_correct": false
+            },
+            {
+              "label": "÷1",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×2, then -1 to both sides.",
+      "classification_reason": "Two inverse operations on a grouped numerator; no variable denominator or domain restriction.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "3f38786725a46ba9c5a6cec6a6611e3baf09a78c60eecf8545c45412bc4ba89b"
+    },
+    {
+      "question_variant_id": "GQBV2_Q016_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": "LEQ_H_004",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_H_004",
+        "original_activity_id": "LEQ_ALGEBRAIC_FRACTION",
+        "original_difficulty": "hard",
+        "original_concept": "algebraic_fraction",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "(x - 3) ÷ 4 = 2",
+      "answer": "11",
+      "concept": "constant_denominator_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×4",
+          "step_text": "((x - 3) ÷ 4) × 4 = 2 × 4",
+          "result_equation": "x - 3 = 8",
+          "hint_en": "Clear the fraction first by multiplying both sides by 4.",
+          "choices": [
+            {
+              "label": "×4",
+              "is_correct": true
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "-4",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "+3",
+          "step_text": "x - 3 + 3 = 8 + 3",
+          "result_equation": "x = 11",
+          "hint_en": "Now remove -3.",
+          "choices": [
+            {
+              "label": "+3",
+              "is_correct": true
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×4, then +3 to both sides.",
+      "classification_reason": "Two inverse operations on a grouped numerator; no variable denominator or domain restriction.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "9967ccc36d365536014f1a407756bf98fae721501e41c167203360bd9f163ccb"
+    },
+    {
+      "question_variant_id": "GQBV2_Q017_R01",
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "superseded_v1_id": "LEQ_H_005",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_H_005",
+        "original_activity_id": "LEQ_WORD_PROBLEM",
+        "original_difficulty": "hard",
+        "original_concept": "word_problem_one_step",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "x + 6 = 20",
+      "answer": "14",
+      "concept": "one_step_addition",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-6",
+          "step_text": "x + 6 - 6 = 20 - 6",
+          "result_equation": "x = 14",
+          "hint_en": "A number increased by 6 gives 20 — remove +6 from both sides.",
+          "choices": [
+            {
+              "label": "-6",
+              "is_correct": true
+            },
+            {
+              "label": "+6",
+              "is_correct": false
+            },
+            {
+              "label": "×6",
+              "is_correct": false
+            },
+            {
+              "label": "÷6",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -6 to both sides.",
+      "classification_reason": "One-step equation is supplied. Its old word-problem activity name does not establish equation-construction evidence.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "3dc6982bd4f5a2acefdb45e2b78dbea5241304b2f92f4f547005fdfccac7f5ae"
+    },
+    {
+      "question_variant_id": "GQBV2_Q018_R01",
+      "activity_id": "GQBV2_ACT_TWO_STEP_R01",
+      "superseded_v1_id": "LEQ_H_006",
+      "origin": {
+        "kind": "carried_forward_live_v1",
+        "original_variant_id": "LEQ_H_006",
+        "original_activity_id": "LEQ_WORD_PROBLEM",
+        "original_difficulty": "hard",
+        "original_concept": "word_problem_two_step",
+        "source_file": "frontend/src/game/data/equationVariants.ts",
+        "source_file_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c"
+      },
+      "equation": "2x - 5 = 13",
+      "answer": "9",
+      "concept": "two_step_equation",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+5",
+          "step_text": "2x - 5 + 5 = 13 + 5",
+          "result_equation": "2x = 18",
+          "hint_en": "Double a number, then subtract 5, gives 13 — remove -5 first.",
+          "choices": [
+            {
+              "label": "+5",
+              "is_correct": true
+            },
+            {
+              "label": "-5",
+              "is_correct": false
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            },
+            {
+              "label": "÷5",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷2",
+          "step_text": "2x ÷ 2 = 18 ÷ 2",
+          "result_equation": "x = 9",
+          "hint_en": "Now remove the multiplication by 2.",
+          "choices": [
+            {
+              "label": "÷2",
+              "is_correct": true
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +5, then ÷2 to both sides.",
+      "classification_reason": "Two-step equation is supplied; its old word-problem activity name does not make it Advanced.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "d5aae933b6340889d8fa5463ed45f7e9cd61699b2610e8bb6fec3f5cfa868ab0"
+    },
+    {
+      "question_variant_id": "GQBV2_Q019_R01",
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "x + 9 = 2",
+      "answer": "-7",
+      "concept": "add_sub",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-9",
+          "step_text": "(x + 9) - 9 = (2) - 9",
+          "result_equation": "x = -7",
+          "hint_en": "Subtract 9 from both sides.",
+          "choices": [
+            {
+              "label": "-9",
+              "is_correct": true
+            },
+            {
+              "label": "+9",
+              "is_correct": false
+            },
+            {
+              "label": "×9",
+              "is_correct": false
+            },
+            {
+              "label": "÷9",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -9 to both sides.",
+      "classification_reason": "One inverse operation with a negative solution; explicit teacher sign-demand decision.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "5f6f5ae78ab7eb3f8c9694b98923a0c7370c5834dbd433406c520cb00017b5f0"
+    },
+    {
+      "question_variant_id": "GQBV2_Q020_R01",
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "7x = 42",
+      "answer": "6",
+      "concept": "mul_div",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "÷7",
+          "step_text": "(7x) ÷ 7 = (42) ÷ 7",
+          "result_equation": "x = 6",
+          "hint_en": "Divide both sides by 7.",
+          "choices": [
+            {
+              "label": "÷7",
+              "is_correct": true
+            },
+            {
+              "label": "+7",
+              "is_correct": false
+            },
+            {
+              "label": "-7",
+              "is_correct": false
+            },
+            {
+              "label": "×7",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ÷7 to both sides.",
+      "classification_reason": "One division with a new positive coefficient.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "6fa516b90601803772ed11450e9b49317b3f013b1a9609d343da9e07b472fdd6"
+    },
+    {
+      "question_variant_id": "GQBV2_Q021_R01",
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "x ÷ 6 = 4",
+      "answer": "24",
+      "concept": "mul_div",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×6",
+          "step_text": "(x ÷ 6) × 6 = (4) × 6",
+          "result_equation": "x = 24",
+          "hint_en": "Multiply every term on both sides by 6.",
+          "choices": [
+            {
+              "label": "×6",
+              "is_correct": true
+            },
+            {
+              "label": "+6",
+              "is_correct": false
+            },
+            {
+              "label": "-6",
+              "is_correct": false
+            },
+            {
+              "label": "÷6",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×6 to both sides.",
+      "classification_reason": "One multiplication to undo division.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "9131f5a8f35778b649f30f21eddca1543fe16c97de285743d9cf156937c5377c"
+    },
+    {
+      "question_variant_id": "GQBV2_Q022_R01",
+      "activity_id": "GQBV2_ACT_TWO_STEP_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "4x + 7 = -9",
+      "answer": "-4",
+      "concept": "two_step",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-7",
+          "step_text": "(4x + 7) - 7 = (-9) - 7",
+          "result_equation": "4x = -16",
+          "hint_en": "Subtract 7 from both sides.",
+          "choices": [
+            {
+              "label": "-7",
+              "is_correct": true
+            },
+            {
+              "label": "+7",
+              "is_correct": false
+            },
+            {
+              "label": "×7",
+              "is_correct": false
+            },
+            {
+              "label": "÷7",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷4",
+          "step_text": "(4x) ÷ 4 = (-16) ÷ 4",
+          "result_equation": "x = -4",
+          "hint_en": "Divide both sides by 4.",
+          "choices": [
+            {
+              "label": "÷4",
+              "is_correct": true
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "-4",
+              "is_correct": false
+            },
+            {
+              "label": "×4",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -7, then ÷4 to both sides.",
+      "classification_reason": "Two inverse operations with signed arithmetic.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "8b1cba22144b87932f840677ad18378e472664f828937088286b999960a43d50"
+    },
+    {
+      "question_variant_id": "GQBV2_Q023_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "x ÷ 4 - 3 = -1",
+      "answer": "8",
+      "concept": "constant_denominator",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+3",
+          "step_text": "(x ÷ 4 - 3) + 3 = (-1) + 3",
+          "result_equation": "x ÷ 4 = 2",
+          "hint_en": "Add 3 to both sides.",
+          "choices": [
+            {
+              "label": "+3",
+              "is_correct": true
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "×4",
+          "step_text": "(x ÷ 4) × 4 = (2) × 4",
+          "result_equation": "x = 8",
+          "hint_en": "Multiply every term on both sides by 4.",
+          "choices": [
+            {
+              "label": "×4",
+              "is_correct": true
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "-4",
+              "is_correct": false
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +3, then ×4 to both sides.",
+      "classification_reason": "Two operations with a constant denominator and a negative right side.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "00ee0b2cd9e75a0220acb7fee46a9d106a708a9fc341377294f7e8f5dec00b2d"
+    },
+    {
+      "question_variant_id": "GQBV2_Q024_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "(x + 5) ÷ 3 = 6",
+      "answer": "13",
+      "concept": "constant_denominator",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×3",
+          "step_text": "((x + 5) ÷ 3) × 3 = (6) × 3",
+          "result_equation": "x + 5 = 18",
+          "hint_en": "Multiply every term on both sides by 3.",
+          "choices": [
+            {
+              "label": "×3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-5",
+          "step_text": "(x + 5) - 5 = (18) - 5",
+          "result_equation": "x = 13",
+          "hint_en": "Subtract 5 from both sides.",
+          "choices": [
+            {
+              "label": "-5",
+              "is_correct": true
+            },
+            {
+              "label": "+5",
+              "is_correct": false
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            },
+            {
+              "label": "÷5",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×3, then -5 to both sides.",
+      "classification_reason": "Grouped numerator with two inverse operations and no variable denominator.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "108645ffecf1db731c65ff387e452ae99e20e26bbd552004e414d44085157bbe"
+    },
+    {
+      "question_variant_id": "GQBV2_Q025_R01",
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "4x + 5 = 2x + 17",
+      "answer": "6",
+      "concept": "variable_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-2x",
+          "step_text": "(4x + 5) - 2x = (2x + 17) - 2x",
+          "result_equation": "2x + 5 = 17",
+          "hint_en": "Subtract 2x from both sides.",
+          "choices": [
+            {
+              "label": "-2x",
+              "is_correct": true
+            },
+            {
+              "label": "+2x",
+              "is_correct": false
+            },
+            {
+              "label": "-x",
+              "is_correct": false
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-5",
+          "step_text": "(2x + 5) - 5 = (17) - 5",
+          "result_equation": "2x = 12",
+          "hint_en": "Subtract 5 from both sides.",
+          "choices": [
+            {
+              "label": "-5",
+              "is_correct": true
+            },
+            {
+              "label": "+5",
+              "is_correct": false
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            },
+            {
+              "label": "÷5",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "÷2",
+          "step_text": "(2x) ÷ 2 = (12) ÷ 2",
+          "result_equation": "x = 6",
+          "hint_en": "Divide both sides by 2.",
+          "choices": [
+            {
+              "label": "÷2",
+              "is_correct": true
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -2x, then -5, then ÷2 to both sides.",
+      "classification_reason": "Variables on both sides; collect terms and use two further inverse operations.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "92120aabdc9c42c606c49bf3889ab8a9cd314352885c71b9ab9b045eb30677f4"
+    },
+    {
+      "question_variant_id": "GQBV2_Q026_R01",
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "5x + 16 = 2x + 7",
+      "answer": "-3",
+      "concept": "variable_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-2x",
+          "step_text": "(5x + 16) - 2x = (2x + 7) - 2x",
+          "result_equation": "3x + 16 = 7",
+          "hint_en": "Subtract 2x from both sides.",
+          "choices": [
+            {
+              "label": "-2x",
+              "is_correct": true
+            },
+            {
+              "label": "+2x",
+              "is_correct": false
+            },
+            {
+              "label": "-x",
+              "is_correct": false
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-16",
+          "step_text": "(3x + 16) - 16 = (7) - 16",
+          "result_equation": "3x = -9",
+          "hint_en": "Subtract 16 from both sides.",
+          "choices": [
+            {
+              "label": "-16",
+              "is_correct": true
+            },
+            {
+              "label": "+16",
+              "is_correct": false
+            },
+            {
+              "label": "×16",
+              "is_correct": false
+            },
+            {
+              "label": "÷16",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "÷3",
+          "step_text": "(3x) ÷ 3 = (-9) ÷ 3",
+          "result_equation": "x = -3",
+          "hint_en": "Divide both sides by 3.",
+          "choices": [
+            {
+              "label": "÷3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -2x, then -16, then ÷3 to both sides.",
+      "classification_reason": "Variables on both sides plus a negative solution.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "4ae58ba60196517f31c436e2d91c4a6f81605659801dfc33fae24838b28c3248"
+    },
+    {
+      "question_variant_id": "GQBV2_Q027_R01",
+      "activity_id": "GQBV2_ACT_BRACKETS_WITH_OFFSET_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "2(x + 4) + 3 = 21",
+      "answer": "5",
+      "concept": "brackets_with_offset",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-3",
+          "step_text": "(2(x + 4) + 3) - 3 = (21) - 3",
+          "result_equation": "2(x + 4) = 18",
+          "hint_en": "Subtract 3 from both sides.",
+          "choices": [
+            {
+              "label": "-3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷2",
+          "step_text": "(2(x + 4)) ÷ 2 = (18) ÷ 2",
+          "result_equation": "x + 4 = 9",
+          "hint_en": "Divide both sides by 2.",
+          "choices": [
+            {
+              "label": "÷2",
+              "is_correct": true
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "-4",
+          "step_text": "(x + 4) - 4 = (9) - 4",
+          "result_equation": "x = 5",
+          "hint_en": "Subtract 4 from both sides.",
+          "choices": [
+            {
+              "label": "-4",
+              "is_correct": true
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "×4",
+              "is_correct": false
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -3, then ÷2, then -4 to both sides.",
+      "classification_reason": "Bracket and outer constant require three inverse operations.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "d27ee0ede2ccaee6e6add096e0391d7404f7def91da74992b47ce5565657d92c"
+    },
+    {
+      "question_variant_id": "GQBV2_Q028_R01",
+      "activity_id": "GQBV2_ACT_DENOMINATOR_BOTH_SIDES_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "(3x + 6) ÷ 2 = x + 7",
+      "answer": "8",
+      "concept": "denominator_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×2",
+          "step_text": "((3x + 6) ÷ 2) × 2 = (x + 7) × 2",
+          "result_equation": "3x + 6 = 2x + 14",
+          "hint_en": "Multiply every term on both sides by 2.",
+          "choices": [
+            {
+              "label": "×2",
+              "is_correct": true
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-2x",
+          "step_text": "(3x + 6) - 2x = (2x + 14) - 2x",
+          "result_equation": "x + 6 = 14",
+          "hint_en": "Subtract 2x from both sides.",
+          "choices": [
+            {
+              "label": "-2x",
+              "is_correct": true
+            },
+            {
+              "label": "+2x",
+              "is_correct": false
+            },
+            {
+              "label": "-x",
+              "is_correct": false
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "-6",
+          "step_text": "(x + 6) - 6 = (14) - 6",
+          "result_equation": "x = 8",
+          "hint_en": "Subtract 6 from both sides.",
+          "choices": [
+            {
+              "label": "-6",
+              "is_correct": true
+            },
+            {
+              "label": "+6",
+              "is_correct": false
+            },
+            {
+              "label": "×6",
+              "is_correct": false
+            },
+            {
+              "label": "÷6",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×2, then -2x, then -6 to both sides.",
+      "classification_reason": "Clear a denominator, distribute on the right and collect variable terms.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "b438a92bc81aa60e6a1c87588165a43cd47bac0e072e90a6d9d2a5418eda466a"
+    },
+    {
+      "question_variant_id": "GQBV2_Q029_R01",
+      "activity_id": "GQBV2_ACT_BRACKETS_WITH_OFFSET_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "4(x - 1) + 6 = 30",
+      "answer": "7",
+      "concept": "brackets_with_offset",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-6",
+          "step_text": "(4(x - 1) + 6) - 6 = (30) - 6",
+          "result_equation": "4(x - 1) = 24",
+          "hint_en": "Subtract 6 from both sides.",
+          "choices": [
+            {
+              "label": "-6",
+              "is_correct": true
+            },
+            {
+              "label": "+6",
+              "is_correct": false
+            },
+            {
+              "label": "×6",
+              "is_correct": false
+            },
+            {
+              "label": "÷6",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷4",
+          "step_text": "(4(x - 1)) ÷ 4 = (24) ÷ 4",
+          "result_equation": "x - 1 = 6",
+          "hint_en": "Divide both sides by 4.",
+          "choices": [
+            {
+              "label": "÷4",
+              "is_correct": true
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "-4",
+              "is_correct": false
+            },
+            {
+              "label": "×4",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "+1",
+          "step_text": "(x - 1) + 1 = (6) + 1",
+          "result_equation": "x = 7",
+          "hint_en": "Add 1 to both sides.",
+          "choices": [
+            {
+              "label": "+1",
+              "is_correct": true
+            },
+            {
+              "label": "-1",
+              "is_correct": false
+            },
+            {
+              "label": "×1",
+              "is_correct": false
+            },
+            {
+              "label": "÷1",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -6, then ÷4, then +1 to both sides.",
+      "classification_reason": "Bracketed subtraction and an outer constant require three operations.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "7627dcb8f5682404af0f34eee59f16cb3a1dbcef95c28e54018559a57eb0280b"
+    },
+    {
+      "question_variant_id": "GQBV2_Q030_R01",
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "-2x + 7 = x - 8",
+      "answer": "5",
+      "concept": "variable_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-x",
+          "step_text": "(-2x + 7) - x = (x - 8) - x",
+          "result_equation": "-3x + 7 = -8",
+          "hint_en": "Subtract x from both sides.",
+          "choices": [
+            {
+              "label": "-x",
+              "is_correct": true
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            },
+            {
+              "label": "-2x",
+              "is_correct": false
+            },
+            {
+              "label": "+2x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "-7",
+          "step_text": "(-3x + 7) - 7 = (-8) - 7",
+          "result_equation": "-3x = -15",
+          "hint_en": "Subtract 7 from both sides.",
+          "choices": [
+            {
+              "label": "-7",
+              "is_correct": true
+            },
+            {
+              "label": "+7",
+              "is_correct": false
+            },
+            {
+              "label": "×7",
+              "is_correct": false
+            },
+            {
+              "label": "÷7",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "÷(-3)",
+          "step_text": "(-3x) ÷ (-3) = (-15) ÷ (-3)",
+          "result_equation": "x = 5",
+          "hint_en": "Divide both sides by (-3).",
+          "choices": [
+            {
+              "label": "÷(-3)",
+              "is_correct": true
+            },
+            {
+              "label": "÷3",
+              "is_correct": false
+            },
+            {
+              "label": "×(-3)",
+              "is_correct": false
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -x, then -7, then ÷(-3) to both sides.",
+      "classification_reason": "Variables on both sides and division by a negative coefficient.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "8f94b2805c6d5f9e97a6a74530001829ac5acea7c876c97a8767eed39973f5ff"
+    },
+    {
+      "question_variant_id": "GQBV2_Q031_R01",
+      "activity_id": "GQBV2_ACT_ADD_SUB_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "x - 11 = 6",
+      "answer": "17",
+      "concept": "add_sub",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+11",
+          "step_text": "(x - 11) + 11 = (6) + 11",
+          "result_equation": "x = 17",
+          "hint_en": "Add 11 to both sides.",
+          "choices": [
+            {
+              "label": "+11",
+              "is_correct": true
+            },
+            {
+              "label": "-11",
+              "is_correct": false
+            },
+            {
+              "label": "×11",
+              "is_correct": false
+            },
+            {
+              "label": "÷11",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +11 to both sides.",
+      "classification_reason": "Positive one-step substitute if a negative Beginner solution is rejected.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "e66c320149748bc7e7e731d9ac5f62f555f067a7b0ad20c360b8df578660b8b3"
+    },
+    {
+      "question_variant_id": "GQBV2_Q032_R01",
+      "activity_id": "GQBV2_ACT_MUL_DIV_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "9x = 54",
+      "answer": "6",
+      "concept": "mul_div",
+      "proposed_difficulty": "beginner",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "÷9",
+          "step_text": "(9x) ÷ 9 = (54) ÷ 9",
+          "result_equation": "x = 6",
+          "hint_en": "Divide both sides by 9.",
+          "choices": [
+            {
+              "label": "÷9",
+              "is_correct": true
+            },
+            {
+              "label": "+9",
+              "is_correct": false
+            },
+            {
+              "label": "-9",
+              "is_correct": false
+            },
+            {
+              "label": "×9",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ÷9 to both sides.",
+      "classification_reason": "Positive one-step multiplication substitute, excluded from primary roster.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "acb8ab1fb9b887e31b2901bf5fefcee04b6420b757ea714e6394f5ffed1ca6ba"
+    },
+    {
+      "question_variant_id": "GQBV2_Q033_R01",
+      "activity_id": "GQBV2_ACT_TWO_STEP_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "5x - 6 = 29",
+      "answer": "7",
+      "concept": "two_step",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "+6",
+          "step_text": "(5x - 6) + 6 = (29) + 6",
+          "result_equation": "5x = 35",
+          "hint_en": "Add 6 to both sides.",
+          "choices": [
+            {
+              "label": "+6",
+              "is_correct": true
+            },
+            {
+              "label": "-6",
+              "is_correct": false
+            },
+            {
+              "label": "×6",
+              "is_correct": false
+            },
+            {
+              "label": "÷6",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷5",
+          "step_text": "(5x) ÷ 5 = (35) ÷ 5",
+          "result_equation": "x = 7",
+          "hint_en": "Divide both sides by 5.",
+          "choices": [
+            {
+              "label": "÷5",
+              "is_correct": true
+            },
+            {
+              "label": "+5",
+              "is_correct": false
+            },
+            {
+              "label": "-5",
+              "is_correct": false
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply +6, then ÷5 to both sides.",
+      "classification_reason": "Positive two-step substitute if signed arithmetic is rejected.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "c7c01454366874a5fba5187287a254943ce069d05859b5819abbcc61896cf19e"
+    },
+    {
+      "question_variant_id": "GQBV2_Q034_R01",
+      "activity_id": "GQBV2_ACT_CONSTANT_DENOMINATOR_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "(x - 7) ÷ 2 = -4",
+      "answer": "-1",
+      "concept": "constant_denominator",
+      "proposed_difficulty": "intermediate",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "×2",
+          "step_text": "((x - 7) ÷ 2) × 2 = (-4) × 2",
+          "result_equation": "x - 7 = -8",
+          "hint_en": "Multiply every term on both sides by 2.",
+          "choices": [
+            {
+              "label": "×2",
+              "is_correct": true
+            },
+            {
+              "label": "+2",
+              "is_correct": false
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "+7",
+          "step_text": "(x - 7) + 7 = (-8) + 7",
+          "result_equation": "x = -1",
+          "hint_en": "Add 7 to both sides.",
+          "choices": [
+            {
+              "label": "+7",
+              "is_correct": true
+            },
+            {
+              "label": "-7",
+              "is_correct": false
+            },
+            {
+              "label": "×7",
+              "is_correct": false
+            },
+            {
+              "label": "÷7",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply ×2, then +7 to both sides.",
+      "classification_reason": "Two inverse operations with a negative integer solution.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "41d13e532e152890dd1fa02dedfbb5f865e11f58216d14b8270795ea7ddd2758"
+    },
+    {
+      "question_variant_id": "GQBV2_Q035_R01",
+      "activity_id": "GQBV2_ACT_VARIABLE_BOTH_SIDES_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "6x - 7 = 3x + 20",
+      "answer": "9",
+      "concept": "variable_both_sides",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-3x",
+          "step_text": "(6x - 7) - 3x = (3x + 20) - 3x",
+          "result_equation": "3x - 7 = 20",
+          "hint_en": "Subtract 3x from both sides.",
+          "choices": [
+            {
+              "label": "-3x",
+              "is_correct": true
+            },
+            {
+              "label": "+3x",
+              "is_correct": false
+            },
+            {
+              "label": "-x",
+              "is_correct": false
+            },
+            {
+              "label": "+x",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "+7",
+          "step_text": "(3x - 7) + 7 = (20) + 7",
+          "result_equation": "3x = 27",
+          "hint_en": "Add 7 to both sides.",
+          "choices": [
+            {
+              "label": "+7",
+              "is_correct": true
+            },
+            {
+              "label": "-7",
+              "is_correct": false
+            },
+            {
+              "label": "×7",
+              "is_correct": false
+            },
+            {
+              "label": "÷7",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "÷3",
+          "step_text": "(3x) ÷ 3 = (27) ÷ 3",
+          "result_equation": "x = 9",
+          "hint_en": "Divide both sides by 3.",
+          "choices": [
+            {
+              "label": "÷3",
+              "is_correct": true
+            },
+            {
+              "label": "+3",
+              "is_correct": false
+            },
+            {
+              "label": "-3",
+              "is_correct": false
+            },
+            {
+              "label": "×3",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -3x, then +7, then ÷3 to both sides.",
+      "classification_reason": "Three-operation variable-both-sides substitute.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "c2aedc0ea7692b5c9f8ec24a35496af654b70ce1ef4f5ba005bb413f9aa0053e"
+    },
+    {
+      "question_variant_id": "GQBV2_Q036_R01",
+      "activity_id": "GQBV2_ACT_BRACKETS_WITH_OFFSET_R01",
+      "superseded_v1_id": null,
+      "origin": {
+        "kind": "new_design_proposal",
+        "original_variant_id": null,
+        "original_activity_id": null,
+        "original_difficulty": null
+      },
+      "equation": "5(x - 2) + 4 = 24",
+      "answer": "6",
+      "concept": "brackets_with_offset",
+      "proposed_difficulty": "advanced",
+      "approved_difficulty": null,
+      "content_version": 2,
+      "rubric_version": "GAME_LEQ_RUBRIC_V2_001",
+      "supported_game_modes": [
+        "drag_drop",
+        "hangman"
+      ],
+      "drag_drop_steps": [
+        {
+          "step_index": 0,
+          "operation": "-4",
+          "step_text": "(5(x - 2) + 4) - 4 = (24) - 4",
+          "result_equation": "5(x - 2) = 20",
+          "hint_en": "Subtract 4 from both sides.",
+          "choices": [
+            {
+              "label": "-4",
+              "is_correct": true
+            },
+            {
+              "label": "+4",
+              "is_correct": false
+            },
+            {
+              "label": "×4",
+              "is_correct": false
+            },
+            {
+              "label": "÷4",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 1,
+          "operation": "÷5",
+          "step_text": "(5(x - 2)) ÷ 5 = (20) ÷ 5",
+          "result_equation": "x - 2 = 4",
+          "hint_en": "Divide both sides by 5.",
+          "choices": [
+            {
+              "label": "÷5",
+              "is_correct": true
+            },
+            {
+              "label": "+5",
+              "is_correct": false
+            },
+            {
+              "label": "-5",
+              "is_correct": false
+            },
+            {
+              "label": "×5",
+              "is_correct": false
+            }
+          ]
+        },
+        {
+          "step_index": 2,
+          "operation": "+2",
+          "step_text": "(x - 2) + 2 = (4) + 2",
+          "result_equation": "x = 6",
+          "hint_en": "Add 2 to both sides.",
+          "choices": [
+            {
+              "label": "+2",
+              "is_correct": true
+            },
+            {
+              "label": "-2",
+              "is_correct": false
+            },
+            {
+              "label": "×2",
+              "is_correct": false
+            },
+            {
+              "label": "÷2",
+              "is_correct": false
+            }
+          ]
+        }
+      ],
+      "mathematical_reasoning": "Apply -4, then ÷5, then +2 to both sides.",
+      "classification_reason": "Three-operation bracket substitute, not the disputed two-operation form.",
+      "teacher_review": {
+        "approved_by": null,
+        "approved_on": null,
+        "comments": ""
+      },
+      "content_hash": "ac1c7b08e0f581b844ecd25ae661786420b1418ec97cfeedc1835ec5421e10e5"
+    }
+  ],
+  "manifest_hash": "179ae6d946a35e1692e928a4e20ca2a2a5c577e9fea300220f45461dc0bf33aa"
+}

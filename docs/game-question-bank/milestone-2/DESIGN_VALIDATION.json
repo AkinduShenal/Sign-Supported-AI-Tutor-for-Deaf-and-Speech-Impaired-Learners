@@ -1,0 +1,81 @@
+{
+  "status": "PASS_DESIGN_ONLY_NOT_TEACHER_APPROVED",
+  "prepared_on": "2026-10-20",
+  "database_connected": false,
+  "models_loaded_or_trained": false,
+  "runtime_code_changed": false,
+  "source_sha256": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c",
+  "existing_questions": 18,
+  "primary_new_candidates": 12,
+  "reserve_candidates": 6,
+  "question_revisions_checked": 36,
+  "balanced_operations_checked": 69,
+  "unique_integer_solution_checks": 36,
+  "distinct_choice_sets_checked": 69,
+  "original_identity_content_sequences_preserved": true,
+  "csv_blank_teacher_cells_verified": true,
+  "proposed_primary_distribution": {
+    "beginner": 10,
+    "intermediate": 10,
+    "advanced": 10
+  },
+  "reserve_distribution": {
+    "beginner": 2,
+    "intermediate": 2,
+    "advanced": 2
+  },
+  "proposed_activity_groups": 8,
+  "teacher_approvals": 0,
+  "active_v2_variants": 0,
+  "manifest_hash": "179ae6d946a35e1692e928a4e20ca2a2a5c577e9fea300220f45461dc0bf33aa",
+  "protected_files_unchanged": true,
+  "protected_sha256_before": {
+    "frontend/src/game/data/equationVariants.ts": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c",
+    "frontend/src/game/data/variantSelection.ts": "6c0f9e263136186c31ed37a03051ef38608f350bfddbee22e9f6bd486255834d",
+    "frontend/src/game/phaser/scenes/EquationGameScene.ts": "b0279923dc10288ee2bf00d2c02697a33c27f548ccc9d6396029e89eccd83894",
+    "frontend/src/game/phaser/scenes/HangmanGameScene.ts": "fdc0c5f451369a52adf541058f79441be435a2ed1e1c53e560caf365808ee43e",
+    "frontend/src/game/api/pendingGameWrites.ts": "3f333c03d8addcb59d6d6d3cafe943701e4fe5e1fe37e61458c220f3efe347c5",
+    "backend/app/modules/game/service.py": "92049e1c2993706cd57a8f3266e86a6e483eb7c6f238ca0dc02bd3e1ec1db3f7",
+    "backend/app/modules/game/content_models.py": "03b353e1c113a391987e8d31278bfcfee0129ee75235ecb6911f18574afcd836",
+    "backend/scripts/equations_game_activities.json": "6b209fbe731547d2024620ee3df345800b3ea2233cf597783fddc050d130f7b4",
+    "backend/scripts/seed_equations_game_activities.py": "b4ed02fac18e50ba07915870a8d73a388277242bde3e38217113d3c45d21c21c",
+    "backend/app/modules/game/ml/collection_research.py": "747f20412c6f784097dd1d351133f333179e59374167b4c7b292bc0d952374e0",
+    "backend/app/modules/game/ml/research_schema.py": "bdc465574d94f71369b9688c4f20d01a07a8623ceec9a4656449a1f0a8aedc75",
+    "backend/app/modules/game/ml/real_retrospective.py": "0aa4682b9dd52984b90987ed49ad1e7b16cdb0a43aed88bb309eefb39d860ec7",
+    "backend/app/modules/game/ml/synthetic_pp1.py": "0669942d7a793f7d278e55074d9b0237917208690b0b381a87e3479f1a4f3843",
+    "exports/ml-milestone-2-3-4-20261019-preparation-001/snapshot_manifest.json": "cea05e3aaa8b4d3eac79b10011935aed816c1099a1874a73379db78aa4b2f4ff",
+    "exports/REAL_COLLECTED_RETROSPECTIVE_PRELIMINARY_EXPERIMENTAL_NOT_APPROVED_FOR_PRODUCTION-2.4-20261019-001/experiment_manifest.json": "92298bee1da3bed6ad7856db5fe200287e6dce74b9e1cc284694abcd0232e4b1",
+    "exports/SYNTHETIC_DEVELOPMENT_PP1_DEMO_NOT_APPROVED_FOR_PRODUCTION-2.4.1-20261019-001/experiment_manifest.json": "2289cbfd6522cd83bf22dce3c460951038bcba7b1eba769fede5cc395e7e08c3"
+  },
+  "protected_sha256_after": {
+    "frontend/src/game/data/equationVariants.ts": "6563e3d337b7e0016adc22cf08100b569093ff01f1216ad2d805f7f0582fe60c",
+    "frontend/src/game/data/variantSelection.ts": "6c0f9e263136186c31ed37a03051ef38608f350bfddbee22e9f6bd486255834d",
+    "frontend/src/game/phaser/scenes/EquationGameScene.ts": "b0279923dc10288ee2bf00d2c02697a33c27f548ccc9d6396029e89eccd83894",
+    "frontend/src/game/phaser/scenes/HangmanGameScene.ts": "fdc0c5f451369a52adf541058f79441be435a2ed1e1c53e560caf365808ee43e",
+    "frontend/src/game/api/pendingGameWrites.ts": "3f333c03d8addcb59d6d6d3cafe943701e4fe5e1fe37e61458c220f3efe347c5",
+    "backend/app/modules/game/service.py": "92049e1c2993706cd57a8f3266e86a6e483eb7c6f238ca0dc02bd3e1ec1db3f7",
+    "backend/app/modules/game/content_models.py": "03b353e1c113a391987e8d31278bfcfee0129ee75235ecb6911f18574afcd836",
+    "backend/scripts/equations_game_activities.json": "6b209fbe731547d2024620ee3df345800b3ea2233cf597783fddc050d130f7b4",
+    "backend/scripts/seed_equations_game_activities.py": "b4ed02fac18e50ba07915870a8d73a388277242bde3e38217113d3c45d21c21c",
+    "backend/app/modules/game/ml/collection_research.py": "747f20412c6f784097dd1d351133f333179e59374167b4c7b292bc0d952374e0",
+    "backend/app/modules/game/ml/research_schema.py": "bdc465574d94f71369b9688c4f20d01a07a8623ceec9a4656449a1f0a8aedc75",
+    "backend/app/modules/game/ml/real_retrospective.py": "0aa4682b9dd52984b90987ed49ad1e7b16cdb0a43aed88bb309eefb39d860ec7",
+    "backend/app/modules/game/ml/synthetic_pp1.py": "0669942d7a793f7d278e55074d9b0237917208690b0b381a87e3479f1a4f3843",
+    "exports/ml-milestone-2-3-4-20261019-preparation-001/snapshot_manifest.json": "cea05e3aaa8b4d3eac79b10011935aed816c1099a1874a73379db78aa4b2f4ff",
+    "exports/REAL_COLLECTED_RETROSPECTIVE_PRELIMINARY_EXPERIMENTAL_NOT_APPROVED_FOR_PRODUCTION-2.4-20261019-001/experiment_manifest.json": "92298bee1da3bed6ad7856db5fe200287e6dce74b9e1cc284694abcd0232e4b1",
+    "exports/SYNTHETIC_DEVELOPMENT_PP1_DEMO_NOT_APPROVED_FOR_PRODUCTION-2.4.1-20261019-001/experiment_manifest.json": "2289cbfd6522cd83bf22dce3c460951038bcba7b1eba769fede5cc395e7e08c3"
+  },
+  "generated_file_sha256": {
+    "teacher_review_live_v1.csv": "d00a7e6ea0c1aa94c03c51495f2388465b90d2e3a98df56a6626feeada2e6fbf",
+    "new_variant_review.csv": "a9bfee0572982b1a57226e40c72254fb7f7af8fff53beb3b41eba95884cdad87",
+    "TEACHER_REVIEW.md": "89d966240c10c8ada910fec99872cbfa133c2ec6be4e531262a01820503d1a09",
+    "V2_DESIGN.md": "1e0b07e806ca632d170bdb56150725e1483ae18bcd1dc1298fca92066a02d06d",
+    "v2_release_manifest.DRAFT.json": "2f1fa56d01d0b7c4f949cda796eea253b1450cb871f4dd236c73e9d8f964d298"
+  },
+  "limitations": [
+    "No teacher approval or educational validation",
+    "No browser/game integration test",
+    "Actual database inventory unverified",
+    "No ML reproduction runner execution; protected input fingerprints only"
+  ]
+}

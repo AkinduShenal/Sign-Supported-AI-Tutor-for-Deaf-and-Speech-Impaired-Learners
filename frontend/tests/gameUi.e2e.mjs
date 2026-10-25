@@ -45,12 +45,17 @@ try {
   console.log('Local browser ready.')
   const targets = await (await fetch('http://127.0.0.1:9243/json')).json()
   socket = new WebSocket(targets.find(target => target.type === 'page').webSocketDebuggerUrl)
-  await new Promise(resolve => socket.addEventListener('open', resolve, { once: true }))
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(Error('Browser debugger connection timed out')), 15000)
+    socket.addEventListener('open', () => { clearTimeout(timer); resolve() }, { once: true })
+    socket.addEventListener('error', () => { clearTimeout(timer); reject(Error('Browser debugger connection failed')) }, { once: true })
+  })
   let id = 0
   const pending = new Map()
   const send = (method, params = {}) => new Promise((resolve, reject) => {
     const next = ++id
-    pending.set(next, { resolve, reject })
+    const timer = setTimeout(() => { pending.delete(next); reject(Error(`Browser command timed out: ${method}`)) }, 20000)
+    pending.set(next, { resolve, reject, timer })
     socket.send(JSON.stringify({ id: next, method, params }))
   })
   socket.addEventListener('message', async event => {
@@ -76,12 +81,15 @@ try {
     const entry = pending.get(message.id)
     if (!entry) return
     pending.delete(message.id)
+    clearTimeout(entry.timer)
     if (message.error) entry.reject(Error(JSON.stringify(message.error)))
     else entry.resolve(message.result)
   })
   async function evaluate(expression) {
-    const result = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })
-    if (result.exceptionDetails) throw Error(JSON.stringify(result.exceptionDetails))
+    let result
+    try { result = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }) }
+    catch (error) { throw Error(`${error.message}; expression=${expression}`) }
+    if (result.exceptionDetails) throw Error(`${JSON.stringify(result.exceptionDetails)}; expression=${expression}`)
     return result.result.value
   }
   async function until(expression) {
@@ -94,7 +102,12 @@ try {
   }
   const scene = 'window.__gameUiAudit?.scene.getScenes(true)[0]'
   const mock = `(() => {
-    window.__gameApi = { sessions: [], events: [], attempts: [], completions: 0, failUsage: false };
+    const researcherGate=${JSON.stringify(process.env.GAME_RESEARCH_GATE_TEST === '1')};
+    window.__verificationFixtureKey=crypto.randomUUID()+crypto.randomUUID();
+    window.__gameApi = { sessions: [], events: [], attempts: [], completions: 0, failUsage: false, predictionRequests: 0, researchChecks: 0 };
+    if(researcherGate)document.addEventListener('DOMContentLoaded',()=>{
+      const style=document.createElement('style');style.textContent='.game-ml-card::before { content: "Synthetic test fixture — not a student prediction"; display:block; color:#843c34; margin-bottom:12px; }';document.head.append(style);
+    });
     const original = window.fetch.bind(window);
     const reply = (data, status=200) => new Response(JSON.stringify(data), {status, headers:{'Content-Type':'application/json'}});
     window.fetch = async (input, init={}) => {
@@ -103,11 +116,47 @@ try {
       if (!url.pathname.includes('/game/')) return reply({}, 503);
       const body = init.body ? JSON.parse(init.body) : {};
       const calls = window.__gameApi;
+      if(url.pathname.endsWith('/research-verification')){
+        calls.researchChecks++;
+        if(body.researcher_key!==window.__verificationFixtureKey)return reply({},401);
+        const id=url.pathname.split('/').at(-2),saved=calls.sessions.find(row=>row.client_session_id===id);
+        if(!saved||!body.confirmed||body.context.game_session_id!==id||body.context.student_code!==saved.student_id
+          ||body.context.concept_id!==saved.concept_id||body.context.learning_cycle_id!==saved.learning_cycle_id||body.context.assessment_phase!==saved.assessment_phase)return reply({},404);
+        const mode=calls.events.find(row=>row.game_session_id===id&&row.event_type==='GAME_STARTED')?.event_payload.game_type;
+        const level=mode==='drag_drop'?'Beginner':'Advanced';
+        return reply({status:'experimental_prediction',predicted_level:level,
+          probabilities:mode==='drag_drop'?{Beginner:.8,Intermediate:.15,Advanced:.05}:{Beginner:.05,Intermediate:.15,Advanced:.8},
+          model_name:'SYNTHETIC BROWSER TEST ONLY',model_version:'game-ml-experimental-v1',model_status:'EXPERIMENTAL_NOT_PRODUCTION_APPROVED',
+          teacher_verified:false,feature_source:'validated_saved_game_session',feature_contract:'legacy-nine-feature-observed-single-session-v1',model_checksum:'0'.repeat(64),
+          model_metadata:{test_fixture:true},runtime:{python:'test',dependencies:{}}});
+      }
+      if (url.pathname.endsWith('/ml-prediction')) { calls.predictionRequests++; return reply({},503); }
       if (url.pathname.endsWith('/variant-usage')) return calls.failUsage ? reply({},503) : reply({usage_counts:{}});
       if (url.pathname.endsWith('/sessions')) { calls.sessions.push(body); return reply({...body,game_session_id:body.client_session_id,status:'in_progress',started_at:new Date().toISOString(),completed_at:null}); }
       if (url.pathname.endsWith('/events')) { calls.events.push(body); return reply({}); }
       if (url.pathname.endsWith('/task-attempts')) { calls.attempts.push(body); return reply({}); }
-      if (url.pathname.endsWith('/complete')) { calls.completions++; return reply({game_session_id:url.pathname.split('/').at(-2),status:'completed'}); }
+      if (url.pathname.endsWith('/complete')) {
+        calls.completions++;const id=url.pathname.split('/').at(-2);
+        const saved=calls.sessions.find(row=>row.client_session_id===id);
+        return reply({...saved,game_session_id:id,status:'completed',completed_at:new Date().toISOString(),
+          ...(researcherGate?{research_verification:{receipt:'s'.repeat(43),expires_at:new Date(Date.now()+300000).toISOString()}}:{})});
+      }
+      if (url.pathname.endsWith('/ml-inputs')) {
+        if (calls.failMlPreview) return reply({},503);
+        const id=url.pathname.split('/').at(-2);
+        const attempts=calls.attempts.filter(a=>a.game_session_id===id);
+        const events=calls.events.filter(e=>e.game_session_id===id);
+        const first=events.filter(e=>['ANSWER_CORRECT','ANSWER_INCORRECT'].includes(e.event_type)&&e.event_payload.attempt_number===1);
+        const sum=key=>attempts.reduce((n,a)=>n+(a[key]??0),0);
+        const features={first_attempt_accuracy:calls.missingMlFirst?null:first.filter(e=>e.event_type==='ANSWER_CORRECT').length/first.length,
+          game_success_rate:attempts.filter(a=>a.is_successful).length/attempts.length,
+          wrong_attempt_count:sum('wrong_attempts'),retry_count:events.filter(e=>e.event_type==='RETRY_STARTED').length,
+          total_hint_count:sum('hints_used'),skipped_step_count:sum('skipped_steps'),game_active_time_sec:Math.round(sum('time_taken_sec')),
+          game_hint_rate:attempts.filter(a=>a.hints_used>0).length/6,game_avg_attempts_per_task:sum('attempts_count')/attempts.length};
+        calls.lastMlFeatures=features;
+        return reply({game_session_id:id,features,unavailable_reasons:calls.missingMlFirst?{first_attempt_accuracy:'Synthetic missing first outcome'}:{},
+          all_features_available:!calls.missingMlFirst,ready_for_inference:false,model_compatibility:'unverified_nine_feature_colab_contract'});
+      }
       return reply({}, 503); // Deliberately exercise the existing local summary fallback.
     };
   })()`
@@ -144,6 +193,74 @@ try {
     // screenshots can. They also include controls below a phone's viewport.
     const data = await evaluate('new Promise(resolve => window.__gameUiAudit.renderer.snapshot(img => resolve(img.src)))')
     await fs.writeFile(path.join(output, name + '.png'), Buffer.from(data.split(',')[1], 'base64'))
+  }
+  async function verifyResearcherDialog(mode) {
+    if(process.env.GAME_RESEARCH_GATE_TEST!=='1')return
+    if(await evaluate(`document.querySelectorAll('.game-ml-card progress').length===3`))return
+    await until(`document.querySelector('dialog[open]')`)
+    assert.ok(await evaluate(`document.querySelector('dialog').textContent.includes('STU_999')`))
+    await evaluate(`document.querySelector('dialog input[type=checkbox]').click();document.querySelector('dialog input[type=password]').value=window.__verificationFixtureKey;document.querySelector('dialog form').requestSubmit()`)
+    await until(`document.querySelectorAll('.game-ml-card progress').length===3 && !document.querySelector('dialog[open]')`)
+    assert.equal(await evaluate(`document.querySelector('.game-ml-card__estimate h3').textContent`),mode==='drag-drop'?'Beginner':'Advanced')
+    assert.equal(await evaluate(`document.querySelector('dialog input[type=password]').value`),'')
+    assert.equal(await evaluate(`Object.values(localStorage).concat(Object.values(sessionStorage)).some(value=>value.includes(window.__verificationFixtureKey))`),false)
+    console.log(`${mode}: positive saved acknowledgement, exact-session dialog and synthetic prediction passed.`)
+  }
+  async function verifyMlPreview(mode) {
+    await until(`document.querySelector('.game-ml-card')`)
+    assert.equal(await evaluate(`document.querySelector('.game-ml-card h2').textContent`), 'ML Model Estimate')
+    if(process.env.GAME_RESEARCH_GATE_TEST==='1') {
+      await verifyResearcherDialog(mode)
+    } else {
+      assert.ok(await evaluate(`document.querySelector('.game-ml-card').textContent.includes('Prediction unavailable')`))
+      assert.equal(await evaluate(`document.querySelectorAll('.game-ml-card progress').length`), 0)
+    }
+    assert.equal(await evaluate('window.__gameApi.predictionRequests'), 0)
+    await until(`document.querySelector('.ml-input-details__copy') && !document.querySelector('.ml-input-details__copy').disabled`)
+    assert.equal(await evaluate(`document.querySelector('.ml-input-details summary').textContent`), 'ML Input Details — Research Preview')
+    await evaluate(`document.querySelector('.ml-input-details').open=true`)
+    const values = await evaluate(`JSON.parse(document.querySelector('.ml-input-details textarea').value)`)
+    assert.deepEqual(Object.keys(values), ['first_attempt_accuracy','game_success_rate','wrong_attempt_count','retry_count','total_hint_count','skipped_step_count','game_active_time_sec','game_hint_rate','game_avg_attempts_per_task'])
+    assert.deepEqual(values, await evaluate('window.__gameApi.lastMlFeatures'))
+    assert.ok(await evaluate(`document.querySelector('.ml-input-details').textContent.includes('not independently verified active engagement')`))
+    await send('Browser.grantPermissions', {origin:'http://127.0.0.1:5193',permissions:['clipboardReadWrite','clipboardSanitizedWrite']})
+    await send('Runtime.evaluate', {expression:`document.querySelector('.ml-input-details__copy').click()`,userGesture:true})
+    await until(`document.querySelector('.ml-input-details').textContent.includes('Copied all nine values')`)
+    assert.deepEqual(JSON.parse(await evaluate('navigator.clipboard.readText()')), values)
+    await evaluate('window.__gameApi.missingMlFirst=true')
+    // Trigger an ordinary retry via the error UI by first failing a reload.
+    await evaluate('window.__gameApi.failMlPreview=true')
+    await evaluate(`document.querySelector('.ml-input-details__refresh').click()`)
+    await until(`document.querySelector('.ml-input-details button')?.textContent==='Retry evidence'`)
+    assert.ok(Object.values(await evaluate(`JSON.parse(document.querySelector('.ml-input-details textarea').value)`)).every(v=>v===null))
+    await evaluate('window.__gameApi.failMlPreview=false;document.querySelector(".ml-input-details button").click()')
+    await until(`document.querySelector('.ml-input-details').textContent.includes('Synthetic missing first outcome') && !document.querySelector('.ml-input-details__copy').disabled`)
+    assert.equal(await evaluate(`JSON.parse(document.querySelector('.ml-input-details textarea').value).first_attempt_accuracy`), null)
+    assert.ok(await evaluate(`document.querySelector('.ml-input-details').textContent.includes('Not ready for ML inference')`))
+    await send('Runtime.evaluate', {expression:`document.querySelector('.ml-input-details__copy').click()`,userGesture:true})
+    await until(`document.querySelector('.ml-input-details').textContent.includes('Copied JSON with null values')`)
+    assert.equal(JSON.parse(await evaluate('navigator.clipboard.readText()')).first_attempt_accuracy, null)
+    // Resize the same summary to exercise the real shared panel on small screens.
+    await evaluate('window.__gameApi.missingMlFirst=false')
+    await evaluate(`document.querySelector('.ml-input-details__refresh').click()`)
+    await until(`JSON.parse(document.querySelector('.ml-input-details textarea').value).first_attempt_accuracy!==null && !document.querySelector('.ml-input-details__copy').disabled`)
+    for (const width of [1440,390,320]) {
+      await send('Emulation.setDeviceMetricsOverride', {width,height:width===1440?1100:844,deviceScaleFactor:1,mobile:width!==1440})
+      await delay(600)
+      await until(`document.querySelector('.ml-input-details__copy') && !document.querySelector('.ml-input-details__copy').disabled`)
+      await evaluate(`document.querySelector('.ml-input-details').open=true;document.querySelector('.ml-input-details').scrollIntoView()`)
+      const clip = await evaluate(`(() => {const r=document.querySelector('.ml-input-details').getBoundingClientRect();return {x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height,scale:1}})()`)
+      assert.ok(await evaluate(`document.querySelector('.ml-input-details').scrollWidth<=document.querySelector('.ml-input-details').clientWidth+1`))
+      const capture=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip})
+      await fs.writeFile(path.join(output,`ml-preview-${mode}-${width}.png`),Buffer.from(capture.data,'base64'))
+      assert.ok(await evaluate(`document.querySelector('.game-ml-card').scrollWidth<=document.querySelector('.game-ml-card').clientWidth+1`))
+      const cardClip = await evaluate(`(() => {const r=document.querySelector('.game-ml-card').getBoundingClientRect();return {x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height,scale:1}})()`)
+      const cardCapture = await send('Page.captureScreenshot', {format:'png',captureBeyondViewport:true,clip:cardClip})
+      await fs.writeFile(path.join(output,`ml-card-${process.env.GAME_RESEARCH_GATE_TEST==='1'?'verified-fixture':'unavailable'}-${mode}-${width}.png`),Buffer.from(cardCapture.data,'base64'))
+    }
+    await send('Emulation.setDeviceMetricsOverride', {width:1440,height:1100,deviceScaleFactor:2,mobile:false})
+    await delay(500)
+    console.log(`${mode}: ML panel, exact clipboard JSON, missing/error evidence and 390/320px layout passed (mocked API).`)
   }
   async function point(expression) {
     await until(`${scene}?.cameras && (${expression})`)
@@ -227,22 +344,23 @@ try {
   await delay(350)
   await drag(correctCard, `${scene}.dropZone`)
   await until(`${scene}.hasAnsweredStepCorrectly`)
-  await until(`${scene}.nextButton.input.enabled`)
+  await until(`${scene}.nextButton?.input?.enabled`)
   assert.equal((await state()).stars[0], 1)
   await screenshot('drag-drop-feedback-desktop')
   // Complete all remaining steps through their real tap targets.
   for (let iteration = 0; iteration < 30; iteration++) {
     const s = await state()
     if (await evaluate(`${scene}.showSummary`)) break
-    if (await evaluate(`${scene}.nextButton.input.enabled`)) {
+    if (await evaluate(`${scene}.nextButton?.input?.enabled`)) {
       await tap(`${scene}.nextButton`)
       continue
     }
     if (await evaluate(`${scene}.hasAnsweredStepCorrectly`)) { await delay(2200); continue }
     await tap(correctCard)
-    await until(`${scene}.currentStepIndex!==${s.step} || ${scene}.nextButton.input.enabled || ${scene}.showSummary || (${scene}.session.levelIndex===5 && ${scene}.session.stars[5]!==undefined)`)
+    await until(`${scene}.currentStepIndex!==${s.step} || ${scene}.nextButton?.input?.enabled || ${scene}.showSummary || (${scene}.session.levelIndex===5 && ${scene}.session.stars[5]!==undefined)`)
   }
   await until(`${scene}.showSummary && ${scene}.children.list.some(o=>o.type==='Container'&&o.list?.some(t=>t.text==='Choose Another Game'))`)
+  await verifyResearcherDialog('drag-drop')
   const dragEvidence = await evaluate(`({attempts:window.__gameApi.attempts,events:window.__gameApi.events.map(e=>({task:e.task_id,type:e.event_type})),tracker:(${scene}).tracker.getSummary()})`)
   await fs.writeFile(path.join(output, 'drag-evidence.json'), JSON.stringify(dragEvidence,null,2))
   assert.deepEqual(await evaluate('window.__gameApi.attempts.map(a=>a.difficulty_level)'), ['easy','easy','medium','medium','hard','hard'])
@@ -251,6 +369,7 @@ try {
   await tap(findButton('Show details ▾'))
   await tap(findButton('Hide details ▴'))
   await screenshot('drag-drop-summary-desktop')
+  await verifyMlPreview('drag-drop')
   await tap(findButton('Choose Another Game'))
   await until(`${scene}?.sys.settings.key==='GameSelectionScene'`)
   console.log('Drag & Drop: hints, wrong feedback, missed drag, correct drag, tap, 6-task progression, stars, local summary and mocked persistence passed.')
@@ -287,7 +406,7 @@ try {
     assert.equal((await state()).wrong, n)
     if (n < 10) assert.equal((await state()).grip, n)
   }
-  await until(`${scene}.nextButton.input.enabled`)
+  await until(`${scene}.nextButton?.input?.enabled`)
   assert.equal((await state()).stars[0], 0)
   assert.equal(await evaluate(`${scene}.figure.fallProgress`), 1)
   await screenshot('hangman-failed-desktop')
@@ -302,15 +421,17 @@ try {
       assert.equal(await evaluate(`${scene}.figure.celebrating`), true)
       await screenshot('hangman-correct-desktop')
     }
-    if (q < 5) { await until(`${scene}.nextButton.input.enabled`); await tap(`${scene}.nextButton`) }
+    if (q < 5) { await until(`${scene}.nextButton?.input?.enabled`); await tap(`${scene}.nextButton`) }
   }
   await until(`${scene}.showSummary && ${scene}.children.list.some(o=>o.type==='Container'&&o.list?.some(t=>t.text==='Choose Another Game'))`)
+  await verifyResearcherDialog('hangman')
   assert.deepEqual((await state()).stars, [0,3,3,3,3,3])
   assert.equal(await evaluate('window.__gameApi.attempts.length'), 12)
   assert.equal(await evaluate('window.__gameApi.attempts[6].wrong_attempts'), 10)
   assert.equal(await evaluate('window.__gameApi.attempts[6].is_successful'), false)
   assert.equal(await evaluate('window.__gameApi.completions'), 2)
   await screenshot('hangman-summary-desktop')
+  await verifyMlPreview('hangman')
   await tap(findButton('Choose Another Game'))
   await until(`${scene}?.sys.settings.key==='GameSelectionScene'`)
   console.log('Hangman: keypad/backspace/minus, empty submission, hints, ten slips/fall, correct grip preservation, stars, progression, summary and mocked persistence passed.')
@@ -318,7 +439,7 @@ try {
   }
 
   const phoneMetrics = []
-  for (const width of [390, 320]) {
+  for (const width of process.env.GAME_ML_PREVIEW_ONLY ? [] : [390, 320]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 3, mobile: true })
     await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 })
     await send('Page.reload')
@@ -352,7 +473,7 @@ try {
     assert.equal((await state()).hints, 1)
     await screenshot(`drag-drop-phone-${width}`)
     await tap(correctCard, true)
-    await until(`${scene}.nextButton.input.enabled`)
+    await until(`${scene}.nextButton?.input?.enabled`)
     await tap(`${scene}.nextButton`, true)
     await until(`${scene}.session.levelIndex===1`)
     assert.equal((await state()).level, 1)
@@ -378,12 +499,17 @@ try {
     await screenshot(`hangman-phone-${width}`)
     await enter(await evaluate(`${scene}.currentVariant.finalAnswer`), true)
     await tap(`${scene}.submitButton`, true)
-    await until(`${scene}.nextButton.input.enabled`)
+    await until(`${scene}.nextButton?.input?.enabled`)
     await tap(`${scene}.nextButton`, true)
     await until(`${scene}.session.levelIndex===1`)
     assert.equal((await state()).level, 1)
+    const portraitLayout = await evaluate(`${scene}.isCompactLayout`)
+    const portraitCanvasWidth = await evaluate(`${scene}.scale.width`)
     await send('Emulation.setDeviceMetricsOverride', { width: 844, height: 390, deviceScaleFactor: 2, mobile: true })
-    await until(`${scene}.isCompactLayout===false`)
+    // Scenes intentionally retain their creation-time design during a task;
+    // rotation refits the canvas/camera without rebuilding the question UI.
+    await until(`${scene}.scale.width!==${portraitCanvasWidth} && ${scene}.scale.width===Math.round(document.querySelector('.phaser-game-container').clientWidth*2)`)
+    assert.equal(await evaluate(`${scene}.isCompactLayout`), portraitLayout)
     assert.deepEqual(await evaluate(`${scene}.session.levels.map(v=>v.variantId)`), ids)
     assert.equal((await state()).level, 1)
     await screenshot(`hangman-landscape-${width}`)
@@ -393,6 +519,7 @@ try {
     phoneMetrics.push({...geometry,keyHeight})
     console.log('Phone '+width+': touch, 44px controls, no horizontal clipping, both games and orientation state preservation passed.')
   }
+  if (!process.env.GAME_ML_PREVIEW_ONLY) {
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
   await send('Page.reload')
   await delay(500)
@@ -415,8 +542,14 @@ try {
   await tap(findButton('☰ Menu'))
   await until(`${scene}?.sys.settings.key==='GameSelectionScene'`)
   await endCollection()
+  }
   assert.deepEqual(errors, [])
-  await fs.writeFile(path.join(output, 'verification.json'), JSON.stringify({ renderer, phoneMetrics, errors, checks: ['desktop full sessions','drag and tap','Hangman failure and success','mocked API evidence','390/320px touch','landscape resize','reduced motion','offline usage fallback'] }, null, 2))
+  assert.equal(await evaluate('window.__gameApi.predictionRequests'), 0)
+  if(process.env.GAME_RESEARCH_GATE_TEST==='1')assert.equal(await evaluate('window.__gameApi.researchChecks'),2)
+  const checks = process.env.GAME_ML_PREVIEW_ONLY
+    ? ['both completed Game modes', 'nine-feature preview', 'exact clipboard JSON', 'null clipboard JSON', 'missing/failed evidence', '390/320px preview layout', 'mocked APIs only']
+    : ['desktop full sessions','drag and tap','Hangman failure and success','ML preview and clipboard','mocked API evidence','390/320px touch','landscape resize','reduced motion','offline usage fallback']
+  await fs.writeFile(path.join(output, 'verification.json'), JSON.stringify({ renderer, phoneMetrics, errors, checks }, null, 2))
   console.log('PASS: local visual and input regressions. Screenshots: '+output)
 } finally {
   socket?.close()

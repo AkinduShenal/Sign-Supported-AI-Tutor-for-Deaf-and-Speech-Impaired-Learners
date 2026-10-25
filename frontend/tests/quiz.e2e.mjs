@@ -106,6 +106,23 @@ try {
   async function click(selector) {
     assert.equal(await evaluate(`Boolean(document.querySelector(${JSON.stringify(selector)})?.click() ?? document.querySelector(${JSON.stringify(selector)}))`), true)
   }
+  async function completeRemainingTries() {
+    for (let attempt = 2; attempt <= 3; attempt++) {
+      if (!await evaluate("document.querySelector('.quiz-feedback-continue')?.textContent.includes('Try again')")) return
+      await click('.quiz-feedback-continue')
+      await until("document.querySelector('.quiz-option input:not(:disabled)')")
+      assert.equal(await evaluate("document.querySelectorAll('.quiz-option input:not(:disabled)').length"), 4)
+      await click('.quiz-option input:not(:disabled)')
+      await click('.quiz-submit')
+      await until("Boolean(document.querySelector('.quiz-answer-feedback'))")
+      assert.equal(await evaluate("Boolean(document.querySelector('.quiz-option.is-tried, .quiz-option-tried-label'))"), false)
+      if (attempt < 3) {
+        assert.equal(await evaluate("Boolean(document.querySelector('.quiz-correct-answer, .quiz-option.is-answer-key'))"), false)
+      } else if (await evaluate("Boolean(document.querySelector('.quiz-answer-feedback.is-incorrect'))")) {
+        assert.equal(await evaluate("Boolean(document.querySelector('.quiz-correct-answer, .quiz-option.is-answer-key'))"), true)
+      }
+    }
+  }
 
   async function reloadPage() {
     const previous = await evaluate('window.__quizDocumentId')
@@ -163,11 +180,14 @@ try {
         persist();
         await new Promise(resolve => setTimeout(resolve, 60));
         if (calls.loseNextConfirmation) { calls.loseNextConfirmation = false; persist(); throw new Error('Confirmation lost'); }
+        const correctOption = questions[body.question_order - 1].options.find(option => option.id === correctOptionIds[body.question_order - 1]);
         return reply({ response_id: '${uuid(600)}', quiz_session_id: session.quiz_session_id,
           question_id: body.question_id, question_order: body.question_order,
           selected_option_id: body.selected_option_id, response_time_sec: body.response_time_sec,
           confidence_level: body.confidence_level, answered_at: body.client_action_at,
-          is_correct: body.selected_option_id === correctOptionIds[body.question_order - 1], saved: true }, 201);
+          is_correct: body.selected_option_id === correctOption.id,
+          correct_option: body.selected_option_id === correctOption.id ? null : correctOption,
+          saved: true }, 201);
       }
       if (path.endsWith('/complete') && method === 'POST') { calls.completions++; session.status = 'completed'; session.completed_at = new Date().toISOString(); persist(); return reply(session); }
       if (path.endsWith('/analyze') && method === 'POST') {
@@ -200,6 +220,15 @@ try {
   assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].request.learning_cycle_id === JSON.parse(localStorage.getItem('learning.context.v1')).learners.STU_001.learningCycleId"), true)
   assert.equal(await evaluate("document.querySelectorAll('.quiz-option').length"), 4)
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('Solve x + 5 = 12.')"), true)
+  await click('.bodmas-trigger')
+  await until("document.querySelector('.bodmas-dialog')?.open")
+  assert.equal(await evaluate("document.querySelectorAll('.bodmas-step-graphic').length"), 6)
+  assert.equal(await evaluate("Boolean(document.querySelector('.bodmas-close svg'))"), true)
+  assert.equal(await evaluate("(() => { const panel = document.querySelector('.bodmas-dialog').getBoundingClientRect(); return panel.right <= innerWidth && panel.right >= innerWidth - 40 && panel.width <= 540 && panel.height < innerHeight && panel.top < 40 })()"), true)
+  await click('.bodmas-close')
+  await until("!document.querySelector('.bodmas-dialog')?.open")
+  await until("document.activeElement?.classList.contains('bodmas-trigger')")
+  assert.equal(await evaluate("document.activeElement?.classList.contains('bodmas-trigger')"), true)
   assert.equal(await evaluate("document.querySelector('.quiz-question-prompt').textContent.includes('සමීකරණය විසඳන්න')"), true)
   assert.equal(await evaluate("/\\b(correct|wrong|misconception|pass|fail|hint|try again)\\b/i.test(document.querySelector('.quiz-page').textContent)"), false)
   assert.equal(await evaluate("document.querySelector('.quiz-submit').disabled"), true)
@@ -218,6 +247,7 @@ try {
   await delay(50)
   await evaluate("document.querySelector('.quiz-submit').click(); document.querySelector('.quiz-submit').click()")
   await until("document.querySelector('.quiz-answer-feedback.is-correct')?.textContent.includes('Correct answer!')")
+  assert.equal(await evaluate("document.querySelector('.quiz-answer-feedback-icon')?.textContent"), '✅')
   assert.equal(await evaluate('window.__quizMock.responses.length'), 1)
   assert.equal(await evaluate('window.__quizMock.responses[0].question_id'), questions[0].id)
   assert.equal(await evaluate("document.querySelector('.quiz-progress-label strong')?.textContent"), 'Question 1 of 10')
@@ -246,9 +276,12 @@ try {
       await until("document.querySelector('.quiz-collection-gate button[type=submit]:not(:disabled)')")
       await evaluate("(() => { const input = document.querySelector('#quiz-student-code'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'STU_001'); input.dispatchEvent(new Event('input', { bubbles: true })); })()")
       await click('.quiz-collection-gate button[type=submit]')
-      await until("document.querySelector('.quiz-answer-feedback.is-incorrect')?.textContent.includes('Incorrect answer.')")
+      await until("document.querySelector('.quiz-answer-feedback.is-incorrect')?.textContent.includes('Incorrect. Try again.')")
+      assert.equal(await evaluate("document.querySelector('.quiz-answer-feedback-icon')?.textContent"), '❌')
+      assert.equal(await evaluate("Boolean(document.querySelector('.quiz-correct-answer, .quiz-option.is-answer-key'))"), false)
       assert.equal(await evaluate('window.__quizMock.sessions'), 1)
       assert.equal(await evaluate('window.__quizMock.responses.length'), 3)
+      await completeRemainingTries()
       await click('.quiz-feedback-continue')
       await until("document.querySelector('.quiz-progress-label strong')?.textContent === 'Question 4 of 10'")
       continue
@@ -258,7 +291,9 @@ try {
     if (number === 4) {
       await until("document.querySelector('.quiz-panel h2')?.textContent === 'Quiz evidence needs recovery'")
       await click('.quiz-collection-gate button[type=button]')
-      await until("document.querySelector('.quiz-answer-feedback.is-incorrect')?.textContent.includes('Incorrect answer.')")
+      await until("document.querySelector('.quiz-answer-feedback.is-incorrect')?.textContent.includes('Incorrect. Try again.')")
+      assert.equal(await evaluate("Boolean(document.querySelector('.quiz-correct-answer, .quiz-option.is-answer-key'))"), false)
+      await completeRemainingTries()
       await click('.quiz-feedback-continue')
       await until("document.querySelector('#quiz-transition-title')?.textContent === 'Beginner Level Completed'")
       assert.equal(await evaluate("document.querySelector('.quiz-level-transition').textContent.includes('ආරම්භක මට්ටම සම්පූර්ණයි')"), true)
@@ -276,6 +311,10 @@ try {
     await until("Boolean(document.querySelector('.quiz-answer-feedback'))")
     assert.equal(await evaluate("document.querySelector('.quiz-progress-label strong')?.textContent"), `Question ${number} of 10`)
     assert.equal(await evaluate("document.querySelector('.quiz-answer-feedback').classList.contains('is-correct')"), correctOptionIds[number - 1] === questions[number - 1].options[0].id)
+    if (correctOptionIds[number - 1] !== questions[number - 1].options[0].id) {
+      assert.equal(await evaluate("Boolean(document.querySelector('.quiz-correct-answer, .quiz-option.is-answer-key'))"), false)
+      await completeRemainingTries()
+    }
     await click('.quiz-feedback-continue')
     if (number === 8) {
       await until("document.querySelector('#quiz-transition-title')?.textContent === 'Intermediate Level Completed'")
@@ -292,24 +331,20 @@ try {
   }
   await until("document.querySelector('#quiz-completed-title')?.textContent === 'Assessment Complete'")
   assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('7 / 10')"), true)
-  assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('Developing Understanding')"), true)
-  assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('Understanding Level')"), true)
-  assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('Recommended Support')"), false)
-  assert.equal(await evaluate("document.querySelector('.quiz-result-list')?.textContent.includes('Learning Level')"), false)
-  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight h3')?.textContent"), 'Confidence Insight')
-  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight')?.textContent.includes('2 incorrect answers')"), true)
+  assert.equal(await evaluate("document.querySelectorAll('.quiz-result-list > div').length"), 3)
+  assert.equal(await evaluate("/Understanding Level|Confidence Insight|Needs More Practice|Recommended Focus/.test(document.querySelector('.quiz-complete').textContent)"), false)
+  assert.equal(await evaluate("document.querySelector('.quiz-ml-demo h3')?.textContent"), 'ML prediction')
+  assert.equal(await evaluate("document.querySelector('.quiz-ml-demo')?.textContent.includes('No prediction is available')"), true)
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Correct Answers'))?.querySelector('dd')?.textContent"), '7')
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Incorrect Answers'))?.querySelector('dd')?.textContent"), '3')
   await click('.quiz-language button:nth-child(2)')
   assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'ඇගයීම සම්පූර්ණයි')
-  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight h3')?.textContent"), 'පිළිතුරු පිළිබඳ විශ්වාසයේ සාරාංශය')
-  assert.equal(await evaluate("document.querySelector('.quiz-confidence-insight')?.textContent.includes('වැරදි පිළිතුරු 2කට')"), true)
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.trim() === 'නිවැරදි පිළිතුරු')?.querySelector('dd')?.textContent"), '7')
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.trim() === 'වැරදි පිළිතුරු')?.querySelector('dd')?.textContent"), '3')
   await click('.quiz-language button:nth-child(1)')
   assert.equal(await evaluate("document.querySelector('#quiz-completed-title')?.textContent"), 'Assessment Complete')
   await click('.quiz-language button:nth-child(3)')
-  assert.equal(await evaluate("document.querySelectorAll('.quiz-confidence-insight p[lang=si]').length"), 2)
+  assert.equal(await evaluate("document.querySelectorAll('.quiz-result-list > div').length"), 3)
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Correct Answers'))?.querySelector('dt small')?.textContent"), 'නිවැරදි පිළිතුරු')
   assert.equal(await evaluate("[...document.querySelectorAll('.quiz-result-list > div')].find(row => row.querySelector('dt')?.textContent.includes('Incorrect Answers'))?.querySelector('dt small')?.textContent"), 'වැරදි පිළිතුරු')
   const calls = JSON.parse(await evaluate('JSON.stringify(window.__quizMock)'))
@@ -334,8 +369,8 @@ try {
   await evaluate("(() => { const input = document.querySelector('#quiz-student-code'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'STU_001'); input.dispatchEvent(new Event('input', { bubbles: true })); })()")
   await click('.quiz-collection-gate button[type=submit]')
   await until("document.querySelector('#quiz-completed-title')?.textContent === 'Assessment Complete'")
-  assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('No single weak area identified')"), true)
-  assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('Continue practising all Linear Equation skills.')"), true)
+  assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('7 / 10')"), true)
+  assert.equal(await evaluate("document.querySelectorAll('.quiz-result-list > div').length"), 3)
   assert.equal(await evaluate("document.querySelector('.quiz-result-list').textContent.includes('Equation Meaning')"), false)
   // The main-branch recovery gate must retain the automatic Tutor handoff.
   assert.equal(await evaluate("JSON.parse(localStorage.getItem('quiz.collection.pending.v1')).sessions[0].request.learning_cycle_id === JSON.parse(localStorage.getItem('learning.context.v1')).learners.STU_001.learningCycleId"), true)
@@ -353,7 +388,7 @@ try {
   await until("document.querySelector('.quiz-panel[role=alert]')?.textContent.includes('Quiz request timed out')")
   assert.equal(await evaluate("document.querySelector('.quiz-panel[role=alert] button')?.textContent"), 'Reload questions')
   assert.equal(await evaluate('window.__quizMock.sessions'), 1)
-  console.log('Quiz browser flow PASS: 4/4/2 levels, transitions, answer feedback, isolated timers, refresh recovery, 10 saved responses, one completion, bilingual results, shared-cycle Tutor handoff, and stalled-question timeout.')
+  console.log('Quiz browser flow PASS: emoji feedback and immediate correct answer, three local tries, 4/4/2 levels, refresh recovery, 10 saved first responses, and one completion.')
 } finally {
   socket?.close()
   for (const child of children) child.kill()

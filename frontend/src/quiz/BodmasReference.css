@@ -1,0 +1,119 @@
+.bodmas-trigger {
+  position: fixed;
+  z-index: 40;
+  top: clamp(110px, 15vh, 165px);
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  border: 1px solid #5142c8;
+  border-radius: 15px;
+  padding: 9px 14px;
+  color: #fff;
+  background: #5142c8;
+  box-shadow: 0 8px 22px rgb(52 36 168 / 24%);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: .4px;
+}
+
+.bodmas-trigger svg { width: 27px; height: 27px; flex: none; }
+.bodmas-trigger:hover { background: #392bad; transform: translateY(-2px); }
+.bodmas-trigger:focus-visible,
+.bodmas-close:focus-visible { outline: 3px solid #eebc43; outline-offset: 3px; }
+
+.bodmas-dialog {
+  position: fixed;
+  inset: 18px 18px auto auto;
+  width: min(540px, calc(100vw - 36px));
+  max-width: none;
+  height: auto;
+  max-height: calc(100dvh - 36px);
+  margin: 0;
+  border: 1px solid #dad5f0;
+  border-radius: 22px;
+  padding: 22px;
+  color: #231b53;
+  background: #faf9ff;
+  box-shadow: 0 24px 70px rgb(22 17 74 / 28%);
+  overflow-y: auto;
+  animation: bodmas-arrive 200ms ease-out;
+}
+
+.bodmas-dialog::backdrop { background: rgb(20 17 58 / 48%); }
+.bodmas-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.bodmas-eyebrow { color: #5845bb; font-size: 12px; font-weight: 850; letter-spacing: .8px; text-transform: uppercase; }
+.bodmas-dialog h2 { margin: 3px 0 0; color: #30219c; font-size: 32px; line-height: 1.1; letter-spacing: 1px; }
+.bodmas-dialog-header p { margin: 2px 0; color: #60598d; font-size: 13px; font-weight: 650; }
+.bodmas-close {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border: 1px solid #dbd6ef;
+  border-radius: 12px;
+  padding: 0;
+  color: #423894;
+  background: #fff;
+  cursor: pointer;
+}
+.bodmas-close svg { display: block; width: 19px; height: 19px; }
+.bodmas-close:hover { background: #f2efff; }
+
+.bodmas-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 18px 0 12px; padding: 0; list-style: none; }
+.bodmas-step {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 5px;
+  min-height: 70px;
+  border: 1px solid #e5e0f5;
+  border-radius: 14px;
+  padding: 4px 7px 4px 3px;
+  background: #fff;
+}
+.bodmas-step--brackets,
+.bodmas-step--orders { --bodmas-accent: #5142c8; --bodmas-soft: #eeeaff; }
+.bodmas-step--division,
+.bodmas-step--multiplication { --bodmas-accent: #127d80; --bodmas-soft: #e4f8f5; }
+.bodmas-step--addition,
+.bodmas-step--subtraction { --bodmas-accent: #b15c16; --bodmas-soft: #fff1dd; }
+.bodmas-step-graphic { display: block; width: 104px; height: 62px; color: var(--bodmas-accent); }
+.bodmas-letter-disc { fill: var(--bodmas-soft); stroke: var(--bodmas-accent); stroke-width: 2; }
+.bodmas-letter { fill: var(--bodmas-accent); font: 800 36px Arial, sans-serif; }
+.bodmas-operation-mark text { fill: currentColor; stroke: none; font-family: Arial, sans-serif; font-weight: 800; }
+.bodmas-operation-mark circle { fill: currentColor; stroke: none; }
+.bodmas-step-copy { display: grid; gap: 2px; min-width: 0; }
+.bodmas-step-copy strong { color: #29225a; font-size: 14px; line-height: 1.1; overflow-wrap: anywhere; }
+.bodmas-step-copy span { color: #696184; font-size: 11px; line-height: 1.2; }
+.bodmas-rank { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 8px; color: var(--bodmas-accent); background: var(--bodmas-soft); font-size: 13px; font-weight: 850; }
+.bodmas-rule { border-left: 3px solid #5142c8; border-radius: 0 9px 9px 0; padding: 8px 10px; background: #f0edff; }
+.bodmas-rule p { margin: 0; font-size: 12px; line-height: 1.35; }
+.bodmas-rule p + p { margin-top: 6px; }
+
+@keyframes bodmas-arrive { from { opacity: .5; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1050px) {
+  .bodmas-trigger { position: static; width: max-content; margin: 0 0 14px auto; }
+}
+
+@media (max-width: 580px) {
+  .bodmas-dialog { inset: 12px 12px auto auto; width: calc(100vw - 24px); max-height: calc(100dvh - 24px); padding: 18px; }
+  .bodmas-steps { grid-template-columns: 1fr; }
+  .bodmas-step { grid-template-columns: 104px minmax(0, 1fr) 26px; }
+  .bodmas-step-copy strong { font-size: 15px; }
+  .bodmas-step-copy span { font-size: 12px; }
+}
+
+@media (max-width: 350px) {
+  .bodmas-step { grid-template-columns: 92px minmax(0, 1fr) 26px; }
+  .bodmas-step-graphic { width: 92px; height: 55px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bodmas-dialog { animation: none; }
+  .bodmas-trigger:hover { transform: none; }
+}

@@ -11,6 +11,7 @@ from app.modules.quiz.models import (
     QuizResponse,
     QuizResult,
     QuizSession,
+    QuizSessionQuestion,
 )
 
 
@@ -19,16 +20,27 @@ def get_questions(
     concept_id: str,
     assessment_use: str,
     difficulty_level: str | None = None,
+    bank_version: str | None = None,
 ) -> list[QuizQuestion]:
     query = select(QuizQuestion).where(
         QuizQuestion.concept_id == concept_id,
         QuizQuestion.assessment_use.in_((assessment_use, "both")),
         QuizQuestion.question_type == "multiple_choice",
         QuizQuestion.is_active.is_(True),
+        QuizQuestion.bank_version == bank_version,
     )
     if difficulty_level is not None:
         query = query.where(QuizQuestion.difficulty_level == difficulty_level)
     return list(database.scalars(query.order_by(QuizQuestion.question_code)))
+
+
+def get_session_questions(database: Session, session_id: str) -> list[QuizQuestion]:
+    return list(database.scalars(
+        select(QuizQuestion)
+        .join(QuizSessionQuestion, QuizSessionQuestion.question_id == QuizQuestion.id)
+        .where(QuizSessionQuestion.quiz_session_id == session_id)
+        .order_by(QuizSessionQuestion.question_order)
+    ))
 
 
 def get_options_for_questions(

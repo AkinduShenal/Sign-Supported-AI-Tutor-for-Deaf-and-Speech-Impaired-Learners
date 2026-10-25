@@ -1,0 +1,19 @@
+.game-research-dialog { width: min(600px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: clamp(20px, 4vw, 32px); border: 1px solid var(--border, #e2e5ef); border-radius: 24px; background: #fff; color: #1f2440; box-shadow: 0 24px 80px #1f244030; overflow-y: auto; overflow-wrap: anywhere; font-family: Inter, system-ui, sans-serif; line-height: 1.6; }
+.game-research-dialog::backdrop { background: #1f244080; }
+.game-research-dialog h2 { margin: 4px 0 12px; font-size: clamp(1.5rem, 4vw, 1.875rem); line-height: 1.25; }
+.game-research-dialog__eyebrow { margin: 0; color: #51459d; font-size: .8125rem; font-weight: 750; }
+.game-research-dialog dl { padding: 14px; border-radius: 14px; background: #f6f4ff; font-size: .8125rem; }
+.game-research-dialog dl div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; margin: 6px 0; }
+.game-research-dialog dt { font-weight: 700; }
+.game-research-dialog dd { margin: 0; overflow-wrap: anywhere; }
+.game-research-dialog__confirm { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0; font-size: .875rem; }
+.game-research-dialog__confirm input { flex: none; width: 20px; height: 20px; margin-top: 3px; accent-color: #5b4ae8; }
+.game-research-dialog__password { display: block; margin-bottom: 6px; font-weight: 700; }
+.game-research-dialog input[type=password] { width: 100%; min-height: 48px; border: 1px solid #a3a9bc; border-radius: 10px; padding: 10px 12px; font: inherit; background: #fff; color: #1f2440; }
+.game-research-dialog__error { color: #843c34; padding: 12px; border-radius: 10px; background: #fff0ee; }
+.game-research-dialog__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.game-research-dialog button { min-height: 46px; padding: 10px 16px; border: 1px solid #5b4ae8; border-radius: 12px; font: inherit; font-weight: 650; color: #3424a8; background: #eeebff; cursor: pointer; }
+.game-research-dialog button[type=submit] { color: #fff; background: #5b4ae8; }
+.game-research-dialog button:disabled { opacity: .6; cursor: wait; }
+.game-research-dialog :is(button, input):focus-visible { outline: 3px solid #5b4ae8; outline-offset: 3px; }
+@media (max-width: 400px) { .game-research-dialog dl div { grid-template-columns: minmax(0, 1fr); gap: 0; } .game-research-dialog__actions button { width: 100%; } }

@@ -10,17 +10,23 @@
 // language toggle changes their order and prominence without restarting play.
 import { formatGameLanguages } from '../gameLanguage.ts'
 
-// Extra room for Sinhala glyphs (tall marks above and below the line), and
-// never bold: synthetic bold smears the marks together.
+// Extra room for Sinhala glyphs (tall marks above and below the line). Body
+// Sinhala stays regular weight; the bundled Noto Sans Sinhala has real bold
+// weights, so only titles and buttons use bold (never a synthetic bold).
 export const SINHALA_TEXT = {
   lineSpacing: 8,
   padding: { top: 4, bottom: 4 },
 }
 
-// The Sinhala fonts come before the generic fallback so canvas text that
-// mixes English and Sinhala renders on Windows, Android and macOS.
+// The Game's own fonts, bundled locally (assets/fonts, loaded by
+// PhaserGame.css and awaited in PhaserGame.tsx before the canvas boots):
+// "Game Rounded" (Fredoka) draws Latin letters and digits, "Game Sinhala"
+// (Noto Sans Sinhala) draws Sinhala. Canvas picks a font per glyph, so
+// mixed English/Sinhala lines work. The system fonts after them are only a
+// fallback if the bundled files fail to load.
+export const GAME_FONTS = { rounded: 'Game Rounded', sinhala: 'Game Sinhala' } as const
 export const FONT_FAMILY =
-  'system-ui, "Segoe UI", Roboto, "Nirmala UI", "Noto Sans Sinhala", "Iskoola Pota", "Sinhala MN", sans-serif'
+  `"${GAME_FONTS.rounded}", "${GAME_FONTS.sinhala}", system-ui, "Segoe UI", Roboto, "Nirmala UI", "Noto Sans Sinhala", "Iskoola Pota", "Sinhala MN", sans-serif`
 
 export interface Bilingual {
   en: string
@@ -84,6 +90,9 @@ export const GAME_TEXT = {
   levelsCompleted: { en: 'Levels Completed', si: 'සම්පූර්ණ කළ මට්ටම්' },
   saveUnverified: { en: 'Save unverified. Tap to retry.', si: 'සුරැකීම තහවුරු නැත. නැවත උත්සාහ කරන්න.' },
   retryingSave: { en: 'Retrying save…', si: 'නැවත සුරකිමින්…' },
+  // The rotating tip card shown while calculating the session result
+  // (loadingTips.ts, createResultsLoadingCard in theme/gameUi.ts).
+  quickTip: { en: 'Quick tip', si: 'ඉක්මන් ඉඟිය' },
 } satisfies Record<string, Bilingual>
 
 // Game Selection card text, keyed by GameType (draft Sinhala, same review
@@ -100,7 +109,7 @@ export const GAME_TYPE_TEXT: Record<
     },
   },
   hangman: {
-    name: { en: 'Hangman', si: 'හෑන්ග්මන්' },
+    name: { en: 'Hangman', si: 'හෑන්ග්මෑන්' },
     description: {
       en: 'Don\'t let the man fall.',
       si: 'වැටෙන්න නොදි තියාගන්න​.',
