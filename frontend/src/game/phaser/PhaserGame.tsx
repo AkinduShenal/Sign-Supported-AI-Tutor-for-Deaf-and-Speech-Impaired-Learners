@@ -6,6 +6,9 @@ import { DESIGN } from './viewport'
 import { renderPixelRatio } from './theme/gameTheme'
 import { CollectionGate } from '../CollectionGate'
 import { GameLanguageToggle } from '../GameLanguageToggle'
+import { MLInputDetails } from '../MLInputDetails'
+import { ResearcherMLResult } from '../ResearcherMLResult'
+import { ML_PREVIEW_EVENT } from '../mlInputFeatures'
 import './PhaserGame.css'
 
 // Mounts a Phaser game into a plain <div>. Phaser manages everything inside
@@ -15,11 +18,12 @@ export function PhaserGame({ onContinue }: { onContinue?: () => void }) {
   return <CollectionGate onContinue={onContinue}><GameCanvas /></CollectionGate>
 }
 
-function GameCanvas() {
+export function GameCanvas() {
   const stageRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const gameRef = useRef<Phaser.Game | null>(null)
   const [expanded, setExpanded] = useState(false)
+  const [researchResults, setResearchResults] = useState<{ sessionId: string | null } | null>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -53,6 +57,7 @@ function GameCanvas() {
       if (cancelled) return
       game = new Phaser.Game(createGameConfig(container))
       gameRef.current = game
+      game.events.on(ML_PREVIEW_EVENT, setResearchResults)
       fitToViewport()
     })
     const frame = requestAnimationFrame(fitToViewport)
@@ -61,7 +66,7 @@ function GameCanvas() {
     window.addEventListener('resize', fitToViewport)
     window.addEventListener('orientationchange', fitToViewport)
     window.visualViewport?.addEventListener('resize', fitToViewport)
-    const stop = () => { game?.destroy(true); game = undefined }
+    const stop = () => { game?.destroy(true); game = undefined; setResearchResults(null) }
     window.addEventListener('game-collection-stop', stop)
 
     // React's StrictMode runs effects twice in development (mount, cleanup,
@@ -75,6 +80,7 @@ function GameCanvas() {
       window.removeEventListener('orientationchange', fitToViewport)
       window.visualViewport?.removeEventListener('resize', fitToViewport)
       window.removeEventListener('game-collection-stop', stop)
+      game?.events.off(ML_PREVIEW_EVENT, setResearchResults)
       game?.destroy(true)
       gameRef.current = null
     }
@@ -132,6 +138,10 @@ function GameCanvas() {
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
           )}
         </button>
+        {researchResults && <>
+          <ResearcherMLResult key={`estimate-${researchResults.sessionId ?? 'unsaved'}`} sessionId={researchResults.sessionId} />
+          <MLInputDetails key={researchResults.sessionId ?? 'unsaved'} sessionId={researchResults.sessionId} />
+        </>}
       </div>
     </div>
   )

@@ -1,5 +1,7 @@
 import type { AssessmentPhase, DifficultyLevel, GameplayEventType } from '../types'
 import { gameRequest } from './game'
+import type { MLInputPreview } from '../mlInputFeatures'
+import { rememberMLAcknowledgement } from '../gameMLVerification'
 
 export interface GameSessionResponse {
   game_session_id: string
@@ -10,6 +12,7 @@ export interface GameSessionResponse {
   status: 'in_progress' | 'completed' | 'abandoned'
   started_at: string
   completed_at: string | null
+  research_verification?: { receipt: string; expires_at: string } | null
 }
 
 export interface CreateGameSessionInput {
@@ -62,7 +65,10 @@ export function saveTaskAttempt(input: SaveTaskAttemptInput): Promise<unknown> {
 export function completeGameSession(gameSessionId: string): Promise<GameSessionResponse> {
   // gameRequest only POSTs when a body is passed; the backend route takes
   // no body, so an empty object just forces POST and is otherwise ignored.
-  return gameRequest<GameSessionResponse>(`sessions/${gameSessionId}/complete`, {})
+  return gameRequest<GameSessionResponse>(`sessions/${gameSessionId}/complete`, {}).then(saved => {
+    if (saved.game_session_id === gameSessionId) rememberMLAcknowledgement(saved)
+    return saved
+  })
 }
 
 export interface VariantUsageResponse {
@@ -123,4 +129,9 @@ export interface GameResultResponse {
 // (Step 17). Throws (404) if that hasn't happened yet.
 export function fetchGameResult(gameSessionId: string): Promise<GameResultResponse> {
   return gameRequest<GameResultResponse>(`results/${gameSessionId}`)
+}
+
+export function fetchMlInputPreview(gameSessionId: string, signal?: AbortSignal): Promise<MLInputPreview> {
+  const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : undefined
+  return gameRequest<MLInputPreview>(`results/${encodeURIComponent(gameSessionId)}/ml-inputs`, undefined, requestSignal)
 }

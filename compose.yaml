@@ -11,12 +11,22 @@ services:
       FRONTEND_URL: http://localhost:${FRONTEND_PORT:-5173}
       GAME_COLLECTION_EXPORT_KEY: ${GAME_COLLECTION_EXPORT_KEY:-}
       QUIZ_COLLECTION_EXPORT_KEY: ${QUIZ_COLLECTION_EXPORT_KEY:-}
+      # ML predictions are on by default (set false in .env to turn off). The
+      # two model files are committed under ./local_ml_artifacts; the rest of
+      # that folder is git-ignored private research data.
+      QUIZ_ML_ENABLED: ${QUIZ_ML_ENABLED:-true}
+      GAME_ML_EXPERIMENTAL_ENABLED: ${GAME_ML_EXPERIMENTAL_ENABLED:-true}
+      GAME_ML_MODEL_ARCHIVE: /local_ml_artifacts/game_ml_model_export_with_fixtures.zip
+      GAME_ML_PYTHON: /opt/game-ml/bin/python
+      GAME_ML_CONTAINER_NETWORK: "true"
 
     ports:
       - "${BACKEND_PORT:-8000}:8000"
 
     volumes:
       - ./backend:/app
+      # Quiz reads <project root>/local_ml_artifacts, which is / inside the container.
+      - ./local_ml_artifacts:/local_ml_artifacts:ro
 
     healthcheck:
       test:

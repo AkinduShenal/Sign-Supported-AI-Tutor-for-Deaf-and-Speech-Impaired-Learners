@@ -1,7 +1,8 @@
-"""Development-only inference from a completed dynamic Quiz's saved first answers.
+"""Misconception prediction from a completed dynamic Quiz's saved first answers.
 
-Never import or deserialize the model on normal app startup. Only the exact
-isolated demo SQLite file with two explicit flags may reach this service.
+Never import or deserialize the model on normal app startup. Predictions run
+for the released bank when QUIZ_ML_ENABLED=true, or in the isolated demo SQLite
+file with its two development flags. Prediction only reads saved evidence.
 """
 
 from __future__ import annotations
@@ -13,13 +14,14 @@ import logging
 import math
 from pathlib import Path
 
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import select
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
+from app.core.config import ENV_FILE, settings
 from app.modules.quiz.dynamic_ml_features import (
-    DynamicFeatureError, FEATURE_NAMES, FEATURE_SCHEMA_VERSION,
+    DynamicFeatureError, FEATURE_BANK_VERSIONS, FEATURE_NAMES, FEATURE_SCHEMA_VERSION,
     SUPPORTED_BANK_VERSION, extract_dynamic_features_for_session,
 )
 from app.modules.quiz.models import QuizSession
@@ -35,6 +37,11 @@ MODEL_NAME = "quiz_dynamic_62_SYNTHETIC_DEMO.joblib"
 TARGET_COLUMNS = ("target_M1", "target_M2", "target_M3", "target_M4")
 LABELS = ("M1", "M2", "M3", "M4")
 ORIGIN = "SYNTHETIC_ENGINEERING_DEMO_ONLY"
+# The exported manifest still carries the status from before review. The subject
+# teacher verified the M1–M4 category definitions on 2026-10-15 (evidence held by
+# the Quiz owner). This covers the categories, not the model's training labels.
+TAXONOMY_VERSION = "m3a-taxonomy-v1-proposed"
+TAXONOMY_TEACHER_VERIFIED_ON = "2026-10-15"
 
 
 class ArtifactMissingError(ValueError):
@@ -53,6 +60,15 @@ def isolated_demo_enabled(database: Session) -> bool:
     url = make_url(str(bind.url if hasattr(bind, "url") else bind.engine.url))
     return (url.get_backend_name() == "sqlite" and url.database not in (None, ":memory:")
             and Path(url.database).resolve() == DEMO_DATABASE_PATH.resolve())
+
+
+class QuizMLSettings(BaseSettings):
+    quiz_ml_enabled: bool = False
+    model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
+
+
+def prediction_enabled(database: Session) -> bool:
+    return QuizMLSettings().quiz_ml_enabled or isolated_demo_enabled(database)
 
 
 def _unavailable(session_id: str, reason: str) -> dict:
@@ -123,7 +139,7 @@ def predict_completed_dynamic_session(database: Session, session_id: str) -> dic
     session = database.scalar(select(QuizSession).where(QuizSession.quiz_session_id == session_id))
     if session is None:
         raise QuizNotFoundError("Quiz session was not found")
-    if session.bank_version != SUPPORTED_BANK_VERSION or session.status != "completed":
+    if session.bank_version not in FEATURE_BANK_VERSIONS or session.status != "completed":
         return _unavailable(session_id, "session_incomplete")
     try:
         vector = extract_dynamic_features_for_session(database, session_id)
@@ -137,7 +153,9 @@ def predict_completed_dynamic_session(database: Session, session_id: str) -> dic
         logger.warning("Dynamic ML artifact unavailable: %s", error)
         return _unavailable(session_id, "artifact_incompatible")
     if (vector["feature_schema_version"] != manifest["feature_schema_version"] or
-            vector["bank_version"] != manifest["bank_version"] or
+            # The model was trained on the draft bank; the released bank has identical items.
+            manifest["bank_version"] != SUPPORTED_BANK_VERSION or
+            vector["bank_version"] not in FEATURE_BANK_VERSIONS or
             vector["feature_names"] != manifest["feature_names"] or
             list(vector["features"]) != manifest["feature_names"]):
         return _unavailable(session_id, "artifact_incompatible")
@@ -161,6 +179,8 @@ def predict_completed_dynamic_session(database: Session, session_id: str) -> dic
         "bank_version": vector["bank_version"],
         "training_data_origin": ORIGIN,
         "research_validated": False,
+        "taxonomy_version": TAXONOMY_VERSION,
+        "taxonomy_teacher_verified_on": TAXONOMY_TEACHER_VERIFIED_ON,
         "predictions": [
             {"label": label, "probability": float(probability),
              "threshold": 0.5, "flagged": probability >= 0.5}

@@ -1,5 +1,6 @@
 import type { QuizCollectionSession } from './pendingQuizWrites'
 import type { ConfidenceLevel, QuizDiagnosticResult, QuizQuestion } from './types'
+import { isDynamicBankMode } from './bankMode.ts'
 
 export interface QuizResultQuestionMetric {
   questionOrder: number
@@ -25,7 +26,7 @@ export function isDynamicQuizResultSession(
 ): boolean {
   if (bankVersion) return true
   if (collection?.completed === true
-    && collection.request.bank_mode === 'dynamic_dev'
+    && isDynamicBankMode(collection.request.bank_mode)
     && `QUIZ-${collection.request.client_session_id}` === sessionId) return true
   return questions.length === 10 && questions.every((question, index) =>
     new RegExp(`^PP1-DYN-S${String(index + 1).padStart(2, '0')}-V0[1-6]$`).test(question.question_code))

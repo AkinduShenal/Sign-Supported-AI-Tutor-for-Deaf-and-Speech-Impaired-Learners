@@ -2,6 +2,7 @@ import type { AssessmentPhase, GameType, GameplayEventType } from '../types'
 import { fetchGameResult } from './gameApi'
 import type { GameResultResponse, SaveTaskAttemptInput } from './gameApi'
 import { getCollectionStore } from './collectionStore'
+import { getDevelopmentDemo, takeDevelopmentSessionId } from '../developmentDemoState'
 
 interface StartSessionInput {
   studentId: string
@@ -13,8 +14,12 @@ interface StartSessionInput {
 
 // Preserve the scenes' API; the queue persists evidence before HTTP.
 export class GameBackendSync {
-  private readonly clientSessionId = crypto.randomUUID()
+  private readonly clientSessionId = getDevelopmentDemo() ? takeDevelopmentSessionId() : crypto.randomUUID()
   private started = false
+
+  getResearchSessionId(): string | null {
+    return this.started ? this.clientSessionId : null
+  }
 
   startSession(input: StartSessionInput): void {
     const store = getCollectionStore()

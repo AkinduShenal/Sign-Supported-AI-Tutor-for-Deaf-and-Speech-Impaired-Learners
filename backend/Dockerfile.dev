@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm
+FROM python:3.13.12-slim-bookworm
 
 WORKDIR /app
 
@@ -9,6 +9,12 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Isolated runtime for the Game ML worker. The worker refuses to run unless the
+# Python patch version and these pins match research_inference/contract.py.
+COPY app/modules/game/research_inference/worker-requirements.txt /tmp/game-ml-requirements.txt
+RUN python -m venv /opt/game-ml \
+    && /opt/game-ml/bin/pip install --no-cache-dir -r /tmp/game-ml-requirements.txt
 
 COPY . .
 

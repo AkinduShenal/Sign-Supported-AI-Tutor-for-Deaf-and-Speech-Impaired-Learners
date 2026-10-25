@@ -8,6 +8,7 @@ import { requireCollectionStudent } from '../../collectionIdentity'
 import { formatGameLanguages, primaryGameText } from '../../gameLanguage'
 import type { Bilingual } from '../gameText'
 import { GameSession } from '../../session/GameSession'
+import { ML_PREVIEW_EVENT } from '../../mlInputFeatures'
 import type { GameType } from '../../types'
 import { FINGER, HangmanFigure, slipOrderIndex } from '../HangmanFigure'
 import {
@@ -932,6 +933,8 @@ export class HangmanGameScene extends Phaser.Scene {
   // ---- Session summary ---------------------------------------------------
 
   private createSummaryScreen(): void {
+    this.game.events.emit(ML_PREVIEW_EVENT, { sessionId: this.backendSync.getResearchSessionId() })
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.game.events.emit(ML_PREVIEW_EVENT, null))
     this.resultsLoadingCard = createResultsLoadingCard(this, {
       x: this.viewWidth / 2, y: this.viewHeight / 2,
       status: GAME_TEXT.calculating, tips: LOADING_TIPS,

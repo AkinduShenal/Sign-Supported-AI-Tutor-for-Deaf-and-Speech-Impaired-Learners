@@ -1,4 +1,5 @@
 import type { CreateQuizSessionInput } from './api'
+import { isDynamicBankMode } from './bankMode.ts'
 import type { QuizAnswer, QuizAnswerSaved, QuizOption, QuizQuestion, QuizSession } from './types'
 
 export const QUIZ_STORAGE_KEY = 'quiz.collection.pending.v1'
@@ -149,14 +150,14 @@ export class PendingQuizWrites {
   status(id: string): QuizCollectionStatus {
     const row = this.session(id)
     if (row.error || this.fatalError) return 'Failed'
-    if (!row.created || (row.request.bank_mode === 'dynamic_dev' && row.question_ids.length === 0)
+    if (!row.created || (isDynamicBankMode(row.request.bank_mode) && row.question_ids.length === 0)
       || row.responses.some(response => !response.saved)
       || (row.completion_requested && !row.completed)) return 'Pending'
     return 'Saved'
   }
   start(request: CreateQuizSessionInput, questionIds: string[]): string {
     if (this.openSessions().length) throw new Error('End the previous Quiz collection before starting another.')
-    if ((!questionIds.length && request.bank_mode !== 'dynamic_dev')
+    if ((!questionIds.length && !isDynamicBankMode(request.bank_mode))
       || new Set(questionIds).size !== questionIds.length) throw new Error('Invalid Quiz question plan')
     const id = `QUIZ-${request.client_session_id}`
     this.update(next => next.sessions.push({ request, question_ids: questionIds, created: false,
@@ -230,7 +231,7 @@ export class PendingQuizWrites {
         })
       }
       row = this.session(id)
-      if (row.request.bank_mode === 'dynamic_dev' && row.question_ids.length === 0) {
+      if (isDynamicBankMode(row.request.bank_mode) && row.question_ids.length === 0) {
         if (!this.transport.questions) throw new Error('Dynamic Quiz question recovery is unavailable.')
         const questions = await this.transport.questions(id)
         if (questions.length !== 10 || new Set(questions.map(question => question.id)).size !== 10) {

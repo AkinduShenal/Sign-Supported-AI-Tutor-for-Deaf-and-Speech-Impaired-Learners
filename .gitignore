@@ -38,8 +38,11 @@ Thumbs.db
 *.log
 node_modules
 
-# Local ML models and research demo artifacts
-/local_ml_artifacts/
+
+# Only the two deployed prediction models are committed, so Docker runs work.
+/local_ml_artifacts/*
+!/local_ml_artifacts/game_ml_model_export_with_fixtures.zip
+!/local_ml_artifacts/quiz_dynamic_62_demo/
 
 # Generated Dynamic Quiz ML demo datasets
 /tmp/quiz_dynamic_ml_demo/

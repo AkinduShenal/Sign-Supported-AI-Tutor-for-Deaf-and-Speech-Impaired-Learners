@@ -37,6 +37,8 @@ class QuizInvalidAnswerError(ValueError):
 
 class QuizService:
     DYNAMIC_VERSION = "pp1_dynamic_v1_DRAFT"
+    # Teacher-approved release of the same 60 items (scripts/release_quiz_dynamic_v1.py).
+    RELEASED_VERSION = "pp1_dynamic_v1"
 
     @staticmethod
     def _local_development_database(database: Session) -> bool:
@@ -99,11 +101,15 @@ class QuizService:
         existing = repository.get_quiz_session(database, session_id)
         if existing is not None:
             return self._matching_session(existing, request)
-        dynamic = request.bank_mode == "dynamic_dev"
-        if dynamic and (not settings.quiz_dynamic_dev_enabled or not self._local_development_database(database)):
+        dynamic = request.bank_mode != "fixed"
+        released = request.bank_mode == "dynamic"
+        if request.bank_mode == "dynamic_dev" and (
+            not settings.quiz_dynamic_dev_enabled or not self._local_development_database(database)
+        ):
             raise QuizConflictError("Dynamic Quiz requires an isolated local development database and feature flag")
         if dynamic and request.assessment_phase != AssessmentPhase.PRE_TUTOR:
-            raise QuizConflictError("The draft dynamic bank supports pre-tutor sessions only")
+            raise QuizConflictError("The dynamic bank supports pre-tutor sessions only")
+        bank_version = self.RELEASED_VERSION if released else self.DYNAMIC_VERSION
         session = QuizSession(
             quiz_session_id=session_id,
             student_id=request.student_id,
@@ -113,15 +119,16 @@ class QuizService:
             quiz_attempt_number=request.quiz_attempt_number,
             display_language=request.display_language.value,
             status="in_progress",
-            bank_version=self.DYNAMIC_VERSION if dynamic else None,
+            bank_version=bank_version if dynamic else None,
         )
         try:
             repository.create_quiz_session(database, session)
             if dynamic:
-                bank = repository.get_questions(database, request.concept_id, "pre", bank_version=self.DYNAMIC_VERSION)
+                bank = repository.get_questions(database, request.concept_id, "pre", bank_version=bank_version)
                 by_slot = defaultdict(list)
                 for question in bank:
-                    if not question.teacher_validated:
+                    # Released sessions use only approved rows; the draft bank only unapproved ones.
+                    if question.teacher_validated == released:
                         by_slot[question.logical_slot].append(question)
                 if (len(bank) != 60 or set(by_slot) != {f"S{i:02d}" for i in range(1, 11)}
                     or any(len(group) != 6 or len({q.difficulty_level for q in group}) != 1 for group in by_slot.values())
@@ -154,7 +161,8 @@ class QuizService:
             or session.quiz_attempt_number != request.quiz_attempt_number
             or session.display_language != request.display_language.value
             or (request.learning_cycle_id is not None and session.learning_cycle_id != request.learning_cycle_id)
-            or (session.bank_version is not None) != (request.bank_mode == "dynamic_dev")
+            or session.bank_version != {"fixed": None, "dynamic_dev": QuizService.DYNAMIC_VERSION,
+                                        "dynamic": QuizService.RELEASED_VERSION}[request.bank_mode]
         ):
             raise QuizConflictError("client_session_id belongs to different Quiz session data")
         return QuizSessionResponse.model_validate(session, from_attributes=True)

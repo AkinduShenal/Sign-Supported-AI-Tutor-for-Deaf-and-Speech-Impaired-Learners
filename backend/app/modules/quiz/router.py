@@ -9,7 +9,7 @@ from app.db.session import get_db
 from app.modules.quiz.collection_export import quiz_collection_zip, require_quiz_export_access
 from app.modules.quiz.diagnostic_service import QuizDiagnosticService
 from app.modules.quiz.dynamic_ml_inference import (
-    isolated_demo_enabled, predict_completed_dynamic_session,
+    prediction_enabled, predict_completed_dynamic_session,
 )
 from app.modules.quiz.schemas import (
     AssessmentPhase,
@@ -152,7 +152,7 @@ def get_result(quiz_session_id: str, database: Database) -> QuizDiagnosticRespon
 def get_experimental_prediction(
     quiz_session_id: str, database: Database,
 ) -> QuizDynamicMlPredictionResponse:
-    if not isolated_demo_enabled(database):
+    if not prediction_enabled(database):
         raise HTTPException(status_code=404, detail="Experimental prediction is unavailable")
     try:
         return QuizDynamicMlPredictionResponse.model_validate(

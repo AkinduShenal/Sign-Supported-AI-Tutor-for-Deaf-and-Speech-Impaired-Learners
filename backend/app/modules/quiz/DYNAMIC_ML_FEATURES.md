@@ -147,8 +147,8 @@ only when such an artifact is available, and mark unvalidated output
 
 The local `research/quiz_m3/03_teacher_item_evidence.csv` and
 `04_teacher_consensus_labels.csv` contain headers only. Taxonomy
-`m3a-taxonomy-v1-proposed` and independent assessment form
-`m3a-independent-v1-proposed` remain pending. Reported approval of the 60 Quiz
+`m3a-taxonomy-v1-proposed` was verified by the subject teacher on 2026-10-15;
+independent assessment form `m3a-independent-v1-proposed` remains pending. Reported approval of the 60 Quiz
 questions, Sinhala text and option tags does not verify independent **student**
 M1–M4 labels or approval of those taxonomy definitions. M2 balancing has no
 corresponding option tag; M4 coefficient/division is not the same as the broad

@@ -22,6 +22,10 @@ from app.modules.quiz.models import (
 
 FEATURE_SCHEMA_VERSION = "quiz_dynamic_features_v1"
 SUPPORTED_BANK_VERSION = "pp1_dynamic_v1_DRAFT"
+# The released bank holds the same 60 approved items, pinned by SHA-256 in
+# scripts/release_quiz_dynamic_v1.py, so its features match the draft's.
+RELEASED_BANK_VERSION = "pp1_dynamic_v1"
+FEATURE_BANK_VERSIONS = (SUPPORTED_BANK_VERSION, RELEASED_BANK_VERSION)
 SLOT_BLUEPRINT = {
     "S01": ("one_step_addition", "easy"),
     "S02": ("one_step_subtraction", "easy"),
@@ -94,7 +98,7 @@ def extract_dynamic_features(
     Option IDs/codes, question variant IDs, learner IDs and timestamps are never
     predictor columns. Tags describe chosen distractors, not teacher labels.
     """
-    _require(quiz_session.bank_version == SUPPORTED_BANK_VERSION,
+    _require(quiz_session.bank_version in FEATURE_BANK_VERSIONS,
              "Unsupported dynamic bank version")
     _require(quiz_session.status == "completed" and quiz_session.completed_at is not None,
              "Quiz session is incomplete")

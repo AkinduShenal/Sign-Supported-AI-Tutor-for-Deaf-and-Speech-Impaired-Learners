@@ -1,4 +1,5 @@
 // Researcher-assigned learner codes shared by Quiz, Game and Tutor.
+import { getDevelopmentDemo } from './developmentDemoState.ts'
 export const STUDENT_CODE_PATTERN = /^STU_[0-9]{3,6}$/
 
 export function validateStudentCode(value: string): string {
@@ -16,6 +17,8 @@ export function setCollectionStudent(value: string | null): void {
 }
 
 export function requireCollectionStudent(): string {
+  const demo = getDevelopmentDemo()
+  if (demo) return demo.student_id
   if (!activeCode) throw new Error('Enter the researcher-assigned student code before playing.')
   return activeCode
 }

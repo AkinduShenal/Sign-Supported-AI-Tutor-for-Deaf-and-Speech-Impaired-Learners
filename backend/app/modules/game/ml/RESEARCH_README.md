@@ -1,3 +1,49 @@
+# Real collection preparation (Milestone 2.2)
+
+[Milestone 2.4](ML_Milestone_2_4.md) now records six trained **REAL_COLLECTED,
+RETROSPECTIVE, PRELIMINARY_EXPERIMENTAL, NOT_APPROVED_FOR_PRODUCTION** pipelines.
+The original 30-observation / 16-learner cohort and fixed split are preserved.
+Training and software checks completed, but held-out Beginner/Advanced recall is
+zero and no consistent benefit from behaviour features is established. Research
+validation remains unestablished; prospective training and deployment stay blocked.
+
+Preparation readiness: [Milestone 2.3.4](ML_Milestone_2_3_4.md) accepts timestamp ties
+only with a validated recorded attempt counter and complete submission evidence.
+Strict inversions, unsupported evidence and ownership quarantines remain blocked.
+The immutable paired cohorts contain 30 retrospective / 9 prospective observations.
+Retrospective preliminary training now passes the technical guards; prospective
+training remains blocked. No models were trained in this milestone.
+
+Previous preparation: [Milestone 2.3.3](ML_Milestone_2_3_3.md) imports the reviewed
+50-session sheet through the unchanged guarded importer, validates all 16 separate
+teacher assessments and prepares paired retrospective/prospective cohorts.
+STU_008 uses the researcher-confirmed score-derived Intermediate label, preserving
+its original conflicting source entry. Same-day ordering remains unknown.
+Training stays blocked by an unresolved completed-session evidence check;
+prospective evaluation also lacks sufficient learners and class coverage.
+This milestone has no training option and performs no database operations.
+
+Earlier continuation: [Milestone 2.3.1](ML_Milestone_2_3_1.md) isolates analytics
+ownership conflicts only after shared integrity checks pass, revalidates the two
+approved sessions and supplies the current 50-row review sheet. Training is still
+blocked by cohort/class coverage, and no models were trained.
+
+[Milestone 2.3](ML_Milestone_2_3.md) expands the candidate
+roster to STU_001–STU_016 and excludes the accidental STU_0014 code without
+reassignment or raw-data changes. It records the newer local export's counts
+and evidence blockers. Current work remains preparation only, without training.
+
+For researcher authenticity decisions, start with
+[SESSION_VERIFICATION.md](SESSION_VERIFICATION.md): it documents the editable CSV,
+allowed decisions, offline import validation and conditional training command.
+
+See [ML_Milestone_2_2.md](ML_Milestone_2_2.md) for the verified-session CSV audit,
+date-only teacher-label extension, local preparation command and current training
+blocker. `collection_research` reads exported files only and requires exact
+authenticity approvals. Unverified sessions never enter training. The optional
+assessment provenance fields preserve after-gameplay timing and lesson revision
+separately from the existing `pre_tutor`/`post_tutor` gameplay phase.
+
 # Research-aligned comparative ML — Milestone 1.1
 
 Member 3 / Game-Based Learning Analytics. PP1: October 22, 2026.

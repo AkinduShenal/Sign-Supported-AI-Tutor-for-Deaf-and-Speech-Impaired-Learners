@@ -1,0 +1,31 @@
+.ml-input-details {
+  margin: 16px auto;
+  width: 100%;
+  max-width: 1100px;
+  box-sizing: border-box;
+  border: 1px solid #e2e5ef;
+  border-radius: 18px;
+  background: #fff;
+  color: #1f2440;
+  font-family: 'Game Rounded', system-ui, sans-serif;
+  text-align: left;
+}
+.ml-input-details summary { padding: 18px; cursor: pointer; font-weight: 600; overflow-wrap: anywhere; }
+.ml-input-details__body { padding: 0 18px 18px; font-size: 15px; line-height: 1.6; }
+.ml-input-details__body p { margin: 12px 0; }
+.ml-input-details__status { padding: 12px; border-radius: 10px; background: #eeebff; color: #3424a8; }
+.ml-input-details dl { margin: 16px 0; }
+.ml-input-details dl > div { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid #e2e5ef; }
+.ml-input-details dt, .ml-input-details dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.ml-input-details code, .ml-input-details textarea { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+.ml-input-details dd small { display: block; font-size: 12px; color: #555b72; }
+.ml-input-details button { min-height: 44px; padding: 10px 16px; border: 1px solid #5b4ae8; border-radius: 10px; background: #eeebff; color: #3424a8; cursor: pointer; }
+.ml-input-details .ml-input-details__copy { background: #5b4ae8; color: #fff; }
+.ml-input-details button:disabled { opacity: .6; cursor: wait; }
+.ml-input-details :is(button, summary, textarea):focus-visible { outline: 3px solid #5b4ae8; outline-offset: 3px; }
+.ml-input-details label { display: block; }
+.ml-input-details textarea { display: block; width: 100%; box-sizing: border-box; padding: 12px; margin-top: 8px; border: 1px solid #e2e5ef; border-radius: 10px; background: #f7f8fc; color: #1f2440; resize: vertical; }
+.game-stage--expanded .ml-input-details { position: relative; }
+@media (max-width: 619px) {
+  .ml-input-details dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}

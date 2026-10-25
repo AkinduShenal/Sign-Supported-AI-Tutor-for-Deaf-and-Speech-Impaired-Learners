@@ -61,7 +61,7 @@ class QuizSessionCreate(BaseModel):
     quiz_attempt_number: int = Field(default=1, gt=0)
     display_language: DisplayLanguage = DisplayLanguage.BILINGUAL
     client_session_id: uuid.UUID | None = None
-    bank_mode: Literal["fixed", "dynamic_dev"] = "fixed"
+    bank_mode: Literal["fixed", "dynamic_dev", "dynamic"] = "fixed"
 
     @model_validator(mode="after")
     def require_collection_code(self):
@@ -103,7 +103,9 @@ class QuizDynamicMlPredictionResponse(BaseModel):
     bank_version: str | None = None
     training_data_origin: str | None = None
     research_validated: bool = False
-    disclaimer: str = "Experimental ML Prediction — Trained on Simulated Data — Not Research Validated"
+    taxonomy_version: str | None = None
+    taxonomy_teacher_verified_on: str | None = None
+    disclaimer: str = "Model trained on synthetic data; categories verified by the subject teacher"
     predictions: list[QuizDynamicMlClassPrediction] = Field(default_factory=list)
     reason: Literal["session_incomplete", "artifact_missing", "artifact_incompatible", "prediction_failed"] | None = None
 

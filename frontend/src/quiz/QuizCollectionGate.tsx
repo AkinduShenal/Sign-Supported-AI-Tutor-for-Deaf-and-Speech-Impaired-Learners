@@ -104,11 +104,6 @@ export function QuizCollectionGate({ onContinueToGame }: { onContinueToGame: () 
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not end collection'); return false }
   }
 
-  function continueToTutor() {
-    if (!store || !active || pending || busy || fatal || !rows.length || !rows.every(row => row.completed)) return
-    if (close()) onContinue?.()
-  }
-
   function continueToGame(sessionId: string) {
     if (!store || !active) return
     try {

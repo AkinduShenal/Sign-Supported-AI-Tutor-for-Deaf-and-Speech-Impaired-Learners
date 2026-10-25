@@ -24,7 +24,12 @@ binary targets and four provenance/version columns.
 ## Proposed taxonomy and limits of the simulation
 
 The definitions below are from `research/quiz_m3/00_proposed_taxonomy.csv`,
-version `m3a-taxonomy-v1-proposed`. Its teacher review status is **pending**.
+version `m3a-taxonomy-v1-proposed`. The subject teacher **verified these
+category definitions on 2026-10-15** (evidence held by the Quiz owner). The
+exported model manifest predates the review and still says
+`PROPOSED_NOT_INDEPENDENTLY_TEACHER_VERIFIED`; the app records the approval in
+`dynamic_ml_inference.py` instead of editing the pinned artifact. Category
+verification does not provide teacher labels for individual students.
 
 | Target | Proposed meaning | Synthetic answer effect | Why an option tag is not the label |
 | --- | --- | --- | --- |

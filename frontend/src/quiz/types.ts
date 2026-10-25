@@ -89,6 +89,8 @@ export interface QuizDynamicMlPrediction {
   bank_version: string | null
   training_data_origin: string | null
   research_validated: false
+  taxonomy_version?: string | null
+  taxonomy_teacher_verified_on?: string | null
   disclaimer: string
   predictions: Array<{
     label: 'M1' | 'M2' | 'M3' | 'M4'

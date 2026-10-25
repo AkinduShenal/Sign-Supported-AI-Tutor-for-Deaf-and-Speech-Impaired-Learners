@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { showSprinkles } from '../components/sprinkleEvent'
 import { BodmasReference } from './BodmasReference'
+import { prepareQuizContext, rememberQuizSession } from '../learningContext'
+import { isDynamicBankMode, newSessionBankMode } from './bankMode'
 import {
   analyzeQuizSession,
   getPreQuizQuestions,
@@ -24,7 +26,8 @@ import './quiz.css'
 type QuizPhase = 'loading' | 'load-error' | 'ready' | 'starting' | 'active' | 'saving' | 'feedback' | 'transition' | 'finalizing' | 'analyzing' | 'complete' | 'recovery'
 
 export function QuizExperience({ studentCode, store, onContinueToGame }: { studentCode: string; store: PendingQuizWrites; onContinueToGame?: (sessionId: string) => void }) {
-  const dynamicNew = import.meta.env.VITE_QUIZ_DYNAMIC_DEV === 'true'
+  const bankMode = newSessionBankMode(import.meta.env)
+  const dynamicNew = isDynamicBankMode(bankMode)
   const [phase, setPhase] = useState<QuizPhase>('loading')
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [session, setSession] = useState<QuizSession | null>(null)
@@ -68,7 +71,7 @@ export function QuizExperience({ studentCode, store, onContinueToGame }: { stude
   useEffect(() => {
     const controller = new AbortController()
     const open = store.openSessions().find(row => row.request.student_id === studentCode)
-    const questionPromise = open?.request.bank_mode === 'dynamic_dev'
+    const questionPromise = open && isDynamicBankMode(open.request.bank_mode)
       ? store.flush(`QUIZ-${open.request.client_session_id}`).then(saved => {
           if (!saved) throw new Error(store.session(`QUIZ-${open.request.client_session_id}`).error || 'Recover dynamic Quiz evidence.')
           return getQuizSessionQuestions(`QUIZ-${open.request.client_session_id}`)
@@ -88,7 +91,7 @@ export function QuizExperience({ studentCode, store, onContinueToGame }: { stude
         void store.flush(id).then(saved => {
           if (controller.signal.aborted) return
           const row = store.session(id)
-          if (row.request.bank_mode === 'dynamic_dev' && bank && row.question_ids.join('|') !== bank.map(question => question.id).join('|')) {
+          if (isDynamicBankMode(row.request.bank_mode) && bank && row.question_ids.join('|') !== bank.map(question => question.id).join('|')) {
             setError('The saved dynamic question plan changed. Keep this browser profile and recover evidence.')
             setPhase('recovery'); return
           }
@@ -157,9 +160,10 @@ export function QuizExperience({ studentCode, store, onContinueToGame }: { stude
       const context = prepareQuizContext(studentCode)
       const id = store.start({
         student_id: studentCode, concept_id: 'linear_equations', assessment_phase: 'pre_tutor',
-        display_language: language, learning_cycle_id: crypto.randomUUID(), client_session_id: crypto.randomUUID(),
-        ...(dynamicNew ? { bank_mode: 'dynamic_dev' as const } : {}),
+        display_language: language, learning_cycle_id: context.learningCycleId, client_session_id: crypto.randomUUID(),
+        ...(dynamicNew ? { bank_mode: bankMode } : {}),
       }, dynamicNew ? [] : questions.map(question => question.id))
+      rememberQuizSession(context, id)
       if (!await store.flush(id)) throw new Error(store.session(id).error || 'Quiz session is pending. Use Retry / Recover Quiz evidence.')
       const created = store.session(id).session
       if (!created) throw new Error('Quiz session was not confirmed by the backend.')

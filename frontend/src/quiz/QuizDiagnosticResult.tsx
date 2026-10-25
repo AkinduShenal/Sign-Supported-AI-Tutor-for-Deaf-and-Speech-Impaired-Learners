@@ -20,7 +20,6 @@ function ResultIcon({ name }: { name: ResultIconName }) {
 export function QuizDiagnosticResult({ result, language, bankVersion, mlFeatures, questions, collection, onContinueToGame }: { result: Diagnostic; language: QuizLanguage; bankVersion?: string | null; mlFeatures?: MlFeatures | null; questions: QuizQuestion[]; collection: QuizCollectionSession | null; onContinueToGame?: () => void }) {
   const [copyStatus, setCopyStatus] = useState('')
   const values = presentResult(result, language)
-  const sinhalaValues = language === 'bilingual' ? presentResult(result, 'si') : null
   const showEnglish = language !== 'si'
   const scorePercent = Math.min(100, Math.max(0, Math.round(result.correct_answers / Math.max(result.questions_total, 1) * 100)))
   const scoreStyle = { '--quiz-score-percent': `${scorePercent}%` } as CSSProperties

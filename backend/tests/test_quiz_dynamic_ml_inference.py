@@ -72,6 +72,8 @@ def test_new_sessions_predict_reproducibly_and_fail_closed(tmp_path, monkeypatch
     monkeypatch.setattr(settings, "quiz_dynamic_dev_enabled", True)
     monkeypatch.setattr(settings, "quiz_dynamic_ml_demo_enabled", True)
     monkeypatch.setattr(inference, "DEMO_DATABASE_PATH", db_path)
+    # Only the isolated demo gate is under test; a local QUIZ_ML_ENABLED must not leak in.
+    monkeypatch.setenv("QUIZ_ML_ENABLED", "false")
 
     def override():
         with factory() as db:

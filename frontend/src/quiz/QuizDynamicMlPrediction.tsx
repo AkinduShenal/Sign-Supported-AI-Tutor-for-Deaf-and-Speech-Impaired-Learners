@@ -4,9 +4,13 @@ import type { QuizDynamicMlPrediction as Prediction, QuizLanguage } from './type
 
 type LocalizedMessage = { en: string; si: string }
 
-const disclaimer: LocalizedMessage = {
-  en: 'Experimental ML Prediction — Trained on Simulated Data — Not Research Validated',
-  si: 'පරීක්ෂණාත්මක ML පුරෝකථනය — අනුකරණ දත්ත මත පුහුණු කළ — පර්යේෂණ මගින් තහවුරු කර නැත',
+const heading: LocalizedMessage = { en: 'ML Prediction', si: 'ML පුරෝකථනය' }
+// Category names follow the teacher-verified definitions (m3a-taxonomy-v1).
+const categoryNames: Record<Prediction['predictions'][number]['label'], LocalizedMessage> = {
+  M1: { en: 'Inverse operations', si: 'ප්‍රතිලෝම ක්‍රියා' },
+  M2: { en: 'Balancing both sides', si: 'දෙපස සමතුලිත කිරීම' },
+  M3: { en: 'Negative signs', si: 'සෘණ ලකුණු' },
+  M4: { en: 'Coefficients and division', si: 'සංගුණක සහ බෙදීම' },
 }
 const unavailableMessages: Record<Exclude<Prediction['reason'], null>, LocalizedMessage> = {
   artifact_missing: {
@@ -79,23 +83,23 @@ export function QuizDynamicMlPrediction({ sessionId, language }: { sessionId: st
     : { en: 'The prediction response was incomplete.', si: 'පුරෝකථන ප්‍රතිචාරය අසම්පූර්ණයි.' })
 
   return <section className="quiz-ml-prediction" aria-labelledby="quiz-ml-prediction-title" lang={language === 'bilingual' ? undefined : language}>
-    <h3 id="quiz-ml-prediction-title"><LocalizedText language={language} {...disclaimer} /></h3>
-    <p><LocalizedText language={language}
-      en="These are experimental model outputs for this saved Quiz session. They are not teacher-confirmed diagnoses."
-      si="මේවා සුරැකි Quiz සැසිය සඳහා ලැබුණු පරීක්ෂණාත්මක මාදිලි ප්‍රතිදාන වේ. ගුරුවරයෙකු තහවුරු කළ නිගමන නොවේ." /></p>
-    {loading ? <p role="status"><LocalizedText language={language} en="Checking experimental prediction…" si="පරීක්ෂණාත්මක පුරෝකථනය පරීක්ෂා කරමින්…" /></p> : available ? <>
+    <h3 id="quiz-ml-prediction-title"><LocalizedText language={language} {...heading} /></h3>
+    {loading ? <p role="status"><LocalizedText language={language} en="Checking prediction…" si="පුරෝකථනය පරීක්ෂා කරමින්…" /></p> : available ? <>
       <dl className="quiz-ml-prediction-list">
         {prediction.predictions.map(item => <div key={item.label}>
-          <dt>{item.label}</dt>
+          <dt>{item.label} · <LocalizedText language={language} {...categoryNames[item.label]} /></dt>
           <dd>{(item.probability * 100).toFixed(2)}%</dd>
           <span><LocalizedText language={language}
             en={item.flagged ? 'Flagged at 0.50' : 'Below 0.50 threshold'}
             si={item.flagged ? 'සලකුණු කර ඇත (≥ 0.50)' : '0.50 සීමාවට අඩුයි'} /></span>
         </div>)}
       </dl>
+      {prediction.taxonomy_teacher_verified_on && <p className="quiz-ml-prediction-meta"><LocalizedText language={language}
+        en={`Categories M1–M4 verified by the subject teacher on ${prediction.taxonomy_teacher_verified_on}.`}
+        si={`M1–M4 කාණ්ඩ ${prediction.taxonomy_teacher_verified_on} දින විෂය ගුරුවරයා විසින් තහවුරු කරන ලදී.`} /></p>}
       <p className="quiz-ml-prediction-meta"><LocalizedText language={language}
-        en={`Model: ${prediction.model_version}. The four probabilities are independent and need not total 100%.`}
-        si={`මාදිලිය: ${prediction.model_version}. සම්භාවිතා හතර එකිනෙකට ස්වාධීන බැවින් එකතුව 100% විය යුතු නැත.`} /></p>
+        en={`Model: ${prediction.model_version} · trained on synthetic data. The four probabilities are independent and need not total 100%.`}
+        si={`මාදිලිය: ${prediction.model_version} · අනුකරණ දත්ත මත පුහුණු කළ. සම්භාවිතා හතර එකිනෙකට ස්වාධීන බැවින් එකතුව 100% විය යුතු නැත.`} /></p>
     </> : <div className="quiz-ml-unavailable">
       <p role="status"><LocalizedText language={language} en="Prediction Unavailable. Your Quiz score is still saved." si="පුරෝකථනය ලබාගත නොහැක. ඔබේ Quiz ලකුණු සුරැකි ඇත." /></p>
       <p><LocalizedText language={language} {...unavailableReason} /></p>

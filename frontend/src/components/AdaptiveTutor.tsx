@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
 import { showSprinkles } from './sprinkleEvent'
-import { checkPractice, getAdaptiveLesson, getGrade10Preview } from '../api/tutor'
-import type { AdaptiveLesson, LearningLevel, TeachingStrategy, TutorQuestionAnswer } from '../types/tutor'
 import type { FormEvent } from 'react'
 import { checkPractice, getAutomaticLesson, getTutorLearningStatus } from '../api/tutor'
 import { readLearningContext, selectLearningStudent } from '../learningContext'

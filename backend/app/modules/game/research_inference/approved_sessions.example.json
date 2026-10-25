@@ -1,0 +1,14 @@
+{
+  "schema_version": "game-ml-research-access-v1",
+  "feature_contract": "legacy-nine-feature-observed-single-session-v1",
+  "approved_by": "REPLACE_WITH_REVIEWER",
+  "approval_reference": "REPLACE_WITH_EXPLICIT_RESEARCH_APPROVAL",
+  "approved_at": "2026-10-22T00:00:00Z",
+  "legacy_contract_accepted": false,
+  "excluded_session_ids": [],
+  "quarantined_session_ids": [
+    "750f7589-ab19-4f95-8772-d1f0af654e2f",
+    "d16c1dbb-6f14-400f-be97-7f0fe2f535e9"
+  ],
+  "approved_sessions": []
+}

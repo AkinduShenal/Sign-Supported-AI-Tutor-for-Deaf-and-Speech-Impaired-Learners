@@ -1,5 +1,6 @@
 import type { QuizAnswer, QuizAnswerSaved, QuizDiagnosticResult, QuizDynamicMlPrediction, QuizLanguage, QuizQuestion, QuizSession, QuizSessionDetail } from './types'
 import { withQuizTimeout } from './requestTimeout'
+import type { QuizBankMode } from './bankMode'
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000/api/v1'
 export const API_BASE_URL = (
@@ -41,7 +42,7 @@ export interface CreateQuizSessionInput {
   display_language: QuizLanguage
   learning_cycle_id: string
   client_session_id: string
-  bank_mode?: 'fixed' | 'dynamic_dev'
+  bank_mode?: QuizBankMode
 }
 
 export function createPreQuizSession(input: CreateQuizSessionInput): Promise<QuizSession> {
