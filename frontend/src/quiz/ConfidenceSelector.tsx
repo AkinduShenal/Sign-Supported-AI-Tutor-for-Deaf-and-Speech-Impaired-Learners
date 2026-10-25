@@ -22,7 +22,7 @@ export function ConfidenceSelector({ language, value, disabled, onChange }: Conf
       </legend>
       <div className="quiz-confidence-options">
         {levels.map(level => (
-          <label key={level.value} className={value === level.value ? 'is-selected' : ''}>
+          <label key={level.value} className={`quiz-confidence-${level.value}${value === level.value ? ' is-selected' : ''}`}>
             <input
               type="radio"
               name="quiz-confidence"

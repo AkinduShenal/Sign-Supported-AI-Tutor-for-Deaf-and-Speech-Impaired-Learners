@@ -7,7 +7,7 @@ import { QuizExperience } from './QuizAssessment'
 import './quizCollection.css'
 import { readLearningContext, restoreQuizContext, selectLearningStudent } from '../learningContext'
 
-export function QuizCollectionGate({ onContinue }: { onContinue?: () => void }) {
+export function QuizCollectionGate({ onContinue, onContinueToGame }: { onContinue?: () => void; onContinueToGame?: () => void }) {
   const [store, setStore] = useState<PendingQuizWrites | null>(null)
   const [locked, setLocked] = useState(false)
   const [code, setCode] = useState(() => {
@@ -104,9 +104,24 @@ export function QuizCollectionGate({ onContinue }: { onContinue?: () => void }) 
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not end collection'); return false }
   }
 
-  function continueToTutor() {
-    if (!store || !active || pending || busy || fatal || !rows.length || !rows.every(row => row.completed)) return
-    if (close()) onContinue?.()
+  function continueFromQuiz(sessionId: string, navigate: () => void) {
+    if (!store || !active || pending || busy) return
+    try {
+      const row = store.session(sessionId)
+      const open = store.openSessions()
+      if (fatal || row.closed || row.request.student_id !== active || !row.completed
+        || row.question_ids.length !== 10 || row.responses.length !== row.question_ids.length
+        || row.responses.some(response => !response.saved)
+        || open.length !== 1 || `QUIZ-${open[0].request.client_session_id}` !== sessionId
+        || store.status(sessionId) !== 'Saved') {
+        throw new Error('Complete and save all Quiz answers before continuing.')
+      }
+      store.close(sessionId)
+      setError('')
+      navigate()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not continue.')
+    }
   }
 
   return <div className="quiz-collection-shell">
@@ -133,6 +148,8 @@ export function QuizCollectionGate({ onContinue }: { onContinue?: () => void }) 
       {active && rows.length === 0 && <button type="button" onClick={close}>Switch learner</button>}
       <QuizCollectionExport disabled={!locked || pending || busy || !!fatal} />
     </section>
-    {active && store && !fatal && <QuizExperience key={`${active}-${revision}`} studentCode={active} store={store} onContinue={onContinue ? continueToTutor : undefined} />}
+    {active && store && !fatal && <QuizExperience key={`${active}-${revision}`} studentCode={active} store={store}
+      onContinue={onContinue ? sessionId => continueFromQuiz(sessionId, onContinue) : undefined}
+      onContinueToGame={onContinueToGame ? sessionId => continueFromQuiz(sessionId, onContinueToGame) : undefined} />}
   </div>
 }

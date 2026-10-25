@@ -1,0 +1,9 @@
+form_version,item_id,concept_id,subconcept_code,prompt_en,prompt_si,expected_working,opportunity_codes,working_steps_required,hints_or_feedback_allowed,teacher_review_status,approval_reference
+m3a-independent-v1-proposed,M3A-I01,linear_equations,one_step_addition,Solve x + 7 = 15. Show each step.,,Subtract 7 from both sides; x=8,M0|M1,true,false,pending,
+m3a-independent-v1-proposed,M3A-I02,linear_equations,one_step_subtraction,Solve x - 6 = 9. Show each step.,,Add 6 to both sides; x=15,M0|M1,true,false,pending,
+m3a-independent-v1-proposed,M3A-I03,linear_equations,variables_both_sides,Solve 4x + 3 = 2x + 15. Show equal changes on both sides.,,Subtract 2x and 3 from both sides; x=6,M0|M2,true,false,pending,
+m3a-independent-v1-proposed,M3A-I04,linear_equations,variables_both_sides,Solve 5x - 8 = 2x + 10. Show equal changes on both sides.,,Subtract 2x and add 8 to both sides; x=6,M0|M2,true,false,pending,
+m3a-independent-v1-proposed,M3A-I05,linear_equations,one_step_subtraction,Solve x - (-3) = 9. Show each step.,,Rewrite as x+3=9; x=6,M0|M3,true,false,pending,
+m3a-independent-v1-proposed,M3A-I06,linear_equations,two_step_equations,Solve -2x + 5 = 17. Show each step.,,Subtract 5 then divide by -2; x=-6,M0|M3,true,false,pending,
+m3a-independent-v1-proposed,M3A-I07,linear_equations,one_step_multiplication,Solve 6x = 42. Show each step.,,Divide both sides by 6; x=7,M0|M4,true,false,pending,
+m3a-independent-v1-proposed,M3A-I08,linear_equations,two_step_equations,Solve x / 4 + 2 = 5. Show each step.,,Subtract 2 then multiply both sides by 4; x=12,M0|M4,true,false,pending,

@@ -42,9 +42,50 @@ def _scripts():
 
 def test_curriculum_revision_follows_existing_head():
     scripts = _scripts()
-    assert scripts.get_heads() == ["20261011_0007"]
+    assert scripts.get_heads() == ["20261021_0008"]
+    assert scripts.get_revision("20261021_0008").down_revision == "20261011_0007"
     assert scripts.get_revision("20261011_0007").down_revision == "20261011_0006"
     assert scripts.get_revision("20261011_0006").down_revision == "20261009_0005"
+
+
+def test_dynamic_quiz_revision_preserves_existing_questions_and_sessions():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    revision = _scripts().get_revision("20261021_0008").module
+    with engine.begin() as connection:
+        connection.execute(text("PRAGMA foreign_keys=ON"))
+        connection.execute(text(
+            "CREATE TABLE quiz_questions "
+            "(id CHAR(32) PRIMARY KEY, question_code TEXT NOT NULL)"
+        ))
+        connection.execute(text(
+            "CREATE TABLE quiz_sessions "
+            "(quiz_session_id VARCHAR(100) PRIMARY KEY, student_id TEXT NOT NULL)"
+        ))
+        question_id = uuid.uuid4().hex
+        connection.execute(
+            text("INSERT INTO quiz_questions VALUES (:id, 'PRE_01')"), {"id": question_id}
+        )
+        connection.execute(text("INSERT INTO quiz_sessions VALUES ('existing-session', 'STU_001')"))
+        context = MigrationContext.configure(connection)
+        with Operations.context(context):
+            revision.upgrade()
+        assert connection.execute(text(
+            "SELECT id, question_code, bank_version, logical_slot FROM quiz_questions"
+        )).one() == (question_id, "PRE_01", None, None)
+        assert connection.execute(text(
+            "SELECT quiz_session_id, student_id, bank_version FROM quiz_sessions"
+        )).one() == ("existing-session", "STU_001", None)
+        assert connection.execute(text("SELECT count(*) FROM quiz_session_questions")).scalar_one() == 0
+        with Operations.context(context):
+            revision.downgrade()
+        assert set(inspect(connection).get_table_names()) == {"quiz_questions", "quiz_sessions"}
+        assert connection.execute(text(
+            "SELECT id, question_code FROM quiz_questions"
+        )).one() == (question_id, "PRE_01")
+        assert connection.execute(text(
+            "SELECT quiz_session_id, student_id FROM quiz_sessions"
+        )).one() == ("existing-session", "STU_001")
+    engine.dispose()
 
 
 def test_revision_creates_six_tables_and_reverses_only_its_own_objects():

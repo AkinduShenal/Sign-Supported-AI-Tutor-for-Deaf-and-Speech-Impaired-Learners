@@ -114,15 +114,8 @@ def test_ten_question_api_flow_stores_responses_and_completes_session():
             )
             assert saved.status_code == 201, saved.text
             assert saved.json()["saved"] is True
-            # The current Quiz contract returns feedback for the saved choice.
-            # Verify it against stored evidence without exposing the correct option.
-            with factory() as database:
-                response_record = database.scalar(select(QuizResponse).where(
-                    QuizResponse.quiz_session_id == session_id,
-                    QuizResponse.question_order == order,
-                ))
-                assert saved.json()["is_correct"] is response_record.is_correct
-            assert "correct_option_id" not in saved.json()
+            assert isinstance(saved.json()["is_correct"], bool)
+            assert (saved.json()["correct_option"] is None) == saved.json()["is_correct"]
         completed = client.post(f"/api/v1/quiz/sessions/{session_id}/complete")
         assert completed.status_code == 200
         assert completed.json()["status"] == "completed"

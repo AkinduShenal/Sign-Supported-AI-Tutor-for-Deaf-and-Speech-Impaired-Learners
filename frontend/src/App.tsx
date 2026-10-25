@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AdaptiveTutor } from './components/AdaptiveTutor'
+import { SprinkleCelebration } from './components/SprinkleCelebration'
 import { PhaserGame } from './game/phaser/PhaserGame'
 import { NonImprovementSection } from './components/NonImprovementSection'
 import { NonImprovementSectionStartScreen } from './components/NonImprovementSectionStartScreen'
@@ -55,6 +56,7 @@ function App() {
 
   return (
     <>
+      <SprinkleCelebration />
       <nav className="app-navigation" aria-label="Learning tools">
         <span className="app-navigation-title">
           <img className="app-navigation-logo" src="/connected-learning-emblem.png" alt="" width="48" height="48" />
@@ -75,7 +77,10 @@ function App() {
         </div>
       </nav>
 
-      {view === 'quiz' && <QuizCollectionGate onContinue={() => setView('tutor')} />}
+      {view === 'quiz' && <QuizCollectionGate onContinue={() => setView('tutor')} onContinueToGame={() => {
+        setView('game')
+        window.requestAnimationFrame(() => window.scrollTo(0, 0))
+      }} />}
       {view === 'game' && (
         <main className="game-page">
           <PhaserGame onContinue={() => setView('tutor')} />
