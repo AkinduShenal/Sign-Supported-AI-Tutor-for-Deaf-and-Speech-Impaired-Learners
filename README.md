@@ -9,7 +9,7 @@ Remedial Support. Quiz and Game results feed into the Tutor. Remedial Support
 has its own evaluation and follow-up practice flow; connecting it to the shared
 assessment cycle is still in progress.
 
-Last updated: 26 October 2026.
+Last updated: 27 October 2026.
 
 ## Contents
 
@@ -47,6 +47,15 @@ it. Learner codes keep records together; they are not a login system.
 lookup and learning-cycle handling.
 
 ## Components
+
+Each component also has its own README:
+
+| Component | Documentation |
+| --- | --- |
+| Diagnostic Quiz | [Diagnostic_Quiz_README.md](Diagnostic_Quiz_README.md) |
+| Game-Based Learning Analytics | [Game_Based_Learning_Analytics_README.md](Game_Based_Learning_Analytics_README.md) |
+| Adaptive AI Tutor | [Adaptive_AI_Tutor_README.md](Adaptive_AI_Tutor_README.md) |
+| Non-Improvement / Remedial Support | [Remedial_Support_README.md](Remedial_Support_README.md) |
 
 ### 1. Diagnostic Quiz
 
