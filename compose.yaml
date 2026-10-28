@@ -47,6 +47,10 @@ services:
 
     environment:
       VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8000}/api/v1
+      # Docker runs use the released teacher-approved dynamic Quiz bank (and its
+      # M1–M4 prediction). The code default stays fixed; set
+      # VITE_QUIZ_BANK_MODE=fixed in .env for the original ten questions.
+      VITE_QUIZ_BANK_MODE: ${VITE_QUIZ_BANK_MODE:-dynamic}
 
     ports:
       - "${FRONTEND_PORT:-5173}:5173"

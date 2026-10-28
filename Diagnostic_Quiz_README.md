@@ -1,167 +1,143 @@
 # Diagnostic Quiz
 
-The Quiz collects a learner's initial linear-equation answers and produces the
-diagnostic result used by the AI Tutor. It opens through **Quiz Assessment**
-in the shared Sign & Learn application.
+This component gives a learner a ten-question linear-equation quiz, saves their
+answers in the shared Supabase database, and shows an ML estimate of which
+misconceptions they may have. The saved Quiz result is then used by the Game
+and the AI Tutor. Open **Quiz Assessment** in the shared application.
 
-Updated: 27 October 2026. [Project README](README.md)
+Updated: 28 October 2026. [Project README](README.md)
 
-## Assessment flow
+## The quiz
 
-1. Enter an assigned learner code, such as `STU_001`.
-2. Complete ten questions: **4 Easy, 4 Medium and 2 Hard**.
-3. Select an answer and a low/medium/high confidence level for each question.
-4. Review the result after all official answers and completion are saved.
-5. Continue to Game or AI Tutor using the same learner and learning cycle.
+Each quiz has **ten questions: 4 Easy, 4 Medium and 2 Hard**. For every
+question the learner picks an answer and says how confident they are (low,
+medium or high). English, Sinhala and bilingual views are available, with a
+BODMAS reference, progress indicators and visual answer feedback.
 
-English, Sinhala and bilingual views are available. The interface includes a
-BODMAS reference, progress indicators, difficulty transitions and visual answer
-feedback. A question allows up to three practice tries, but only the **first
-answer** is the official response. Later tries stay in browser storage and do
-not replace its score or recorded response time.
+A question allows up to three tries, but only the **first answer** counts. It
+is the one that is scored and saved; later tries are practice.
 
-The collection queue survives a refresh. Identical retries reuse saved
-responses, while conflicting answers are rejected. A browser lock prevents
-two collection tabs from recording at once. Recover unsaved answers before
-switching learners or leaving the collection.
+The questions come from a bank of **60 teacher-approved questions**: ten slots
+with six variants each. Every new quiz picks one variant per slot at random,
+so two learners (or the same learner on a second attempt) usually get
+different questions of the same kind and difficulty.
 
-## Question banks
+## How a session works
 
-| Mode | Selection | Bank |
-| --- | --- | --- |
-| Fixed | Default, or `VITE_QUIZ_BANK_MODE=fixed` | Existing ten-question pre-assessment. |
-| Dynamic | `VITE_QUIZ_BANK_MODE=dynamic` | Released `pp1_dynamic_v1` bank. |
-| Dynamic development | `VITE_QUIZ_DYNAMIC_DEV=true` and backend `QUIZ_DYNAMIC_DEV_ENABLED=true` | Local draft `pp1_dynamic_v1_DRAFT` bank. |
+1. **Select the learner.** Enter the learner code (for example `STU_001`),
+   the same one used for the Game.
+2. **Questions are chosen.** The backend picks the ten questions and saves the
+   plan in Supabase. Reloading the page brings back the same questions.
+3. **Answer.** Each first answer is sent to the backend with its confidence
+   level and response time, and stored in Supabase. If the connection drops,
+   answers wait in a queue that survives a refresh and can be recovered.
+4. **Results.** After the tenth answer, the backend marks the quiz complete,
+   calculates the result (score, mastery level, weakest area, confidence
+   insight) and saves it in Supabase.
+5. **ML prediction.** The result page then asks for the prediction
+   automatically. It shows a probability for each of the four misconception
+   categories:
 
-The rotating bank has **60 questions**, with six variants for each of ten
-logical slots. There are 24 Easy, 24 Medium and 12 Hard items in total. Each
-session chooses ten in the 4/4/2 pattern and saves that selection in
-`quiz_session_questions`. Reloading uses the original plan.
+   | Category | Meaning |
+   | --- | --- |
+   | M1 | Inverse operations |
+   | M2 | Balancing both sides |
+   | M3 | Negative signs |
+   | M4 | Coefficients and division |
 
-The released mode selects teacher-validated rows. Install the appropriate bank
-before enabling it; the development bank is restricted to a local database.
-See [dynamic bank setup](backend/app/modules/quiz/DYNAMIC_DEMO.md) for the
-seed/release procedure.
+   A category is **flagged** when its probability is 0.50 or higher. The four
+   probabilities are independent and need not add up to 100%.
+6. **Continue to Game or AI Tutor.** The Tutor reads the saved Quiz and Game
+   results from Supabase. Both must belong to the same learner and learning
+   cycle.
 
-## Results and ML
+### Where the data is stored
 
-The backend records correctness, response time and confidence, then derives
-mastery/support signals, provisional misconception evidence and confidence
-insights. The result page shows the score, correct/incorrect counts and activity
-details. These saved results are also read by the Tutor.
+| Supabase table | What it holds |
+| --- | --- |
+| `quiz_sessions` | One row per quiz: learner code, concept, learning cycle, bank, status. |
+| `quiz_session_questions` | The ten questions chosen for that quiz, in order. |
+| `quiz_responses` | Each first answer: chosen option, correct or not, confidence, time. |
+| `quiz_results` | The calculated result for the completed quiz. |
 
-There are two separate ML paths:
+The questions themselves are in `quiz_questions` and `quiz_question_options`.
+Learner codes link records across Quiz, Game and Tutor; they are not logins.
 
-- The fixed bank can export **45 inputs** for the Colab workflow. This does not
-  run a prediction in the app.
-- Dynamic sessions use a **62-feature** backend extractor and an optional
-  M1–M4 misconception prediction endpoint. The bundled model and manifest are
-  in `local_ml_artifacts/quiz_dynamic_62_demo/`.
+### How the prediction is made
 
-The dynamic model is trained on synthetic data and marked
-`research_validated=false`. Its output is an engineering demonstration. Missing
-or incompatible artifacts leave the ordinary Quiz result available.
-Independent teacher-assessment and consensus templates live in
-`research/quiz_m3/`; provisional option tags are not independent teacher labels.
+- The backend reads the learner's **saved** answers from Supabase. It only
+  reads; nothing is changed, and the prediction itself is not stored.
+- From those ten answers it calculates **62 inputs**: correctness, confidence,
+  response times and how often each kind of wrong option was chosen.
+- A trained multi-label model (four classifiers, one per category) turns the
+  inputs into the four probabilities. The model file's checksum is checked
+  against its manifest before it is loaded.
+- The model was trained on **synthetic data**. The M1–M4 categories were
+  verified by the subject teacher on **15 October 2026**; the model's
+  predictions themselves have not been validated against real learners.
+- If a prediction cannot be made, the card says **Prediction unavailable**
+  with a reason and a retry button. The Quiz result is still saved.
 
-## Running and configuration
+## Running it
 
-Install dependencies and prepare the database using the
-[project setup](README.md#running-the-project). Quiz runs inside the shared
-backend/frontend, not as a separate service.
+### With Docker
 
-From `backend/`, with its virtual environment activated:
+From the project root, with `.env` containing the shared Supabase
+`DATABASE_URL`:
+
+```bash
+docker compose up --build
+```
+
+Open **http://localhost:5173** and choose **Quiz Assessment**. Docker uses
+the 60-question bank and shows the ML prediction with no extra setup; the
+model file is committed in `local_ml_artifacts/quiz_dynamic_62_demo/`.
+
+### Without Docker
+
+Start the backend from `backend/` and Vite from `frontend/`:
 
 ```bash
 python -m uvicorn app.main:app --reload --port 8000
-```
-
-From `frontend/`, in another terminal:
-
-```bash
 npm run dev
 ```
 
-Open `http://localhost:5173` and choose **Quiz Assessment**.
+Outside Docker the app uses the original **fixed** ten-question quiz, which
+has no ML prediction. For the 60-question bank and prediction, set
+`QUIZ_ML_ENABLED=true` in `backend/.env` and `VITE_QUIZ_BANK_MODE=dynamic` in
+`frontend/.env.local`, then restart both.
 
-| Setting | Where | Purpose |
-| --- | --- | --- |
-| `DATABASE_URL` | Root `.env` | Prepared PostgreSQL database. |
-| `QUIZ_COLLECTION_EXPORT_KEY` | Backend | CSV download key, at least 16 characters. |
-| `QUIZ_ML_ENABLED` | Backend | Enables dynamic-bank inference; code default false, Compose default true. |
-| `QUIZ_DYNAMIC_DEV_ENABLED` | Backend | Allows the local draft bank. |
-| `QUIZ_DYNAMIC_ML_DEMO_ENABLED` | Backend | Additional inference gate for the designated SQLite demo file. |
-| `VITE_API_BASE_URL` | `frontend/.env.local` | API address, normally `http://localhost:8000/api/v1`. |
-| `VITE_QUIZ_BANK_MODE`, `VITE_QUIZ_DYNAMIC_DEV` | Frontend | Select the bank as described above. |
+### Settings
 
-Restart Vite after changing frontend flags. Docker only receives variables
-listed in `compose.yaml`; add the relevant container environment entries when
-changing options there.
+| Setting | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Shared Supabase database (in `.env`, never committed). |
+| `QUIZ_ML_ENABLED` | Turns the ML prediction on. Docker: on by default. Native: off unless set to `true`. |
+| `VITE_QUIZ_BANK_MODE` | `dynamic` (60-question bank) or `fixed` (original ten). Docker: `dynamic`. Native: `fixed`. |
 
-Quiz requires migration **`20261021_0008`**, including when using the fixed bank.
-The migration expects existing Quiz tables; question seeding is separate.
-Read [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) before changing a shared database.
+## API used by the quiz
 
-## API and saved data
-
-All paths below use the prefix `/api/v1/quiz`.
+All paths start with `/api/v1/quiz`.
 
 | Method | Path | Use |
 | --- | --- | --- |
-| GET | `/questions` | Fetch questions for a concept/assessment phase. |
-| POST | `/sessions` | Create or recover a session. |
-| GET | `/sessions/{quiz_session_id}` | Read session status and saved responses. |
-| GET | `/sessions/{quiz_session_id}/questions` | Recover the session's question plan. |
-| POST | `/sessions/{quiz_session_id}/responses` | Save an official first answer. |
-| POST | `/sessions/{quiz_session_id}/complete` | Confirm a fully answered assessment. |
-| POST | `/sessions/{quiz_session_id}/analyze` | Produce/read its diagnostic result. |
+| POST | `/sessions` | Create or recover a quiz and choose its questions. |
+| GET | `/sessions/{quiz_session_id}/questions` | Read the quiz's chosen questions. |
+| POST | `/sessions/{quiz_session_id}/responses` | Save a first answer. |
+| POST | `/sessions/{quiz_session_id}/complete` | Mark the quiz complete. |
+| POST | `/sessions/{quiz_session_id}/analyze` | Calculate and save the result. |
 | GET | `/sessions/{quiz_session_id}/result` | Read the saved result. |
-| GET | `/sessions/{quiz_session_id}/experimental-prediction` | Optional dynamic Quiz prediction. |
-| GET | `/exports/collection` | Protected collection ZIP download. |
+| GET | `/sessions/{quiz_session_id}/experimental-prediction` | Get the M1–M4 ML prediction. |
 
-Core tables are `quiz_questions`, `quiz_question_options`,
-`misconception_mappings`, `quiz_sessions`, `quiz_session_questions`,
-`quiz_responses` and `quiz_results`. A `quiz_comparisons` model also exists;
-automatic post-tutor comparison and Remedial handoff are not wired into the
-current UI.
-
-Sessions carry `student_id`, `concept_id`, `learning_cycle_id` and assessment
-phase. A new Quiz cycle cannot reuse a previous Game result for Tutor selection.
-Learner codes identify records; they do not authenticate a learner.
-
-The researcher panel exports saved sessions/responses, including incomplete
-sessions. Recover pending writes first. Export keys belong in backend settings
-and the researcher download control, not in a frontend build variable.
-
-## Files and checks
+## Code
 
 | Location | Responsibility |
 | --- | --- |
-| [frontend/src/quiz/](frontend/src/quiz/) | Assessment UI, API calls and pending writes. |
-| [backend/app/modules/quiz/](backend/app/modules/quiz/) | Models, persistence, diagnostics and inference. |
-| [bankMode.ts](frontend/src/quiz/bankMode.ts) | Default/optional bank selection. |
-| [research/quiz_m3/](research/quiz_m3/) | Teacher-label templates and dataset procedure. |
+| [frontend/src/quiz/](frontend/src/quiz/) | Quiz screens, answer queue, result page and prediction card. |
+| [backend/app/modules/quiz/](backend/app/modules/quiz/) | Saving to Supabase, question selection and result calculation. |
+| [dynamic_ml_features.py](backend/app/modules/quiz/dynamic_ml_features.py) | Building the 62 inputs from saved answers. |
+| [dynamic_ml_inference.py](backend/app/modules/quiz/dynamic_ml_inference.py) | Checking and running the model. |
 
-From `backend/`, run the component's isolated tests:
-
-```bash
-DATABASE_URL=sqlite+pysqlite:///:memory: ./.venv/bin/python -m pytest -q tests/test_quiz_*.py
-```
-
-From `frontend/`:
-
-```bash
-npm test
-node tests/quiz.e2e.mjs
-```
-
-`npm test` includes shared frontend tests. The browser script uses mocked API
-replies and needs Chrome; set `QUIZ_TEST_CHROME` to its executable if necessary.
-No new application test run was performed for this documentation update.
-The last combined run is recorded in the
-[25 October merge report](docs/merge-reviews/resolv-main-20261025.md).
-
-More detail: [collection/export](backend/app/modules/quiz/QUIZ_COLLECTION.md),
-[dynamic features](backend/app/modules/quiz/DYNAMIC_ML_FEATURES.md),
-[synthetic inference](backend/app/modules/quiz/DYNAMIC_SYNTHETIC_DEMO.md)
-and [independent labels](research/quiz_m3/README.md).
+Remaining work: retrain and evaluate the model with real learners' answers,
+review the Sinhala wording, and connect the post-Tutor quiz and Remedial
+handoff.
