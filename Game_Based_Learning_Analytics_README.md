@@ -1,192 +1,132 @@
 # Game-Based Learning Analytics
 
-This component collects linear-equation gameplay and turns it into the Game
-result used by the AI Tutor. Open **Equation Game** in the shared application.
+This component lets a learner play linear-equation games, saves their play in
+the shared Supabase database, and shows an ML estimate of their mathematical
+proficiency. The saved Game result is then used by the AI Tutor. Open
+**Equation Game** in the shared application.
 
 Updated: 27 October 2026. [Project README](README.md)
 
-## Games and session flow
+## The games
 
 **Drag & Drop** lets the learner apply operations to an equation, with tap
-controls available as an alternative to dragging. **Hangman** asks for the
-value of `x` through an on-screen numeric keypad. Both provide hints,
-wrong-answer feedback, progress and a completion summary.
+controls as an alternative to dragging. **Hangman** asks for the value of `x`
+through an on-screen number keypad. Both give hints, wrong-answer feedback,
+progress and a completion summary. **Mystery Reveal** is shown on the selection
+screen as coming next; it is not playable yet.
 
-Each assessment has **six tasks: 2 Easy, 2 Medium and 2 Hard**. The two modes
-share session handling, variant-usage checks and backend synchronization.
-The selection screen also shows **Mystery Reveal** as coming next; that mode's
-gameplay is not implemented.
+Each session has **six tasks: 2 Easy, 2 Medium and 2 Hard**. Sinhala is the
+default language; the language button switches the current screen without
+restarting it. Layouts support desktop and phone widths.
 
-Sinhala is the default language. The language control changes the current
-scene's text without restarting it or clearing the answer buffer. Layouts
-support desktop and phone widths, touch controls and celebrations.
+## How a session works
 
-To use the component:
+1. **Select the learner.** Choose the learner code (for example `STU_001`),
+   the same one used for the Quiz.
+2. **Play.** Choose Drag & Drop or Hangman and complete the six tasks.
+3. **Saved to Supabase.** While the learner plays, the app sends the session,
+   each gameplay event (answers, hints, retries) and each task summary to the
+   backend, which stores them in Supabase. If the connection drops, the writes
+   wait in a queue and can be recovered. The screen shows **Saved** only once
+   the backend confirms everything.
+4. **Results.** On completion, the backend calculates the Game result
+   (success rate, attempts, wrong answers, retries, hints, skipped steps and
+   time) and saves it in Supabase.
+5. **ML prediction.** As soon as the session shows **Saved**, the result page
+   asks for the prediction automatically; there is nothing to type. It shows
+   **Beginner, Intermediate or Advanced** with the probability of each.
+6. **Continue to AI Tutor.** The Tutor reads the saved Game and Quiz results
+   from Supabase. Both must belong to the same learner and learning cycle;
+   they can be completed in either order.
 
-1. Select the assigned learner code used for the Quiz.
-2. Start either playable mode and complete its six tasks.
-3. Recover pending writes if the connection was interrupted.
-4. Review the saved result and continue to AI Tutor once collection is saved.
+### Where the data is stored
 
-Game and Quiz can be completed in either order, but both must belong to the
-same learner and learning cycle for automatic tutoring.
+| Supabase table | What it holds |
+| --- | --- |
+| `game_sessions` | One row per session: learner code, concept, learning cycle, phase, status. |
+| `gameplay_events` | Every action during play: answers, hints, retries, timings. |
+| `game_task_attempts` | One summary per task. |
+| `game_results` | The calculated result for the completed session. |
 
-## Recording and analytics
+Learner codes link records across Quiz, Game and Tutor; they are not logins.
 
-The frontend queues session creation, gameplay events, task summaries and
-completion. It checks backend acknowledgements and supports recovery after an
-interruption. Finishing locally and confirming backend completion are separate
-states in the UI.
+### How the prediction is made
 
-The backend calculates success/completion rates, attempts, wrong answers,
-retries, hints, skipped steps and elapsed time. Game owns this evidence and
-the resulting diagnostics; Tutor reads the saved result rather than creating
-or changing gameplay records.
+- The backend reads the learner's **saved** session from Supabase. It only
+  reads; nothing is changed, and the prediction itself is not stored.
+- It checks that the saved evidence is complete and consistent, then
+  calculates nine inputs: `first_attempt_accuracy`, `game_success_rate`,
+  `wrong_attempt_count`, `retry_count`, `total_hint_count`,
+  `skipped_step_count`, `game_active_time_sec`, `game_hint_rate` and
+  `game_avg_attempts_per_task`.
+- A separate worker runs the trained Logistic Regression model (trained in
+  Colab on 200 learners, 30 real and 170 simulated; 60% accuracy on 40 test
+  records). It checks the model file's checksum before every run.
+- Only the browser that finished the session can get its prediction: the
+  backend gives it a one-time pass that works for that session, once, for five
+  minutes. Refreshing the page or restarting the backend loses the pass.
+- If a prediction cannot be made, the card says **Prediction unavailable**.
+  The Game result is still saved.
 
-The collection panel can download saved Game CSVs and their manifest as a ZIP.
-Recover pending writes before exporting or switching learners. Download access
-uses `GAME_COLLECTION_EXPORT_KEY`, separate from researcher model credentials.
+## Running it
 
-Phaser currently uses the local equation variant bank. The shared curriculum
-database has a separate Game content bank, but it is not yet the automatic
-source for the playable scenes.
+### With Docker
 
-## Experimental model estimate
+From the project root, with `.env` containing the shared Supabase
+`DATABASE_URL`:
 
-The result panel can show an estimate of **Beginner, Intermediate or Advanced**
-and the model's class probabilities. It also provides saved ML input details.
-Ordinary Game results remain available if an estimate cannot be produced.
+```bash
+docker compose up --build
+```
 
-After a newly saved completion, the backend can issue a session-bound receipt.
-The browser uses it to request that session's prediction automatically. A
-receipt is single-use, expires after five minutes and is held in memory. This
-flow currently assumes a single backend process; a restart loses receipts.
+Open **http://localhost:5173** (not `127.0.0.1`) and choose **Equation Game**.
+The ML prediction works with no extra setup: Docker builds the model worker
+and uses the model file committed in `local_ml_artifacts/`.
 
-The frozen model uses these nine inputs:
+### Without Docker
 
-- `first_attempt_accuracy`
-- `game_success_rate`
-- `wrong_attempt_count`
-- `retry_count`
-- `total_hint_count`
-- `skipped_step_count`
-- `game_active_time_sec`
-- `game_hint_rate`
-- `game_avg_attempts_per_task`
-
-The service validates saved evidence before projecting it into the model's
-legacy feature contract. It does not overwrite the stored analytics. A separate
-worker checks the trusted archive's checksums, feature/class order, dependency
-versions and frozen predictions before serving a request.
-
-Required worker runtime: **Python 3.13.12**, scikit-learn **1.6.1**, NumPy
-**2.1.3**, pandas **2.2.3**, SciPy **1.16.3** and joblib **1.6.0**. The archive is
-`local_ml_artifacts/game_ml_model_export_with_fixtures.zip`.
-The integration version is `game-ml-experimental-v1`, with status
-`EXPERIMENTAL_NOT_PRODUCTION_APPROVED`.
-
-There is also a separate bearer/manifest-protected researcher endpoint. Its
-credentials and reviewed session bindings are not required by the browser's
-completion-receipt path. Predictions are experimental estimates, not teacher
-verification or a replacement for the Game's saved scores.
-
-## Running and configuration
-
-Follow the [project setup](README.md#running-the-project) for dependencies and
-a prepared database. Start the shared backend from `backend/`, with its
-virtual environment activated:
+Start the backend from `backend/` and Vite from `frontend/`:
 
 ```bash
 python -m uvicorn app.main:app --reload --port 8000
-```
-
-Start Vite from `frontend/`:
-
-```bash
 npm run dev
 ```
 
-Open `http://localhost:5173` and choose **Equation Game**.
+For the prediction to work natively, `.env` also needs
+`GAME_ML_EXPERIMENTAL_ENABLED=true`, `GAME_ML_MODEL_ARCHIVE` (full path to
+`local_ml_artifacts/game_ml_model_export_with_fixtures.zip`) and
+`GAME_ML_PYTHON` (full path to a separate Python **3.13.12** with
+scikit-learn 1.6.1, NumPy 2.1.3, pandas 2.2.3, SciPy 1.16.3 and joblib 1.6.0;
+see `backend/app/modules/game/research_inference/worker-requirements.txt`).
+
+### Settings
 
 | Setting | Purpose |
 | --- | --- |
-| `DATABASE_URL` | Prepared PostgreSQL database. |
-| `VITE_API_BASE_URL` | Frontend API address, normally `http://localhost:8000/api/v1`. |
-| `GAME_COLLECTION_EXPORT_KEY` | Backend CSV key, at least 16 characters. |
-| `GAME_ML_EXPERIMENTAL_ENABLED` | Model inference flag; backend default false, Compose default true. |
-| `GAME_ML_MODEL_ARCHIVE` | Absolute path to the trusted archive. |
-| `GAME_ML_PYTHON` | Absolute path to the compatible isolated worker interpreter. |
-| `GAME_ML_TIMEOUT_SEC` | Worker timeout; default 30 seconds, maximum 60. |
-| `FRONTEND_URL` | Browser origin used by the backend. |
-| `GAME_ML_CONTAINER_NETWORK` | Compose's flag for its private bridge-network handling. |
+| `DATABASE_URL` | Shared Supabase database (in `.env`, never committed). |
+| `GAME_ML_EXPERIMENTAL_ENABLED` | Turns the ML prediction on. Docker: on by default. Native: off unless set to `true`. |
+| `GAME_ML_TIMEOUT_SEC` | Seconds to wait for the model; default 30, maximum 60. |
 
-Docker Compose builds the worker at `/opt/game-ml` and mounts artifacts
-read-only. A native installation needs its own compatible worker environment;
-the regular backend Python does not satisfy the frozen runtime contract.
-The [inference guide](backend/app/modules/game/research_inference/README.md)
-lists the separate researcher bearer/manifest settings.
+## API used by the game
 
-## API and database
-
-These paths use the prefix `/api/v1/game`.
+All paths start with `/api/v1/game`.
 
 | Method | Path | Use |
 | --- | --- | --- |
-| POST | `/sessions` | Create/recover a Game session. |
-| POST | `/events` | Record a gameplay event. |
+| POST | `/sessions` | Create or recover a session. |
+| POST | `/events` | Save a gameplay event. |
 | POST | `/task-attempts` | Save a task summary. |
-| POST | `/sessions/{game_session_id}/complete` | Calculate results and acknowledge completion. |
-| GET | `/variant-usage` | Read learner variant history. |
+| POST | `/sessions/{game_session_id}/complete` | Calculate and save the result; returns the one-time prediction pass. |
 | GET | `/results/{game_session_id}` | Read the saved result. |
-| GET | `/results/{game_session_id}/ml-inputs` | Read ML input details. |
-| POST | `/sessions/{game_session_id}/research-verification` | Request inference with a completion receipt. |
-| POST | `/sessions/{game_session_id}/research-verification/cancel` | Cancel receipt access. |
-| GET | `/sessions/{game_session_id}/ml-prediction` | Researcher bearer/manifest inference. |
-| GET | `/exports/collection` | Protected CSV ZIP download. |
+| POST | `/sessions/{game_session_id}/research-verification` | Get the ML prediction using the one-time pass. |
 
-Gameplay tables are `game_sessions`, `gameplay_events`, `game_task_attempts`
-and `game_results`. Session context includes learner, concept, learning cycle
-and assessment phase. Learner codes provide record linkage, not login.
-Schema changes follow [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md).
-
-## Code, research and checks
+## Code
 
 | Location | Responsibility |
 | --- | --- |
-| [frontend/src/game/](frontend/src/game/) | Phaser scenes, collection queues and result UI. |
-| [backend/app/modules/game/](backend/app/modules/game/) | Persistence, feature calculations and exports. |
-| [research_inference/](backend/app/modules/game/research_inference/) | Evidence adapter, access checks and isolated worker. |
-| [ml/](backend/app/modules/game/ml/) | Offline data preparation, verification and comparative experiments. |
+| [frontend/src/game/](frontend/src/game/) | Phaser games, save queue and result page. |
+| [backend/app/modules/game/](backend/app/modules/game/) | Saving to Supabase and result calculation. |
+| [research_inference/](backend/app/modules/game/research_inference/) | Reading saved sessions, building the nine inputs and running the model. |
 
-Offline tools cover chronology/session validation, independent teacher
-assessments, retrospective/prospective cohorts and synthetic development data.
-Their experiments are separate from the frozen model served by the app.
-The development-demo app is also separate from normal learner collection.
-
-From `backend/`:
-
-```bash
-DATABASE_URL=sqlite+pysqlite:///:memory: ./.venv/bin/python -m pytest -q tests/test_game_*.py
-```
-
-Optional local PostgreSQL/private-artifact/runtime tests skip when their
-requirements are absent. From `frontend/`:
-
-```bash
-npm test
-node tests/gameUi.e2e.mjs
-node tests/gameLanguage.e2e.mjs
-```
-
-The UI/language browser scripts use mocked API replies and require Chrome.
-Set `GAME_TEST_CHROME` if the default executable path differs. These commands
-are instructions, not new test results from this documentation edit; recorded
-checks are in the [merge report](docs/merge-reviews/resolv-main-20261025.md).
-
-Remaining work includes Mystery Reveal, Game-specific sign support, using the
-curriculum bank in Phaser, and further model/device evaluation.
-
-More detail: [architecture](GAME_MODAL_FILE_STRUCTURE.md),
-[collection runbook](backend/app/modules/game/SCHOOL_COLLECTION_RUNBOOK.md),
-[offline research](backend/app/modules/game/ml/RESEARCH_README.md)
-and [isolated demo](backend/app/modules/game/DEVELOPMENT_DEMO.md).
+Remaining work: Mystery Reveal, Game-specific sign support and further model
+evaluation with more real learners.
